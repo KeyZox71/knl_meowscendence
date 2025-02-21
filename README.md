@@ -1,2 +1,2 @@
 # knl_meowscendance
-Kanel >> Joy 😽 : trans.kanel.ovh
+Press F to pay respect
