@@ -1,0 +1,10 @@
+include:
+  - front-web/compose.yml
+  - vault/compose.yml
+
+networks:
+  knl_meow:
+    driver: bridge
+
+volumes:
+  site:

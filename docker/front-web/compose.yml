@@ -1,0 +1,6 @@
+services:
+  front-server:
+    image: caddy:latest
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./public/front:
