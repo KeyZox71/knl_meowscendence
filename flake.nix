@@ -1,10 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    pogit = {
-      url = "github:y-syo/pogit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -35,8 +31,6 @@
             ];
             packages = with pkgs; [
 			  nodejs_22
-              git
-              inputs.pogit.packages.${pkgs.system}.default
             ];
           };
         }
