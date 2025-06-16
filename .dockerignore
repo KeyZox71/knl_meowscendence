@@ -1,0 +1,6 @@
+flake.nix
+flake.lock
+
+docker/
+
+node_modules/

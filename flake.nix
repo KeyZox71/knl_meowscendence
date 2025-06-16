@@ -33,6 +33,7 @@
               nixd
               nixfmt-rfc-style
 
+              typescript-language-server
               nodejs_22
               pnpm
             ];
