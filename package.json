@@ -2,9 +2,9 @@
 	"dependencies": {
 		"@fastify/env": "^5.0.2",
 		"@fastify/jwt": "^9.1.0",
-		"@tailwindcss/vite": "^4.1.10",
+		"@tailwindcss/vite": "^4.1.11",
 		"fastify": "^5.4.0",
-		"tailwindcss": "^4.1.10",
+		"tailwindcss": "^4.1.11",
 		"typescript": "^5.8.3"
 	},
 	"devDependencies": {
