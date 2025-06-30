@@ -4,10 +4,13 @@
 		"@fastify/jwt": "^9.1.0",
 		"@tailwindcss/vite": "^4.1.11",
 		"fastify": "^5.4.0",
+		"fastify-cli": "^7.4.0",
 		"tailwindcss": "^4.1.11",
 		"typescript": "^5.8.3"
 	},
+	"type": "module",
 	"devDependencies": {
-		"vite": "^6.3.5"
+		"vite": "^6.3.5",
+		"pino-pretty": "^13.0.0"
 	}
 }

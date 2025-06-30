@@ -36,7 +36,16 @@
               typescript-language-server
               nodejs_22
               pnpm
+              just
             ];
+            shellHook = ''
+				if [ ! -d node_modules/ ]; then
+					echo Installing node env
+					pnpm install
+				fi
+				export PATH+=:$(pwd)/node_modules/.bin
+              	echo entering ft_trans env
+            '';
           };
         }
       );
