@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@fastify/cookie": "^11.0.2",
 		"@fastify/env": "^5.0.2",
 		"@fastify/jwt": "^9.1.0",
 		"@tailwindcss/vite": "^4.1.11",

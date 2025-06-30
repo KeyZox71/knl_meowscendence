@@ -1,4 +1,5 @@
 import fastifyJWT from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
 import sqlite from 'node:sqlite';
 import bcrypt from 'bcrypt';
 const database = new sqlite.DatabaseSync(':memory:');
@@ -19,7 +20,7 @@ function prepareDB() {
 prepareDB()
 
 const userCheck = database.prepare('SELECT EXISTS (SELECT 1 FROM credentials WHERE username = ?);');
-const userQuery = database.prepare('SELECT username, passwordHash FROM credentials WHERE username = ?;');
+const passwordQuery = database.prepare('SELECT passwordHash FROM credentials WHERE username = ?;');
 const userAdd = database.prepare('INSERT INTO credentials (username, passwordHash) VALUES (?, ?)');
 
 /**
@@ -47,15 +48,17 @@ export default async function(fastify, options) {
 	fastify.register(fastifyJWT, {
 		secret: '12345',
 		cookie: {
-			cookieName: 'refreshToken'
+			cookieName: 'token',
 		},
 		sign: {
 			expiresIn: '100000m'
 		}
 	});
+	fastify.register(fastifyCookie);
 
 	fastify.decorate("authenticate", async function(request, reply) {
 		try {
+			fastify.log.info(request.headers.cookie);
 			await request.jwtVerify();
 		} catch (err) {
 			reply.code(401).send({ error: 'Unauthorized' });
@@ -63,18 +66,53 @@ export default async function(fastify, options) {
 	});
 
 	fastify.post('/login', async (request, reply) => {
-		/** @type {{ user: string, password: string }} */
-		const { user, password } = request.body;
+		try {
+			/** @type {{ user: string, password: string }} */
+			const { user, password } = request.body;
+			request.headers.cookie
+
+			if (!checkUser(user)) {
+				return reply.code(400).send({ error: "User does not exist" });
+			}
+
+			const query = passwordQuery.get(user);
+			const hash = query?.passwordHash;
+
+			if (!hash) {
+				return reply.code(500).send({ error: "Password hash not found" });
+			}
+
+			const compare = await bcrypt.compare(password, hash);
+
+			if (!compare) {
+				return reply.code(401).send({ error: "Incorrect password" });
+			}
+
+			const token = fastify.jwt.sign({ user });
+
+			return reply
+				.setCookie('token', token, {
+					httpOnly: true,
+					path: '/',
+					secure: false,
+					sameSite: 'lax',
+				})
+				.code(200)
+				.send({ msg: "Login successful" });
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
+		}
 	});
 
 	fastify.post('/register', async (request, reply) => {
 		try {
 			/** @type {{ username: string, password: string }} */
-			const { username, password } = request.body;
+			const { user, password } = request.body;
 
-			if (!isValidString(username) || !isValidString(password)) {
+			if (!isValidString(user) || !isValidString(password)) {
 				return reply.code(400).send({ error: 'Invalid username or password' });
-			} else if (checkUser(username) === true) {
+			} else if (checkUser(user) === true) {
 				return reply.code(400).send({ error: "User already exist" });
 			} else if (password.length <= 8) {
 				return reply.code(400).send({ error: "Password too short" });
@@ -83,15 +121,15 @@ export default async function(fastify, options) {
 			}
 
 			const hash = await bcrypt.hash(password, saltRounds);
-			userAdd.run(username, hash);
+			userAdd.run(user, hash);
 			return reply.code(200).send({ msg: 'Register successfuly' });
 		} catch (err) {
 			fastify.log.error(err);
-			return reply.code(500).send();
+			return reply.code(500).send({ error: "Internal server error" });
 		}
 	});
 
-	fastify.get('/check', { preHandler: [fastify.authenticate] }, async (request) => {
-		return reply.code(200).send();
+	fastify.get('/check', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return reply.code(200).send({ msg: "workinggg" });
 	});
 }
