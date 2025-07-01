@@ -1,8 +1,9 @@
 import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
-import sqlite from 'node:sqlite';
+import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt';
-const database = new sqlite.DatabaseSync(':memory:');
+
+const database = new Database(":memory:");
 const saltRounds = 10;
 
 /**

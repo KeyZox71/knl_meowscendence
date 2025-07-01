@@ -2,3 +2,6 @@ ignoredBuiltDependencies:
   - '@tailwindcss/oxide'
   - bcrypt
   - esbuild
+
+onlyBuiltDependencies:
+  - better-sqlite3

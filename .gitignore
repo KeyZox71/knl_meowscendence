@@ -3,3 +3,6 @@
 
 # node things
 node_modules/
+
+# docker things
+.env
