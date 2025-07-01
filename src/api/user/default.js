@@ -24,7 +24,6 @@ const changeDisplayName = database.prepare('UPDATE userData SET displayName = ? 
 // GET
 const getUserInfo = database.prepare('SELECT * FROM userData WHERE username = ?;');
 const getUserData = database.prepare('SELECT * FROM userData;');
-const userCheck = database.prepare('SELECT EXISTS (SELECT 1 FROM userData WHERE username = ?);');
 
 // DELETE
 const deleteUser = database.prepare('DELETE FROM userData WHERE username = ?;');
