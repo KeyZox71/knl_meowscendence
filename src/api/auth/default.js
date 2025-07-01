@@ -62,7 +62,7 @@ export default async function(fastify, options) {
 			/** @type {{ user: string, password: string }} */
 			const { user, password } = request.body;
 
-			if (!checkUser(user)) {
+			if (!checkUser(user) || user === 'admin') {
 				return reply.code(400).send({ error: "User does not exist" });
 			}
 
@@ -98,10 +98,10 @@ export default async function(fastify, options) {
 
 	fastify.post('/register', async (request, reply) => {
 		try {
-			/** @type {{ username: string, password: string }} */
+			/** @type {{ user: string, password: string }} */
 			const { user, password } = request.body;
 
-			if (!isValidString(user) || !isValidString(password)) {
+			if (!isValidString(user) || !isValidString(password) || user === 'admin') {
 				return reply.code(400).send({ error: 'Invalid username or password' });
 			} else if (checkUser(user) === true) {
 				return reply.code(400).send({ error: "User already exist" });
