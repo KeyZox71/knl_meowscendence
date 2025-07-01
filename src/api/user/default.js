@@ -66,47 +66,80 @@ export default async function(fastify, options) {
 
 	// GET
 	fastify.get('/users', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		const users = getUserData.all();
+		try {
+			const users = getUserData.all();
 
-		return reply.code(200).send({ users });
+			return reply.code(200).send({ users });
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
+		}
 	});
 	fastify.get('/users/:userId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		if (userCheck.get(request.params.userId) == false) {
-			return reply.code(400).send({ error: "User does not exist" });
-		}
-		const info = getUserInfo.get(request.params.userId);
+		try {
+			const info = getUserInfo.get(request.params.userId);
 
-		return reply.code(200).send({ info });
-	});
-	fastify.get('/check', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		if (request.user === 'admin') {
-			return reply.code(200).send({ msg: "omg you are an admin" });
+			return reply.code(200).send({ info });
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
 		}
-		return reply.code(200).send({ msg: "workinggg", user: request.user });
 	});
 
 	// POST
 	fastify.post('/create', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
-		if (!request.body || !request.body.user) {
-			return reply.code(400).send({ error: "Please specify a user" });
+		try {
+			if (!request.body || !request.body.user) {
+				return reply.code(400).send({ error: "Please specify a user" });
+			}
+			if (getUserInfo.get(request.body.user)) {
+				return reply.code(400).send({ error: "User already exist" });
+			}
+			createUser.run(request.body.user, request.body.user);
+			return reply.code(200).send({ msg: "User created sucessfully" });
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
 		}
-		if (userCheck.get(request.body.user) == true) {
-			return reply.code(400).send({ error: "User already exist" });
+	})
+
+	// PATCH
+	fastify.patch('/users/:userId/:member', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		try {
+			const userId = request.params.userId;
+			if (request.user != 'admin' && request.user != userId) {
+				return reply.code(401).send({ error: "Unauthorized" });
+			}
+			if (!getUserInfo.get(userId)) {
+				return reply.code(404).send({ error: "User does not exist" });
+			}
+			const member = request.params.member;
+
+			if (member === 'displayName') {
+				if (!request.body || !request.body.displayName) {
+					return reply.code(400).send({ error: "Please specify a displayName" });
+				}
+
+				changeDisplayName.run(request.body.displayName, userId);
+				return reply.code(200).send({ msg: "displayName modified sucessfully"});
+			}
+			return reply.code(400).send({ error: "Member does not exist"})
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
 		}
-		createUser.run(request.body.user, request.body.user);
-		return reply.code(200).send({ msg: "User created sucessfully" });
 	})
 
 	// DELETE
 	/**
 	 *	@description	Can be used to delete a user from the db
 	 */
-	fastify.delete('/users/:userId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		const user = request.user;
-		if (user == 'admin' || user == request.params.userId) {
+	fastify.delete('/users/:userId', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
+		try {
 			deleteUser.run(request.params.userId);
-		} else {
-			return reply.code(401).send({ error: 'You dont have the right to delete this user' });
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
 		}
 	});
 	// fastify.delete('/users/:userId/:member', { preHandler: fastify.authenticate}, async (request, reply) => {
