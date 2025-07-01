@@ -11,12 +11,21 @@ function prepareDB() {
 			displayName TEXT
 		) STRICT
 	`);
+	database.exec(`
+		CREATE TABLE friends (
+			username TEXT,
+			friendName TEXT,
+			UNIQUE(username, friendName),
+			CHECK(username != friendName)
+		)
+	`);
 }
 
 prepareDB();
 
 // POST
 const createUser = database.prepare('INSERT INTO userData (username, displayName) VALUES (?, ?);');
+const addFriend = database.prepare('INSERT INTO friends (username, friendName) VALUES (?, ?);');
 
 // PATCH
 const changeDisplayName = database.prepare('UPDATE userData SET displayName = ? WHERE username = ?;');
@@ -24,9 +33,13 @@ const changeDisplayName = database.prepare('UPDATE userData SET displayName = ? 
 // GET
 const getUserInfo = database.prepare('SELECT * FROM userData WHERE username = ?;');
 const getUserData = database.prepare('SELECT * FROM userData;');
+const getFriends = database.prepare('SELECT friendName FROM friends WHERE username = ?;');
+// const isFriend = database.prepare('SELECT 1 FROM friends WHERE username = ? AND friendName = ?;');
 
 // DELETE
 const deleteUser = database.prepare('DELETE FROM userData WHERE username = ?;');
+const deleteFriend = database.prepare('DELETE FROM friends WHERE username = ? AND friendName = ?;');
+const deleteFriends = database.prepare('DELETE FROM friends WHERE username = ?;');
 
 
 /**
@@ -84,6 +97,27 @@ export default async function(fastify, options) {
 			return reply.code(500).send({ error: "Internal server error" });
 		}
 	});
+	fastify.get('/users/:userId/friends', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		try {
+			const userId = request.params.userId;
+
+			if (!getUserInfo.get(userId)) {
+				return reply.code(404).send({ error: "User does not exist" });
+			}
+
+			if (userId == request.user || request.user == 'admin') {
+				const friends = getFriends.get(userId);
+
+				if (!friends) {
+					return reply.code(404).send({ error: "User does not have friends D:" });
+				}
+				return reply.code(200).send({ friends });
+			}
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
+		}
+	});
 
 	// POST
 	fastify.post('/create', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
@@ -101,6 +135,18 @@ export default async function(fastify, options) {
 			return reply.code(500).send({ error: "Internal server error" });
 		}
 	})
+	fastify.post('/users/:userId/friends', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		try {
+			const userId = request.params.userId;
+			if (!request.body || !request.body.user) {
+				return reply.code(400).send({ error: "Please specify a user" });
+			}
+			// TODO: finish that
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
+		}
+	});
 
 	// PATCH
 	fastify.patch('/users/:userId/:member', { preHandler: [fastify.authenticate] }, async (request, reply) => {
@@ -120,9 +166,9 @@ export default async function(fastify, options) {
 				}
 
 				changeDisplayName.run(request.body.displayName, userId);
-				return reply.code(200).send({ msg: "displayName modified sucessfully"});
+				return reply.code(200).send({ msg: "displayName modified sucessfully" });
 			}
-			return reply.code(400).send({ error: "Member does not exist"})
+			return reply.code(400).send({ error: "Member does not exist" })
 		} catch (err) {
 			fastify.log.error(err);
 			return reply.code(500).send({ error: "Internal server error" });
@@ -135,7 +181,11 @@ export default async function(fastify, options) {
 	 */
 	fastify.delete('/users/:userId', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
 		try {
+			if (!getUserInfo(request.params.userId)) {
+				return reply.code(404).send({ error: "User does not exist" });
+			}
 			deleteUser.run(request.params.userId);
+			deleteFriends.run(request.params.userId);
 		} catch (err) {
 			fastify.log.error(err);
 			return reply.code(500).send({ error: "Internal server error" });
@@ -150,5 +200,20 @@ export default async function(fastify, options) {
 	// 	}
 	//
 	// });
+	fastify.delete('/users/:userId/friends/:friendsId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		try {
+			const userId = request.params.userId;
+			if (!getUserInfo(userId)) {
+				return reply.code(404).send({ error: "User does not exist" });
+			}
+			if (request.user != 'admin' && request.user != userId) {
+				return reply.code(401).send({ error: "Unauthorized" });
+			}
+			deleteFriend.run(userId, friendsId);
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
+		}
+	});
 
 }
