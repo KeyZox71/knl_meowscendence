@@ -47,7 +47,7 @@ function isValidString(value) {
  */
 export default async function(fastify, options) {
 	fastify.register(fastifyJWT, {
-		secret: '12345',
+		secret: '123456789101112131415161718192021',
 		cookie: {
 			cookieName: 'token',
 		},
@@ -57,20 +57,10 @@ export default async function(fastify, options) {
 	});
 	fastify.register(fastifyCookie);
 
-	fastify.decorate("authenticate", async function(request, reply) {
-		try {
-			fastify.log.info(request.headers.cookie);
-			await request.jwtVerify();
-		} catch (err) {
-			reply.code(401).send({ error: 'Unauthorized' });
-		}
-	});
-
 	fastify.post('/login', async (request, reply) => {
 		try {
 			/** @type {{ user: string, password: string }} */
 			const { user, password } = request.body;
-			request.headers.cookie
 
 			if (!checkUser(user)) {
 				return reply.code(400).send({ error: "User does not exist" });
@@ -80,7 +70,7 @@ export default async function(fastify, options) {
 			const hash = query?.passwordHash;
 
 			if (!hash) {
-				return reply.code(500).send({ error: "Password hash not found" });
+				return reply.code(500).send({ error: "No password was found" });
 			}
 
 			const compare = await bcrypt.compare(password, hash);
@@ -128,9 +118,5 @@ export default async function(fastify, options) {
 			fastify.log.error(err);
 			return reply.code(500).send({ error: "Internal server error" });
 		}
-	});
-
-	fastify.get('/check', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return reply.code(200).send({ msg: "workinggg" });
 	});
 }
