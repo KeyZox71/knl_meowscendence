@@ -151,7 +151,7 @@ export default async function(fastify, options) {
 				return reply.code(404).send({ error: "Friend does not exist" });
 			}
 			if (request.body.user === userId) {
-				return reply.code(400).send({ error: "You can't add yourself :D"});
+				return reply.code(400).send({ error: "You can't add yourself :D" });
 			}
 			addFriend.run(userId, request.body.user)
 			return reply.code(200).send({ msg: "Friend added sucessfully" });
@@ -204,15 +204,25 @@ export default async function(fastify, options) {
 			return reply.code(500).send({ error: "Internal server error" });
 		}
 	});
-	// fastify.delete('/users/:userId/:member', { preHandler: fastify.authenticate}, async (request, reply) => {
-	// 	const user = request.user;
-	// 	if (user == 'admin' || user == request.params.userId) {
-	// 		deleteUser.run(request.params.userId);
-	// 	} else {
-	// 		return reply.code(401).send({ error: 'You dont have the right to delete this'});
-	// 	}
-	//
-	// });
+	fastify.delete('/users/:userId/:member', { preHandler: fastify.authenticate }, async (request, reply) => {
+		try {
+			const user = request.user;
+			const member = request.params.member;
+			if (user == 'admin' || user == request.params.userId) {
+				if (member == 'displayName') {
+					changeDisplayName.run("", request.params.userId);
+					return reply.code(200).send({ msg: "displayName cleared sucessfully" });
+				}
+				return reply.code(400).send({ msg: "member does not exist"})
+			} else {
+				return reply.code(401).send({ error: 'You dont have the right to delete this' });
+			}
+		} catch (err) {
+			fastify.log.error(err);
+			return reply.code(500).send({ error: "Internal server error" });
+		}
+
+	});
 	fastify.delete('/users/:userId/friends/:friendId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		try {
 			const userId = request.params.userId;
@@ -224,11 +234,10 @@ export default async function(fastify, options) {
 				return reply.code(401).send({ error: "Unauthorized" });
 			}
 			deleteFriend.run(userId, friendId);
-			return reply.code(200).send({ msg: "Friend remove sucessfully"});
+			return reply.code(200).send({ msg: "Friend remove sucessfully" });
 		} catch (err) {
 			fastify.log.error(err);
 			return reply.code(500).send({ error: "Internal server error" });
 		}
 	});
-
 }
