@@ -120,15 +120,12 @@ export default async function(fastify, options) {
 	});
 
 	// POST
-	fastify.post('/create', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
+	fastify.post('/users/:userId', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
 		try {
-			if (!request.body || !request.body.user) {
-				return reply.code(400).send({ error: "Please specify a user" });
-			}
-			if (getUserInfo.get(request.body.user)) {
+			if (getUserInfo.get(userId)) {
 				return reply.code(400).send({ error: "User already exist" });
 			}
-			createUser.run(request.body.user, request.body.user);
+			createUser.run(request.params.userId, request.params.userId);
 			return reply.code(200).send({ msg: "User created sucessfully" });
 		} catch (err) {
 			fastify.log.error(err);
@@ -213,7 +210,7 @@ export default async function(fastify, options) {
 					changeDisplayName.run("", request.params.userId);
 					return reply.code(200).send({ msg: "displayName cleared sucessfully" });
 				}
-				return reply.code(400).send({ msg: "member does not exist"})
+				return reply.code(400).send({ msg: "member does not exist" })
 			} else {
 				return reply.code(401).send({ error: 'You dont have the right to delete this' });
 			}
