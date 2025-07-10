@@ -6,3 +6,6 @@ node_modules/
 
 # docker things
 .env
+
+# built files
+dist/*

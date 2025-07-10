@@ -10,3 +10,12 @@ user:
 
 apis:
 	node dev.js
+
+front:
+	vite
+
+front-build:
+	vite build
+
+front-preview:
+	vite preview
