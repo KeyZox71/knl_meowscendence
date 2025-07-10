@@ -122,10 +122,12 @@ export default async function(fastify, options) {
 	// POST
 	fastify.post('/users/:userId', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
 		try {
+			const userId = request.params.userId;
+
 			if (getUserInfo.get(userId)) {
 				return reply.code(400).send({ error: "User already exist" });
 			}
-			createUser.run(request.params.userId, request.params.userId);
+			createUser.run(userId, userId);
 			return reply.code(200).send({ msg: "User created sucessfully" });
 		} catch (err) {
 			fastify.log.error(err);

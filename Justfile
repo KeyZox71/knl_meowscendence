@@ -9,7 +9,7 @@ user:
 	fastify start src/api/user/default.js
 
 apis:
-	node dev.js
+	node src/dev.js
 
 front:
 	vite
