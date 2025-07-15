@@ -6,5 +6,15 @@ services:
     # environment:
     #   - euuuh
   user-api:
-    image:
-    cmd:
+    build:
+      dockerfile: docker/user-api/Dockerfile
+      context: ..
+    networks:
+      - transcendence
+    ports:
+      - 3000:3000
+
+networks:
+  transcendence:
+    external: false
+    name: transcendence
