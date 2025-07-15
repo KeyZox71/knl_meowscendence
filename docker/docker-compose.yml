@@ -1,0 +1,10 @@
+services:
+  front:
+    image: owasp/modsecurity-crs:nginx-alpine
+    ports:
+      - 443:443
+    # environment:
+    #   - euuuh
+  user-api:
+    image:
+    cmd:
