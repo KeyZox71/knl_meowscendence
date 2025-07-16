@@ -1,21 +1,33 @@
-export FASTIFY_PRETTY_LOGS := "true"
-export FASTIFY_PORT := "3001"
-export FASTIFY_LOG_LEVEL := "info"
+@default:
+	just -l
 
-auth:
+# For launching the authentification api
+@auth $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/auth/default.js
-
-user:
+# For launching the user data api
+@user $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/user/default.js
 
-apis:
+# To launch all apis
+@apis:
 	node src/dev.js
 
-front:
+# To launch the front end
+@front:
 	vite
+# To build the front end
+@build-front:
+	@vite build
 
-front-build:
-	vite build
+# To build the base of the for the fastify docker images
+@build-node-base:
+	docker build -t node-base -f docker/node-base/Dockerfile .
 
-front-preview:
-	vite preview
+@docker: build-node-base
+	docker compose -f docker/docker-compose.yml up -d user-api --build
+
+@clean-docker:
+	docker system prune -af
+
+@clean-compose:
+	docker compose -f docker/docker-compose.yml rm
