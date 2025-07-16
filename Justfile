@@ -21,13 +21,23 @@
 
 # To build the base of the for the fastify docker images
 @build-node-base:
-	docker build -t node-base -f docker/node-base/Dockerfile .
+	docker build -t node-base -f docker/api-base/Dockerfile .
 
-@docker: build-node-base
-	docker compose -f docker/docker-compose.yml up -d user-api --build
+# To launch the docker compose
+@docker: 
+	docker compose -f docker/docker-compose.yml up -d --build
 
-@clean-docker:
+# To stop the docker compose
+@stop-docker: 
+	docker compose -f docker/docker-compose.yml down
+
+# To rebuild fully the docker (use it with caution)
+@re-docker: clean-docker docker
+
+# To completely docker
+@clean-docker: clean-compose
 	docker system prune -af
 
-@clean-compose:
+# To clean only the container launched by the compose
+@clean-compose: stop-docker
 	docker compose -f docker/docker-compose.yml rm
