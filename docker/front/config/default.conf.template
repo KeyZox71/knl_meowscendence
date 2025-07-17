@@ -12,7 +12,6 @@ server {
     index index.html;
 
     modsecurity on;
-#    modsecurity_rules_file /etc/nginx/modsecurity.d/modsecurity.conf;
 
     location / {
         try_files $uri $uri/ =404;
