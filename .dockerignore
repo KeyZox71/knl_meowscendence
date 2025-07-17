@@ -1,6 +1,13 @@
+# nix thing
 flake.nix
 flake.lock
 
-docker/
-
+# node thing
 node_modules/
+
+# useless files in the docker
+*.md
+# docker/
+
+# PLEASE NO
+.env

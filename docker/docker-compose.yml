@@ -1,0 +1,49 @@
+services:
+  front:
+    container_name: transcendence-front
+    build:
+      dockerfile: docker/front/Dockerfile
+      context: ..
+    ports:
+      - 8443:443
+    environment:
+      SERVER_NAME: localhost
+    depends_on:
+      user-api:
+        condition: service_started
+      auth-api:
+        condition: service_started
+    networks:
+      - front
+  user-api:
+    container_name: transcendence-api-user
+    build:
+      dockerfile: docker/api-base/Dockerfile
+      context: ..
+      tags:
+        - api-base
+    networks:
+      - front
+      - back
+    environment:
+      - API_TARGET=user
+  auth-api:
+    container_name: transcendence-api-auth
+    build:
+      dockerfile: docker/api-base/Dockerfile
+      context: ..
+    networks:
+      - front
+      - back
+    environment:
+      - API_TARGET=auth
+  
+  
+
+networks:
+  front:
+    external: false
+    name: front-backend
+  back:
+    external: false
+    name: trans-backend
