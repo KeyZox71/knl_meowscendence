@@ -21,4 +21,6 @@ COPY		--from=builder /app/package.json /app/package.json
 ENV			NODE_ENV=production
 EXPOSE		3000
 
+RUN			mkdir /db
+
 CMD			[ "node", "/app/src/start.js" ]

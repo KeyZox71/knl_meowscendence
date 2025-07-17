@@ -2,7 +2,16 @@ import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import Database from 'better-sqlite3';
 
-const database = new Database(":memory:");
+var env = process.env.NODE_ENV || 'development';
+
+let database;
+
+if (env === 'development') {
+	database = new Database(":memory:", { verbose: console.log });
+} else {
+	var dbPath = process.env.DB_PATH || '/db/db.sqlite'
+	database = new Database(dbPath);
+}
 
 function prepareDB() {
 	database.exec(`
@@ -49,7 +58,7 @@ const deleteFriends = database.prepare('DELETE FROM friends WHERE username = ?;'
 export default async function(fastify, options) {
 
 	fastify.register(fastifyJWT, {
-		secret: '123456789101112131415161718192021',
+		secret: process.env.JWT_SECRET || '123456789101112131415161718192021',
 		cookie: {
 			cookieName: 'token',
 		},

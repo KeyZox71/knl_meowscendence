@@ -3,8 +3,18 @@ import fastifyCookie from '@fastify/cookie';
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt';
 
-const database = new Database(":memory:");
+const RESERVED_USERNAMES = ['admin'];
+var env = process.env.NODE_ENV || 'development';
+
 const saltRounds = 10;
+let database;
+
+if (env === 'development') {
+	database = new Database(":memory:", { verbose: console.log });
+} else {
+	var dbPath = process.env.DB_PATH || '/db/db.sqlite'
+	database = new Database(dbPath);
+}
 
 /**
  *	@description	Can be used to prepare the database
@@ -47,7 +57,7 @@ function isValidString(value) {
  */
 export default async function(fastify, options) {
 	fastify.register(fastifyJWT, {
-		secret: '123456789101112131415161718192021',
+		secret: process.env.JWT_SECRET || '123456789101112131415161718192021',
 		cookie: {
 			cookieName: 'token',
 		},
@@ -57,7 +67,18 @@ export default async function(fastify, options) {
 	});
 	fastify.register(fastifyCookie);
 
-	fastify.post('/login', async (request, reply) => {
+	fastify.post('/login', {
+		schema: {
+			body: {
+				type: 'object',
+				required: ['user', 'password'],
+				properties: {
+					user: { type: 'string', minLength: 1 },
+					password: { type: 'string', minLength: 8 }
+				}
+			}
+		}
+	}, async (request, reply) => {
 		try {
 			/** @type {{ user: string, password: string }} */
 			const { user, password } = request.body;
@@ -85,7 +106,7 @@ export default async function(fastify, options) {
 				.setCookie('token', token, {
 					httpOnly: true,
 					path: '/',
-					secure: false,
+					secure: env !== 'development',
 					sameSite: 'lax',
 				})
 				.code(200)
@@ -96,12 +117,27 @@ export default async function(fastify, options) {
 		}
 	});
 
-	fastify.post('/register', async (request, reply) => {
+	fastify.post('/register', {
+		schema: {
+			body: {
+				type: 'object',
+				required: ['user', 'password'],
+				properties: {
+					user: { type: 'string', minLength: 1 },
+					password: { type: 'string', minLength: 8 }
+				}
+			}
+		}
+	}, async (request, reply) => {
 		try {
 			/** @type {{ user: string, password: string }} */
 			const { user, password } = request.body;
+			
+			if (RESERVED_USERNAMES.includes(user)) {
+				return reply.code(400).send({ error: 'Reserved username' });
+			}
 
-			if (!isValidString(user) || !isValidString(password) || user === 'admin') {
+			if (!isValidString(user) || !isValidString(password)) {
 				return reply.code(400).send({ error: 'Invalid username or password' });
 			} else if (checkUser(user) === true) {
 				return reply.code(400).send({ error: "User already exist" });
@@ -117,6 +153,16 @@ export default async function(fastify, options) {
 		} catch (err) {
 			fastify.log.error(err);
 			return reply.code(500).send({ error: "Internal server error" });
+		}
+	});
+
+	fastify.get('/me', async (request, reply) => {
+		try {
+			const token = request.cookies.token;
+			const decoded = await fastify.jwt.verify(token);
+			return { user: decoded.user };
+		} catch {
+			return reply.code(401).send({ error: 'Unauthorized' });
 		}
 	});
 }
