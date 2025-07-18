@@ -3,7 +3,6 @@ import Database from 'better-sqlite3';
 var env = process.env.NODE_ENV || 'development';
 let database;
 const RESERVED_USERNAMES = ['admin'];
-let userCheck, passwordQuery, userAdd;
 
 if (!env || env === 'development') {
 	database = new Database(":memory:", { verbose: console.log });
@@ -22,17 +21,39 @@ function prepareDB() {
             passwordHash TEXT
         ) STRICT
     `);
-	userCheck = database.prepare('SELECT EXISTS (SELECT 1 FROM credentials WHERE username = ?);');
-	passwordQuery = database.prepare('SELECT passwordHash FROM credentials WHERE username = ?;');
-	userAdd = database.prepare('INSERT INTO credentials (username, passwordHash) VALUES (?, ?)');
 }
 
+/**
+ *	@param {string} name
+ *
+ *	@returns {boolean}
+ */
+function checkUser(name) {
+	/** 
+	 * @type: {import('better-sqlite3').Statement} 
+	 */
+	let userCheck = database.prepare('SELECT EXISTS (SELECT 1 FROM credentials WHERE username = ?);');
+	const result = userCheck.get(name);
+	const key = Object.keys(result)[0];
+
+	return result[key] === 1;
+}
+
+function addUser(name, pass) {
+	let userAdd = database.prepare('INSERT INTO credentials (username, passwordHash) VALUES (?, ?)');
+	userAdd.run(name, pass);
+}
+
+function passwordQuery(user) {
+	let passwordQuery = database.prepare('SELECT passwordHash FROM credentials WHERE username = ?;');
+	return passwordQuery.get(user)
+}
 
 const authDB = {
 	prepareDB,
-	get userCheck() { return userCheck; },
-	get userAdd() { return userAdd; },
-	get passwordQuery() { return passwordQuery; },
+	checkUser,
+	addUser,
+	passwordQuery,
 	RESERVED_USERNAMES
 };
 

@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 
-import { checkUser } from '../../utils/authUtils.js';
 import authDB from '../../utils/authDB.js';
 
 var env = process.env.NODE_ENV || 'development';
@@ -18,11 +17,11 @@ export async function login(request, reply, fastify) {
 		/** @type {{ user: string, password: string }} */
 		const { user, password } = request.body;
 
-		if (!checkUser(user) || user === 'admin') {
+		if (!authDB.checkUser(user) || authDB.RESERVED_USERNAMES.includes(user)) {
 			return reply.code(400).send({ error: "User does not exist" });
 		}
 
-		const query = authDB.passwordQuery.get(user);
+		const query = authDB.passwordQuery(user);
 		const hash = query?.passwordHash;
 
 		if (!hash) {

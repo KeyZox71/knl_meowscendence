@@ -3,7 +3,10 @@ import fastifyCookie from '@fastify/cookie';
 
 import { register } from './register.js';
 import { login } from './login.js';
+import { gRedir } from './gRedir.js';
 import authDB from '../../utils/authDB.js'
+import { gLogCallback } from './gLogCallback.js';
+import { gRegisterCallback } from './gRegisterCallback.js';
 
 const saltRounds = 10;
 
@@ -36,7 +39,18 @@ export default async function(fastify, options) {
 	});
 
 	// GOOGLE sign in
-	
+	fastify.get('/login/google', async (request, reply) => {
+		return gRedir(request, reply, fastify, '/login/google/callback');
+	});
+	fastify.get('/register/google', async (request, reply) => {
+		return gRedir(request, reply, fastify, '/register/google/callback');
+	});
+	fastify.get('/login/google/callback', async (request, reply) => {
+		return gLogCallback(request, reply, fastify);
+	})
+	fastify.get('/register/google/callback', async (request, reply) => {
+		return gRegisterCallback(request, reply, fastify);
+	})
 
 	fastify.post('/login', {
 		schema: {

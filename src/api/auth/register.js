@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { isValidString, checkUser } from '../../utils/authUtils.js';
+import { isValidString } from '../../utils/authUtils.js';
 import authDB from '../../utils/authDB.js';
 
 var env = process.env.NODE_ENV || 'development';
@@ -25,7 +25,7 @@ export async function register(request, reply, saltRounds, fastify) {
 
 		if (!isValidString(user) || !isValidString(password)) {
 			return reply.code(400).send({ error: 'Invalid username or password' });
-		} else if (checkUser(user) === true) {
+		} else if (authDB.checkUser(user) === true) {
 			return reply.code(400).send({ error: "User already exist" });
 		} else if (password.length <= 8) {
 			return reply.code(400).send({ error: "Password too short" });
@@ -34,7 +34,7 @@ export async function register(request, reply, saltRounds, fastify) {
 		}
 
 		const hash = await bcrypt.hash(password, saltRounds);
-		authDB.userAdd.run(user, hash);
+		authDB.addUser(user, hash);
 
 		const token = fastify.jwt.sign({ user });
 
