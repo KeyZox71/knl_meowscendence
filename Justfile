@@ -4,6 +4,7 @@
 # For launching the authentification api
 @auth $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/auth/default.js
+
 # For launching the user data api
 @user $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/user/default.js
