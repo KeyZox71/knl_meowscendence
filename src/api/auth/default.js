@@ -7,8 +7,12 @@ import { gRedir } from './gRedir.js';
 import authDB from '../../utils/authDB.js'
 import { gLogCallback } from './gLogCallback.js';
 import { gRegisterCallback } from './gRegisterCallback.js';
+import { totpSetup } from './totpSetup.js';
+import { totpDelete } from './totpDelete.js';
+import { totpVerify } from './totpVerify.js';
 
 const saltRounds = 10;
+export const appName = process.env.APP_NAME || 'knl_meowscendence';
 
 authDB.prepareDB();
 
@@ -27,15 +31,18 @@ export default async function(fastify, options) {
 		}
 	});
 	fastify.register(fastifyCookie);
-
-	fastify.get('/me', async (request, reply) => {
+	fastify.decorate("authenticate", async function(request, reply) {
 		try {
-			const token = request.cookies.token;
-			const decoded = await fastify.jwt.verify(token);
-			return { user: decoded.user };
-		} catch {
-			return reply.code(401).send({ error: 'Unauthorized' });
+			const jwt = await request.jwtVerify();
+			request.user = jwt.user;
+		} catch (err) {
+			reply.code(401).send({ error: 'Unauthorized' });
 		}
+	});
+
+
+	fastify.get('/me', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return { user: request.user };
 	});
 
 	// GOOGLE sign in
@@ -47,10 +54,32 @@ export default async function(fastify, options) {
 	});
 	fastify.get('/login/google/callback', async (request, reply) => {
 		return gLogCallback(request, reply, fastify);
-	})
+	});
 	fastify.get('/register/google/callback', async (request, reply) => {
 		return gRegisterCallback(request, reply, fastify);
-	})
+	});
+
+	// TOTP
+	fastify.post('/2fa', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return totpSetup(request, reply, fastify);
+	});
+	fastify.post('/2fa/verify', {
+		preHandler: [fastify.authenticate], schema: {
+			body: {
+				type: 'object',
+				required: ['token'],
+				properties: {
+					token: { type: 'string', minLength: 6, maxLength: 6 }
+				}
+			}
+		}
+	}, async (request, reply) => {
+		return totpVerify(request, reply, fastify);
+	});
+	fastify.delete('/2fa', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return totpDelete(request, reply, fastify);
+	});
+
 
 	fastify.post('/login', {
 		schema: {

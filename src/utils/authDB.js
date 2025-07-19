@@ -16,10 +16,12 @@ if (!env || env === 'development') {
  */
 function prepareDB() {
 	database.exec(`
-        CREATE TABLE IF NOT EXISTS credentials (
-            username TEXT PRIMARY KEY,
-            passwordHash TEXT
-        ) STRICT
+	CREATE TABLE IF NOT EXISTS credentials (
+		username TEXT PRIMARY KEY,
+		passwordHash TEXT,
+		totpHash TEXT DEFAULT NULL,
+		totpEnabled INTEGER DEFAULT 0
+	) STRICT
     `);
 }
 
@@ -49,11 +51,48 @@ function passwordQuery(user) {
 	return passwordQuery.get(user)
 }
 
+function setTOTPSecret(user, secret) {
+	let setTOTP = database.prepare('UPDATE credentials SET totpHash = ? WHERE username = ?');
+	setTOTP.run(secret, user);
+}
+
+function isTOTPEnabled(user) {
+	const stmt = database.prepare('SELECT totpHash, totpEnabled FROM credentials WHERE username = ?');
+	const result = stmt.get(user);
+	return result && result.totpHash !== null && result.totpEnabled === 1;
+}
+
+function disableTOTP(user) {
+	let stmt = database.prepare('UPDATE credentials SET totpHash = NULL, totpEnabled = 0 WHERE username = ?');
+	stmt.run(user);
+}
+
+function queryTOTP(user) {
+	let totpQuery = database.prepare('SELECT totpHash FROM credentials WHERE username = ?;');
+	return totpQuery.get(user);
+}
+
+function enableTOTP(user) {
+	let stmt = database.prepare('UPDATE credentials SET totpEnabled = 1 WHERE username = ?');
+	stmt.run(user);
+}
+
+function getUser(user) {
+	const stmt = database.prepare('SELECT * FROM credentials WHERE username = ?');
+	return stmt.get(user);
+}
+
 const authDB = {
 	prepareDB,
 	checkUser,
 	addUser,
 	passwordQuery,
+	setTOTPSecret,
+	isTOTPEnabled,
+	disableTOTP,
+	queryTOTP,
+	enableTOTP,
+	getUser,
 	RESERVED_USERNAMES
 };
 

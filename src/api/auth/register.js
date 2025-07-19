@@ -46,7 +46,7 @@ export async function register(request, reply, saltRounds, fastify) {
 				sameSite: 'lax',
 			})
 			.code(200)
-			.send({ msg: 'Register successfuly' });
+			.send({ msg: 'Register successfully' });
 	} catch (err) {
 		fastify.log.error(err);
 		return reply.code(500).send({ error: "Internal server error" });

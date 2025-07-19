@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 
 import authDB from '../../utils/authDB.js';
+import { verifyTOTP } from "../../utils/totp.js";
 
 var env = process.env.NODE_ENV || 'development';
 
@@ -32,6 +33,17 @@ export async function login(request, reply, fastify) {
 
 		if (!compare) {
 			return reply.code(401).send({ error: "Incorrect password" });
+		}
+
+		const userTOTP = authDB.getUser(user);
+		if (userTOTP.totpEnabled == 1) {
+			if (!request.body.token){
+				return reply.code(401).send({ error: 'Invalid 2FA token' });
+			}
+			const isValid = verifyTOTP(userTOTP.totpHash, request.body.token);
+			if (!isValid) {
+				return reply.code(401).send({ error: 'Invalid 2FA token' });
+			}
 		}
 
 		const token = fastify.jwt.sign({ user });

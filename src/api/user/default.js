@@ -6,7 +6,7 @@ var env = process.env.NODE_ENV || 'development';
 
 let database;
 
-if (env === 'development') {
+if (!env || env === 'development') {
 	database = new Database(":memory:", { verbose: console.log });
 } else {
 	var dbPath = process.env.DB_PATH || '/db/db.sqlite'
