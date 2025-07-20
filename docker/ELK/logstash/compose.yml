@@ -1,0 +1,10 @@
+services:
+  logstash:
+    container_name: transcendence-logstash
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - LOG_LEVEL=info
+    networks:
+      - back

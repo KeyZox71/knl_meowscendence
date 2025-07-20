@@ -1,0 +1,10 @@
+services:
+  elasticsearch:
+    container_name: transcendence-elasticsearch
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - LOG_LEVEL=info
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    mem_limit: 1gb
