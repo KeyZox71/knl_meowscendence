@@ -1,0 +1,10 @@
+services:
+  graphana:
+    container_name: transcendence-graphana
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - 
+    networks:
+      - prom
