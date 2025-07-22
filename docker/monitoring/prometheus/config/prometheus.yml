@@ -23,3 +23,11 @@ scrape_configs:
   - job_name: 'node-exporter'
     static_configs:
       - targets: ['node-exporter:9100']
+
+  - job_name: 'auth-api'
+    static_configs:
+      - targets: ['transcendence-api-auth:3000']
+
+  - job_name: 'user-api'
+    static_configs:
+      - targets: ['transcendence-api-user:3000']

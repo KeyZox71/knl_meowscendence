@@ -9,6 +9,7 @@ services:
     networks:
       - front
       - back
+      - prom-exporter
     environment:
       - TZ=Europe/Paris
       - API_TARGET=user
@@ -24,6 +25,7 @@ services:
     networks:
       - front
       - back
+      - prom-exporter
     environment:
       - TZ=Europe/Paris
       - API_TARGET=auth
