@@ -39,3 +39,10 @@ server {
     server_name example.com;
     return 301 https://$host$request_uri;
 }
+
+server {
+    listen 8080;
+    location /nginx_status {
+        stub_status;
+    }
+}

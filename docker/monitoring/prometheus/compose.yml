@@ -26,4 +26,5 @@ services:
       - '--web.enable-lifecycle'
     networks:
       - prom
+      - prom-exporter
     restart: unless-stopped

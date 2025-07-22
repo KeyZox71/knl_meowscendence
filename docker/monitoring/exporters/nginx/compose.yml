@@ -1,0 +1,12 @@
+services:
+  nginx-exporter:
+    container_name: transcendence-nginx-exporter
+    image: nginx/nginx-prometheus-exporter:latest
+    command:
+      - '-nginx.scrape-uri=http://transcendence-front:8080/nginx_status'
+    depends_on:
+      front:
+        condition: service_started
+    networks:
+      - front
+      - prom-exporter

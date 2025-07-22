@@ -1,2 +1,3 @@
 include:
   - ./prometheus/compose.yml
+  - ./exporters/compose.yml

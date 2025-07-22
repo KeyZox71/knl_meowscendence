@@ -15,13 +15,13 @@ if (!env || env === 'development') {
 
 function prepareDB() {
 	database.exec(`
-		CREATE TABLE userData (
+		CREATE TABLE IF NOT EXISTS userData (
 			username TEXT PRIMARY KEY,
 			displayName TEXT
 		) STRICT
 	`);
 	database.exec(`
-		CREATE TABLE friends (
+		CREATE TABLE IF NOT EXISTS friends (
 			username TEXT,
 			friendName TEXT,
 			UNIQUE(username, friendName),
