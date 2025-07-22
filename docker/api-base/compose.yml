@@ -1,0 +1,31 @@
+services:
+  user-api:
+    container_name: transcendence-api-user
+    build:
+      dockerfile: docker/api-base/Dockerfile
+      context: ..
+    volumes:
+      - db-user:/db
+    networks:
+      - front
+      - back
+    environment:
+      - TZ=Europe/Paris
+      - API_TARGET=user
+      - JWT_SECRET=${JWT_SECRET}
+    restart: unless-stopped
+  auth-api:
+    container_name: transcendence-api-auth
+    build:
+      dockerfile: docker/api-base/Dockerfile
+      context: ..
+    volumes:
+      - db-auth:/db
+    networks:
+      - front
+      - back
+    environment:
+      - TZ=Europe/Paris
+      - API_TARGET=auth
+      - JWT_SECRET=${JWT_SECRET}
+    restart: unless-stopped
