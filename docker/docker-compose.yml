@@ -2,6 +2,7 @@ name: ft_transcendence
 
 include:
   - ./volumes.yml
+  - ./networks.yml
   - ./monitoring/compose.yml
 
 services:
@@ -53,15 +54,3 @@ services:
       - API_TARGET=auth
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
-
-networks:
-  front:
-    name: transcendence-front
-  back:
-    name: transcendence-back
-
-volumes:
-  db-auth:
-    name: transcendence-api-auth-db
-  db-user:
-    name: transcendence-api-user-db

@@ -1,2 +1,7 @@
 volumes:
   prometheus_data:
+    name: transcendence-prom-data
+  db-auth:
+    name: transcendence-api-auth-db
+  db-user:
+    name: transcendence-api-user-db

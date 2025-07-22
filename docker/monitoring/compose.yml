@@ -1,6 +1,2 @@
 include:
   - ./prometheus/compose.yml
-
-networks:
-  prom:
-  prom-exporter:

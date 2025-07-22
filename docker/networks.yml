@@ -1,0 +1,9 @@
+networks:
+  front:
+    name: transcendence-front
+  back:
+    name: transcendence-back
+  prom:
+    name: transcendence-prom
+  prom-exporter:
+    name: transcendence-prom-exporter
