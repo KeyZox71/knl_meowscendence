@@ -3,7 +3,7 @@ services:
     container_name: transcendence-api-user
     build:
       dockerfile: docker/api-base/Dockerfile
-      context: ..
+      context: ../../
     volumes:
       - db-user:/db
     networks:
@@ -18,7 +18,7 @@ services:
     container_name: transcendence-api-auth
     build:
       dockerfile: docker/api-base/Dockerfile
-      context: ..
+      context: ../../
     volumes:
       - db-auth:/db
     networks:
