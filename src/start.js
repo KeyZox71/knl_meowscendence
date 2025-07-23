@@ -13,6 +13,12 @@ const loggerOption = {
 	}
 };
 
+function sigHandle(signal) {
+	process.exit(0);
+}
+
+process.on('SIGINT', sigHandle);
+
 async function start() {
 	const target = process.env.API_TARGET || 'all';
 

@@ -23,4 +23,6 @@ EXPOSE		3000
 
 RUN			mkdir /db
 
+STOPSIGNAL	SIGINT
+
 CMD			[ "node", "/app/src/start.js" ]

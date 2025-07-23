@@ -2,3 +2,4 @@ include:
   - ./prometheus/compose.yml
   - ./exporters/compose.yml
   - ./alert-manager/compose.yml
+  - ./graphana/compose.yml

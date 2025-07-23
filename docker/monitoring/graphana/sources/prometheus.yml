@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://transcendence-prom:9090/prometheus
+    basicAuth: true
+    basicAuthUser: admin
+    secureJsonData:
+      basicAuthPassword:
+    isDefault: true
+    editable: true

@@ -10,7 +10,7 @@ services:
     environment:
       - TZ=Europe/Paris
     ports:
-      - 9090:9090
+      - ${PROM_PORT}:9090
     volumes:
       - prometheus_data:/prometheus
     depends_on:
