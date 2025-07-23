@@ -1,0 +1,18 @@
+global:
+  smtp_smarthost: 
+  smtp_from: 
+  smtp_auth_username: 
+  smtp_auth_password: 
+
+route:
+  receiver: 'email-alerts'
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+
+receivers:
+  - name: 'email-alerts'
+    email_configs:
+      - to: 
+        send_resolved: true

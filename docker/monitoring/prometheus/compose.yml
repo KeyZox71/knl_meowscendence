@@ -1,0 +1,30 @@
+services:
+  prometheus:
+    container_name: transcendence-prom
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        PROM_ADMIN_PASSWD: ${PROM_PASS}
+        PROM_ADMIN_PASSWD_HASH: ${PROM_HASH}
+    environment:
+      - TZ=Europe/Paris
+    ports:
+      - ${PROM_PORT}:9090
+    volumes:
+      - prometheus_data:/prometheus
+    depends_on:
+      front:
+        condition: service_started
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.config.file=/etc/prometheus/web-config.yml'
+      - '--web.external-url=/prometheus/'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - prom
+      - prom-exporter
+    restart: unless-stopped

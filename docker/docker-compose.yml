@@ -1,64 +1,8 @@
 name: ft_transcendence
 
-services:
-  front:
-    container_name: transcendence-front
-    build:
-      dockerfile: docker/front/Dockerfile
-      context: ..
-    ports:
-      - ${OUT_PORT}:443
-    environment:
-      SERVER_NAME: localhost
-    depends_on:
-      user-api:
-        condition: service_started
-      auth-api:
-        condition: service_started
-    networks:
-      - front
-    environment:
-      - TZ=Europe/Paris
-    restart: unless-stopped
-  user-api:
-    container_name: transcendence-api-user
-    build:
-      dockerfile: docker/api-base/Dockerfile
-      context: ..
-    volumes:
-      - db-user:/db
-    networks:
-      - front
-      - back
-    environment:
-      - TZ=Europe/Paris
-      - API_TARGET=user
-      - JWT_SECRET=${JWT_SECRET}
-    restart: unless-stopped
-  auth-api:
-    container_name: transcendence-api-auth
-    build:
-      dockerfile: docker/api-base/Dockerfile
-      context: ..
-    volumes:
-      - db-auth:/db
-    networks:
-      - front
-      - back
-    environment:
-      - TZ=Europe/Paris
-      - API_TARGET=auth
-      - JWT_SECRET=${JWT_SECRET}
-    restart: unless-stopped
-
-networks:
-  front:
-    name: transcendence-front
-  back:
-    name: transcendence-back
-
-volumes:
-  db-auth:
-    name: transcendence-api-auth-db
-  db-user:
-    name: transcendence-api-user-db
+include:
+  - ./volumes.yml
+  - ./networks.yml
+  - ./monitoring/compose.yml
+  - ./api-base/compose.yml
+  - ./front/compose.yml

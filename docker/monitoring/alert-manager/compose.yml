@@ -1,0 +1,22 @@
+services:
+  alert-manager:
+    container_name: transcendence-alert
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        SMTP_SMARTHOST: ${SMTP_SMARTHOST}
+        SMTP_FROM: ${SMTP_FROM}
+        SMTP_AUTH_USERNAME: ${SMTP_AUTH_USERNAME}
+        SMTP_AUTH_PASSWORD: ${SMTP_AUTH_PASSWORD}
+        EMAIL_TO: ${EMAIL_TO}
+    # ports: 
+    #   - 9093:9093
+    environment:
+      - TZ=Europe/Paris
+    depends_on:
+      prometheus:
+        condition: service_started
+    networks:
+      - prom
+    restart: unless-stopped

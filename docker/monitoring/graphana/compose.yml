@@ -1,0 +1,15 @@
+services:
+  graphana:
+    container_name: transcendence-graphana
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        PROM_ADMIN_PASSWD: ${PROM_PASS}
+    ports:
+      - ${GRAPH_PORT}:3000
+    environment:
+      - TZ=Europe/Paris
+    networks:
+      - prom
+    restart: unless-stopped
