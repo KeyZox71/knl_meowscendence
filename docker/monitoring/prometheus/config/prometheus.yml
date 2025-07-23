@@ -1,11 +1,11 @@
 global:
   scrape_interval: 5s
 
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#       - targets:
-#         - alertmanager:9093
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+        - transcendence-alert:9093
 
 scrape_configs:
   - job_name: 'prometheus'
