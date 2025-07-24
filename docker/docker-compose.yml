@@ -1,8 +1,5 @@
 name: ft_transcendence
 
-include:
-  - ./ELK/compose.yml
-
 services:
   front:
     container_name: transcendence-front
