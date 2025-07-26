@@ -44,3 +44,6 @@ set dotenv-load
 # To clean only the container launched by the compose
 @clean-compose: stop-docker
 	docker compose -f docker/docker-compose.yml rm
+
+@status:
+	docker compose -f docker/docker-compose.yml ps
