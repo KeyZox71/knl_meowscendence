@@ -2,6 +2,7 @@
 Press F to pay respect
 
 ## Folder structure
+```
 ├── docker/                  # Docker-related setup for services
 │   ├── api-base/            # Backend API base image and compose file
 │   ├── front/               # Frontend image, config, and cert automation
@@ -14,7 +15,7 @@ Press F to pay respect
 │   └── utils/               # Utility modules (auth, TOTP, etc.)
 ├── flake.nix & flake.lock   # Nix flake configuration
 └── Justfile                 # Task automation commands
-
+```
 ## Modules done
 
 5 major + 2 minor = 6 full modules
