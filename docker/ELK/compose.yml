@@ -1,4 +1,4 @@
 include:
   - ./logstash/compose.yml
-  # - ./kibana/compose.yml
-  # - ./elasticsearch/compose.yml
+  - ./kibana/compose.yml
+  - ./elasticsearch/compose.yml

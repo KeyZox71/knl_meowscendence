@@ -14,6 +14,7 @@ services:
     environment:
       - TZ=Europe/Paris
       - API_TARGET=user
+      - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
   auth-api:
@@ -31,5 +32,6 @@ services:
     environment:
       - TZ=Europe/Paris
       - API_TARGET=auth
+      - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped

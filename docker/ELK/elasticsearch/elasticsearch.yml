@@ -1,0 +1,9 @@
+cluster.name: docker-cluster
+
+node.name: transcendence-elasticsearch
+
+discovery.type: single-node
+
+xpack.security.enabled: false
+
+network.host: 0.0.0.0

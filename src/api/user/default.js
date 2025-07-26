@@ -1,10 +1,8 @@
 import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import Database from 'better-sqlite3';
-import client from 'prom-client';
 
 var env = process.env.NODE_ENV || 'development';
-const collectDefaultMetrics = client.collectDefaultMetrics
 
 let database;
 
@@ -58,31 +56,6 @@ const deleteFriends = database.prepare('DELETE FROM friends WHERE username = ?;'
  * @param {import('fastify').FastifyPluginOptions}	options
  */
 export default async function(fastify, options) {
-
-	collectDefaultMetrics({ labels: { service: "auth-api" } })
-	client.register.setDefaultLabels({ service: "auth-api" })
-
-	const httpRequestCounter = new client.Counter({
-		name: 'http_requests_total',
-		help: 'Total number of HTTP requests',
-		labelNames: ['method', 'route', 'status_code'],
-	})
-
-	fastify.addHook('onResponse', (req, res, done) => {
-		httpRequestCounter.inc({
-			method: req.method,
-			route: req.routerPath || req.url,
-			status_code: res.statusCode,
-		})
-		done()
-	})
-	fastify.get('/metrics', async (req, reply) => {
-		reply
-			.header('Content-Type', client.register.contentType)
-			.send(await client.register.metrics())
-	})
-
-
 	fastify.register(fastifyJWT, {
 		secret: process.env.JWT_SECRET || '123456789101112131415161718192021',
 		cookie: {

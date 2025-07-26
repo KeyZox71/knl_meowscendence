@@ -31,7 +31,5 @@ RUN			touch /var/log/front/err.log /var/log/front/log.log
 RUN			chmod -R 777 /var/log/front
 USER		nginx
 
-
-
 EXPOSE		80 443
 STOPSIGNAL	SIGINT

@@ -13,7 +13,7 @@ set dotenv-load
 
 # To launch all apis
 @apis:
-	node src/dev.js
+	node src/start.js
 
 # To launch the front end
 @front:

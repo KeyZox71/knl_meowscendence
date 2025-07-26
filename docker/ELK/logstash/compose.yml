@@ -12,3 +12,4 @@ services:
       - LOG_LEVEL=info
     networks:
       - elk
+      - logstash
