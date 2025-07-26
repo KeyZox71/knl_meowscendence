@@ -31,6 +31,9 @@ services:
       - prom-exporter
     environment:
       - TZ=Europe/Paris
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - API_TARGET=auth
       - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
