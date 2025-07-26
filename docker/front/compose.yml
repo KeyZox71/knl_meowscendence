@@ -6,6 +6,8 @@ services:
       context: ../../
     ports:
       - ${OUT_PORT}:443
+    volumes:
+      - log-nginx:/var/log/front
     environment:
       - SERVER_NAME=localhost
       - TZ=Europe/Paris

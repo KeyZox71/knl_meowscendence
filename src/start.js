@@ -10,7 +10,8 @@ const loggerOption = {
 			translateTime: 'HH:MM:ss',
 			ignore: 'pid,hostname'
 		}
-	}
+	},
+	file: process.env.LOG_TARGET || ""
 };
 
 function sigHandle(signal) {

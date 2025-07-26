@@ -6,3 +6,4 @@ include:
   - ./monitoring/compose.yml
   - ./api-base/compose.yml
   - ./front/compose.yml
+  - ./ELK/compose.yml

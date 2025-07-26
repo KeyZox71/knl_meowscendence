@@ -24,5 +24,7 @@ EXPOSE		3000
 RUN			mkdir /db
 
 STOPSIGNAL	SIGINT
+ENV			LOG_TARGET=/var/log/log.log
+RUN			touch /var/log/log.log
 
 CMD			[ "node", "/app/src/start.js" ]

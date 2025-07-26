@@ -25,5 +25,13 @@ COPY		--chmod=755 docker/front/entry/ssl-cert.sh /docker-entrypoint.d/ssl-cert.s
 
 COPY		--from=builder /app/dist /usr/share/nginx/html
 
+USER		root
+RUN			mkdir -p /var/log/front
+RUN			touch /var/log/front/err.log /var/log/front/log.log
+RUN			chmod -R 777 /var/log/front
+USER		nginx
+
+
+
 EXPOSE		80 443
 STOPSIGNAL	SIGINT

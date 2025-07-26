@@ -6,6 +6,7 @@ services:
       context: ../../
     volumes:
       - db-user:/db
+      - log-user:/var/log
     networks:
       - front
       - back
@@ -22,6 +23,7 @@ services:
       context: ../../
     volumes:
       - db-auth:/db
+      - log-auth:/var/log
     networks:
       - front
       - back
