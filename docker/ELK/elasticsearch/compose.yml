@@ -1,0 +1,10 @@
+services:
+  elasticsearch:
+    container_name: transcendence-elasticsearch
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - LOG_LEVEL=info
+    networks:
+      - elk

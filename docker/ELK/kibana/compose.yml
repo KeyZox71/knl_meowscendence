@@ -1,0 +1,12 @@
+services:
+  kibana:
+    container_name: transcendence-kibana
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - ${ELK_PORT}:5601
+    environment:
+      - LOG_LEVEL=info
+    networks:
+      - elk

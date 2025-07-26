@@ -6,6 +6,7 @@ services:
       context: ../../
     volumes:
       - db-user:/db
+      - log-user:/var/log
     networks:
       - front
       - back
@@ -13,6 +14,7 @@ services:
     environment:
       - TZ=Europe/Paris
       - API_TARGET=user
+      - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
   auth-api:
@@ -22,12 +24,17 @@ services:
       context: ../../
     volumes:
       - db-auth:/db
+      - log-auth:/var/log
     networks:
       - front
       - back
       - prom-exporter
     environment:
       - TZ=Europe/Paris
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - API_TARGET=auth
+      - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
