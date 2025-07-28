@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@avalabs/avalanchejs": "^5.0.0",
 		"@fastify/cookie": "^11.0.2",
 		"@fastify/env": "^5.0.2",
 		"@fastify/jwt": "^9.1.0",
