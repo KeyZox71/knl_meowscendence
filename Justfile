@@ -11,6 +11,9 @@ set dotenv-load
 @user $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/user/default.js
 
+@scoreStore $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
+	fastify start src/api/scoreStore/default.js
+
 # To launch all apis
 @apis:
 	node src/start.js
@@ -44,6 +47,12 @@ set dotenv-load
 # To clean only the container launched by the compose
 @clean-compose: stop-docker
 	docker compose -f docker/docker-compose.yml rm
+
+@deploy-contract-scoreStore:
+	forge create scoreStore --rpc-url=${RPC_URL} --private-key=${PRIVATE_KEY}
+
+@verify-contract:
+	forge verify-contract --chain-id 43113 --rpc-url=${AVAX_RPC_URL} --watch ${AVAX_CONTRACT_ADDR}
 
 @status:
 	docker compose -f docker/docker-compose.yml ps
