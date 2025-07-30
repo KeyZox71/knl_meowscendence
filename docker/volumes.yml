@@ -5,3 +5,9 @@ volumes:
     name: transcendence-api-auth-db
   db-user:
     name: transcendence-api-user-db
+  log-auth:
+    name: transcendence-api-auth-log
+  log-user:
+    name: transcendence-api-user-log
+  log-nginx:
+    name: transcendence-front-log

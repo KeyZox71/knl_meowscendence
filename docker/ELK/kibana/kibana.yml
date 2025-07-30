@@ -1,0 +1,6 @@
+server.name: kibana
+server.host: "0.0.0.0"
+
+elasticsearch.hosts: ["https://transcendence-elasticsearch:9200"]
+
+telemetry.enabled: false

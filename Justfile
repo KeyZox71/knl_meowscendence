@@ -16,7 +16,7 @@ set dotenv-load
 
 # To launch all apis
 @apis:
-	node src/dev.js
+	node src/start.js
 
 # To launch the front end
 @front:
@@ -53,3 +53,6 @@ set dotenv-load
 
 @verify-contract:
 	forge verify-contract --chain-id 43113 --rpc-url=${AVAX_RPC_URL} --watch ${AVAX_CONTRACT_ADDR}
+
+@status:
+	docker compose -f docker/docker-compose.yml ps

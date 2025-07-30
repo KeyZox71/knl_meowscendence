@@ -7,3 +7,7 @@ networks:
     name: transcendence-prom
   prom-exporter:
     name: transcendence-prom-exporter
+  elk:
+    name: transcendence-elk
+  logstash:
+    name: transcendence-logstash

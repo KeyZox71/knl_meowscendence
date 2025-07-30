@@ -1,0 +1,15 @@
+services:
+  logstash:
+    container_name: transcendence-logstash
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - log-user:/var/log/user-api
+      - log-auth:/var/log/auth-api
+      - log-nginx:/var/log/nginx
+    environment:
+      - LOG_LEVEL=info
+    networks:
+      - elk
+      - logstash

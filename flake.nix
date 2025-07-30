@@ -48,7 +48,7 @@
               				fi
               				if [ ! -d lib/ ]; then
               					echo Installing foundry env
-								forge i
+								        forge i
               				fi
               				export PATH+=:$(pwd)/node_modules/.bin
                             	echo entering ft_trans env
