@@ -18,7 +18,7 @@ export async function addTx(request, reply, fastify) {
 		});
 
 		return reply.code(200).send({
-			id: id
+			id: Number(id)
 		});
 	} catch (err) {
 		fastify.log.error(err);

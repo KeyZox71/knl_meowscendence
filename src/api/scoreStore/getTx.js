@@ -22,7 +22,7 @@ export async function getTx(request, reply, fastify) {
 				p1Score: Number(score.p1Score),
 				p2Score: Number(score.p2Score)
 			},
-			tx: tx
+			tx: tx?.txHash ?? null
 		});
 	} catch (err) {
 		fastify.log.error(err);
