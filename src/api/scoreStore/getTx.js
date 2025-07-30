@@ -13,10 +13,15 @@ export async function getTx(request, reply, fastify) {
 	try {
 		const tx = scoreDB.getTx(request.params.id);
 
-		const score = callGetScore(request.params.id);
+		const score = await callGetScore(request.params.id);
 
 		return reply.code(200).send({
-			score: score,
+			score: {
+				p1: score.p1,
+				p2: score.p2,
+				p1Score: Number(score.p1Score),
+				p2Score: Number(score.p2Score)
+			},
 			tx: tx
 		});
 	} catch (err) {
