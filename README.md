@@ -55,7 +55,7 @@ Press F to pay respect
   - [ ] Server-Side Rendering (SSR) integration - Minor
 - **Server-Side Pong**
   - [ ] Replace basic pong with server-side pong and implementing an API - Major
-  - [ ] Enabling pong gameplay via CLI against web users with API integration
+  - [ ] Enabling pong gameplay via CLI against web users with API integration - Major
 
 
 ## License
