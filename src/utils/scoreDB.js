@@ -17,7 +17,7 @@ if (!env || env === 'development') {
 function prepareDB() {
 	database.exec(`
 	CREATE TABLE IF NOT EXISTS scoresTx (
-		id INTEGER PRIMARY KEY,
+		id INT PRIMARY KEY,
 		txHash TEXT
 	) STRICT
 	`);
@@ -25,7 +25,7 @@ function prepareDB() {
 
 /**
  *	@description	Can be used to add a score hash to the DB
- *	@param {Int}	The id of the score
+ *	@param {Number}	The id of the score
  *	@param {String}	The hash of the score
  */
 function addTx(id, txHash) {
@@ -39,7 +39,7 @@ function addTx(id, txHash) {
  *	@returns {String}	The tx hash
  */
 function getTx(id) {
-	const txGet = database.prepare('SELECT txHash FROM credentials WHERE id = ?;')
+	const txGet = database.prepare('SELECT txHash FROM scoresTx WHERE id = ?;')
 	return txGet.get(id);
 }
 

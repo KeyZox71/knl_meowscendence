@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import authApi from './api/auth/default.js';
 import userApi from './api/user/default.js';
+import scoreApi from './api/scoreStore/default.js';
 
 const loggerOption = {
 	transport: {
@@ -45,6 +46,19 @@ async function start() {
 		else {
 			await user.listen({ port: 3002, host: '127.0.0.1'});
 			console.log('User API listening on http://localhost:3002');
+		}
+	}
+
+	if (target === 'scoreStore' || target === 'all') {
+		const scoreStore = Fastify({ logger: loggerOption });
+		scoreStore.register(scoreApi);
+		if (target !== 'all') {
+			await scoreStore.listen({ port: 3000, host: '0.0.0.0' });
+			console.log('scoreStore API listening on http://0.0.0.0:3000');
+		}
+		else {
+			await scoreStore.listen({ port: 3002, host: '127.0.0.1'});
+			console.log('scoreStore API listening on http://localhost:3002');
 		}
 	}
 }
