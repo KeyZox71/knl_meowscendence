@@ -24,7 +24,7 @@ Press F to pay respect
   - [x] Use a framework to build the backend.(node with Fastify) - Major
   - [ ] Use a framework or toolkit to build the front-end.(Tailwind CSS) - Minor
   - [x] Use a database for the backend -and more.(SQLite) - Minor
-  - [ ] Store the score of a tournament in the Blockchain.(Soldity on Avalanche) - Major
+  - [x] Store the score of a tournament in the Blockchain.(Soldity on Avalanche) - Major
 - **User Management**
   - [ ] Standard user management, authentication and users across tournaments. - Major
   - [x] Implement remote authentication. - Major
