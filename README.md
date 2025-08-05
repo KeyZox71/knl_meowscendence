@@ -18,7 +18,7 @@ Press F to pay respect
 ```
 ## Modules done
 
-5 major + 2 minor = 6 full modules
+6 major + 2 minor = 7 full modules
 
 - **Web**
   - [x] Use a framework to build the backend.(node with Fastify) - Major
