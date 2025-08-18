@@ -24,7 +24,7 @@ contract scoreStore {
 		_;
 	}
 
-	function addScore(string memory p1, string memory p2, uint128 p1Score, uint128 p2Score) external ownerOnly returns (uint id)  {
+	function addScore(string calldata p1, string calldata p2, uint128 p1Score, uint128 p2Score) external ownerOnly returns (uint id)  {
 		score memory s;
 
 		s.p1 = p1;

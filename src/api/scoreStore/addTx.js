@@ -1,4 +1,3 @@
-import { ContractTransactionResponse } from "ethers";
 import scoreDB from "../../utils/scoreDB.js";
 import { callAddScore, callLastId } from "../../utils/scoreStore_contract.js";
 
