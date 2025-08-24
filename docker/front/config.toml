@@ -1,0 +1,7 @@
+[server]
+host = "0.0.0.0"
+port = 80
+
+[server.location./]
+methods = { "GET" }
+root = "/usr/share/webserv"

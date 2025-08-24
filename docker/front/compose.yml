@@ -1,20 +1,11 @@
 services:
-  front:
-    container_name: transcendence-front
+  webserv:
+    container_name: transcendence-webserv
     build:
       dockerfile: docker/front/Dockerfile
       context: ../../
-    ports:
-      - ${OUT_PORT}:443
-    volumes:
-      - log-nginx:/var/log/front
     environment:
       - TZ=Europe/Paris
-    depends_on:
-      user-api:
-        condition: service_started
-      auth-api:
-        condition: service_started
     networks:
       - front
     restart: unless-stopped
