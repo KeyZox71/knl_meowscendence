@@ -1,6 +1,6 @@
 services:
-  proxy:
-    container_name: transcendence-proxy
+  front:
+    container_name: transcendence-front
     build:
       dockerfile: docker/proxy/Dockerfile.prod
       context: ../../
