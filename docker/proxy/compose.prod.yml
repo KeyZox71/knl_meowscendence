@@ -2,7 +2,7 @@ services:
   front:
     container_name: transcendence-front
     build:
-      dockerfile: docker/front/Dockerfile.prod
+      dockerfile: docker/proxy/Dockerfile.prod
       context: ../../
     ports:
       - ${OUT_PORT}:443
