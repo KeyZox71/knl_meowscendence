@@ -3,14 +3,14 @@ import { readFile } from "fs/promises";
 
 export const rpc_url = process.env.AVAX_RPC_URL;
 export const contract_addr = process.env.AVAX_CONTRACT_ADDR;
-export const owner_priv_key = process.env.AVAX_PRIVATE_KEY;
+export const owner_priv_key = process.env.AVAX_PRIVATE_KEY || "0x00000000000000000000000000000000000000000000";
 
 const provider = new ethers.JsonRpcProvider(rpc_url);
 
-const wallet = new ethers.Wallet(owner_priv_key, provider);
 
 async function loadContract() {
 	try {
+		const wallet = new ethers.Wallet(owner_priv_key, provider);
 		const contractABI = JSON.parse(await readFile(new URL('../contract/scoreStore.json', import.meta.url)));
 
 		const contract = new ethers.Contract(contract_addr, contractABI, wallet);

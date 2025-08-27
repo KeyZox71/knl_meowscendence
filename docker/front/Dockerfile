@@ -1,4 +1,17 @@
-FROM		node:lts-alpine AS builder
+FROM		alpine:3.22 AS builder
+
+ENV			PKGS=true
+ENV			TTY=true
+
+RUN			apk add --no-cache bash clang make git
+
+RUN			git clone --recurse-submodules https://github.com/keyzox71/webserv /build \
+			&& cd /build && git checkout prod
+
+RUN			cd /build \
+			&& CXXFLAGS="-std=c++98" PKGS=true make -j re
+
+FROM		node:lts-alpine AS builder-vite
 
 RUN			npm install -g pnpm
 
@@ -13,23 +26,21 @@ COPY		src ./src
 
 RUN			pnpm vite build
 
-FROM		owasp/modsecurity-crs:nginx-alpine
 
-RUN			mkdir -p /etc/nginx/modsecurity.d \
-			&& cp /etc/modsecurity.d/unicode.mapping /etc/nginx/modsecurity.d/unicode.mapping
+FROM		alpine:3.22
 
-COPY		docker/front/config/default.conf.template \
-			/etc/nginx/templates/conf.d/default.conf.template
+RUN			apk add --no-cache libstdc++ tzdata
 
-COPY		--chmod=755 docker/front/entry/ssl-cert.sh /docker-entrypoint.d/ssl-cert.sh
+COPY		--from=builder /build/webserv /bin/webserv
 
-COPY		--from=builder /app/dist /usr/share/nginx/html
+RUN			chmod +x /bin/webserv
+RUN			mkdir -p /usr/share/webserv
+RUN			chmod 777 /usr/share/webserv
 
-USER		root
-RUN			mkdir -p /var/log/front
-RUN			touch /var/log/front/err.log /var/log/front/log.log
-RUN			chmod -R 777 /var/log/front
-USER		nginx
+COPY		--chmod=644 docker/front/config.toml /config.toml
 
-EXPOSE		80 443
-STOPSIGNAL	SIGINT
+COPY		--from=builder-vite /app/dist /usr/share/webserv
+
+WORKDIR		/
+
+CMD			[ "/bin/webserv", "/config.toml" ]
