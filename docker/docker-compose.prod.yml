@@ -4,10 +4,9 @@ include:
   - ./volumes.yml
   - ./networks.yml
   - ./front/compose.yml
-  - ./proxy/compose.yml
+  - ./proxy/compose.prod.yml
   - ./monitoring/compose.yml
   - ./api-base/compose.yml
-  # - ./front/compose.yml
   - ./ELK/compose.yml
 
 services:

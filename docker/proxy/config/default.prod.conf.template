@@ -2,7 +2,7 @@ server {
 	error_log /var/log/front/err.log warn;
 	access_log /var/log/front/log.log;
 
-    listen 443 ssl;
+    listen 80;
 
     modsecurity on;
 
