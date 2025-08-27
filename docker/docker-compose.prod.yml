@@ -8,7 +8,3 @@ include:
   - ./monitoring/compose.yml
   - ./api-base/compose.yml
   - ./ELK/compose.yml
-
-networks:
-  traefik-back:
-    external: true
