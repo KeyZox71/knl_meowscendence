@@ -15,8 +15,6 @@ services:
         condition: service_started
       auth-api:
         condition: service_started
-    healthcheck:
-      disable: true
     networks:
       - front
     restart: unless-stopped
