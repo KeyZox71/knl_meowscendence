@@ -9,38 +9,6 @@ include:
   - ./api-base/compose.yml
   - ./ELK/compose.yml
 
-services:
-  proxy:
-    container_name: transcendence-proxy
-    build:
-      dockerfile: docker/proxy/Dockerfile
-      context: ../
-    volumes:
-      - log-nginx:/var/log/front
-    environment:
-      - TZ=Europe/Paris
-    depends_on:
-      user-api:
-        condition: service_started
-      auth-api:
-        condition: service_started
-    networks:
-      - front
-      - traefik-back
-    restart: unless-stopped
-    healthcheck:
-      disable: true
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik-back
-      
-      - traefik.http.routers.trans.rule=Host(`trans.kanel.ovh`)
-      - traefik.http.routers.trans.entrypoints=websecure
-      - traefik.http.routers.trans.tls=true
-      - traefik.http.routers.trans.tls.certresolver=letsencrypt
-      - traefik.http.routers.trans.service=trans
-      - traefik.http.services.trans.loadbalancer.server.port=80
-
 networks:
   traefik-back:
     external: true
