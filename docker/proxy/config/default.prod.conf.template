@@ -40,11 +40,11 @@ server {
 	}
 	location /api/v1/auth/login/google/callback {
 		modsecurity off;
-        proxy_pass http://transcendence-api-auth:3000/;
+        proxy_pass http://transcendence-api-auth:3000/login/google/callback;
 	}
 	location /api/v1/auth/register/google/callback {
 		modsecurity off;
-        proxy_pass http://transcendence-api-auth:3000/;
+        proxy_pass http://transcendence-api-auth:3000/register/google/callback;
 	}
 }
 
