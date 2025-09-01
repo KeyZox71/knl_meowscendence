@@ -1,9 +1,9 @@
 # Register
 
 Available endpoints:
-- `/register`
-- `/register/google`
-- `/register/google/callback`
+- POST `/register`
+- GET `/register/google`
+- GET `/register/google/callback`
 
 Common return:
 - 500 with response 
@@ -13,7 +13,9 @@ Common return:
 }
 ```
 
-## `/register`
+## POST `/register`
+
+Used to register
 
 Input needed :
 ```json
@@ -37,16 +39,27 @@ Can return:
 }
 ```
 
-## `/register/google`
+## GET `/register/google`
 
-Does not take input
+Used to redirect to the google auth page
 
 Always return:
 - redirect to the google auth url
 
-## `/register/google/callback`
+## GET `/register/google/callback`
 
-inputs are filled by google
+Used to get the callback from google and register
 
 Can return:
 - 400 with response
+```json
+{
+    "error": "<corresponding error>"
+}
+```
+- 200 with response and cookie in header
+```json
+{
+    "msg": "Register successfully"
+}
+```
