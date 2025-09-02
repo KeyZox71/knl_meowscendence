@@ -50,6 +50,7 @@
               					echo Installing foundry env
 								        forge i
               				fi
+							alias jarvis=just
               				export PATH+=:$(pwd)/node_modules/.bin
                             	echo entering ft_trans env
             '';
