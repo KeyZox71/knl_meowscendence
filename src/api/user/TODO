@@ -1,0 +1,39 @@
+Todo :
+- crate a whole image upload API that ensures files are not executables, converts to a single type, stores the image and returns a UID to address them
+- create users with all the necessary arguments (assign avatar randomly if none is provided)
+- add endpoints to return number of friends and matches
+- use more schema in endpoints ? instead of using many checks everywhere
+- split code into files with functions called in the endpoints
+- test everything (using Postman)
+
+
+
+POST user :
+- uploading the avatar involves annoying file handling functions
+- avatar must be chosen randomly if not provided
+
+GET friends :
+- should also work with indexes ideally (like GET matchHistory)
+
+POST friends :
+- rework to make work more similarly to POST matchHistory ?
+
+PATCH :
+- changing the avatar involves annoying file handling functions
+
+DELETE :
+- what can be deleted ?
+-> users
+-> friends
+-> user info ? like display name, avatar, or should they just be changeable ?
+-> match history ? does it need to be deletable to comply with RGPD ?
+
+
+
+Known issues :
+- When game ends we must ensure only one match result is written to the blockchain -> not an issue if we do the server-side as the server can make the single post, but if it is client-side we must take care not to send two (either by creating an API for the game that will have the necessary protections or by adding these protections directly into the user API)
+-> Right now POST matchHistory will send the two matches to the blockchain API
+
+-> Users set to private should not appear in the friends lists of other public users
+
+-> Right now the client can only get his own friends. Do we not want any other client to be able to see his friends ?
