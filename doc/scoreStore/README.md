@@ -1,8 +1,8 @@
 # scoreStore
 
 Available endpoints:
-- GET '/:id'
-- POST '/'
+- GET `/:id`
+- POST `/`
 
 Common return:
 - 500 with response 
