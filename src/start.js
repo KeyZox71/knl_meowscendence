@@ -58,7 +58,7 @@ async function start() {
 		servers.push(user);
 	}
   
-  if (target === 'scoreScore' || target === 'all') {
+	if (target === 'scoreStore' || target === 'all') {
 		const score = Fastify({ logger: loggerOption('scoreStore') });
 		score.register(scoreApi);
 		const port = target === 'all' ? 3002 : 3000;
