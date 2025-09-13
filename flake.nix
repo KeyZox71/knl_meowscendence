@@ -39,7 +39,7 @@
               nodejs_22
               pnpm
               just
-							foundry
+              foundry
             ];
             shellHook = ''
               				if [ ! -d node_modules/ ]; then
