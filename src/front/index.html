@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Tailwind Test</title>
-    <link href="/style.css" rel="stylesheet" />
-  </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-	<script src="https://kanel.ovh/oneko.js"></script>
-	<script type="module" src="main.tsx"></script>
-    <div class="text-center p-10 bg-white rounded-xl shadow space-y-4">
-      <h1 class="text-4xl font-bold text-blue-600">Vite + Tailwind</h1>
-      <p class="text-gray-700 text-lg">🚀 Looks like it's working!</p>
-      <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-        Click Me
-      </button>
-    </div>
-  </body>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link href="/static/assets/favicon.ico" rel="icon" type="image/x-icon" >
+		<title>Vite + Tailwind Test</title>
+		<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+
+
+
+	<body class="bg-gray-100 dark:bg-neutral-900 h-screen flex flex-col">
+		<!--script src="https://kanel.ovh/oneko.js"></script-->
+
+		<nav class="bg-white dark:bg-neutral-800 mx-8 rounded-b-xl shadow-md px-4 sm:px-6 lg:px-8 flex justify-end h-16 items-center space-x-6 m-">
+			<a class="text-neutral-900 hover:text-neutral-700 dark:text-white dark:hover:text-neutral-400" href="/" data-link>home</a>
+			<a class="text-neutral-900 hover:text-neutral-700 dark:text-white dark:hover:text-neutral-400" href="/login" data-link>login</a>
+		</nav>
+
+		<div id="app" class="flex-1 flex items-center justify-center">
+		</div>
+
+		<script type="module" src="/static/ts/main.ts"></script>
+	</body>
 </html>
 
