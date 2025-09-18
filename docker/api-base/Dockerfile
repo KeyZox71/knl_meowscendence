@@ -6,7 +6,7 @@ COPY		package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
 # install all the dependency
 RUN			npm install -g pnpm
 RUN			cd /app \
-			&& pnpm install --prod
+			&& pnpm install --prod --frozen-lockfile
 
 FROM		node:lts-alpine AS base
 

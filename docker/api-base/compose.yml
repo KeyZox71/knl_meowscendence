@@ -10,7 +10,6 @@ services:
     networks:
       - front
       - back
-      - prom-exporter
     environment:
       - TZ=Europe/Paris
       - API_TARGET=user
@@ -28,7 +27,6 @@ services:
     networks:
       - front
       - back
-      - prom-exporter
     environment:
       - TZ=Europe/Paris
       - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
@@ -37,4 +35,23 @@ services:
       - API_TARGET=auth
       - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
+    restart: unless-stopped
+  scorestore-api:
+    container_name: transcendence-api-scoreStore
+    build:
+      dockerfile: docker/api-base/Dockerfile
+      context: ../../
+    volumes:
+      - db-scoreStore:/db
+      - log-scoreStore:/var/log
+    networks:
+      - front
+      - back
+    environment:
+      - TZ=Europe/Paris
+      - API_TARGET=scoreStore
+      - LOG_FILE_PATH=/var/log/log.log
+      - AVAX_PRIVATE_KEY=${AVAX_PRIVATE_KEY}
+      - AVAX_RPC_URL=${AVAX_RPC_URL}
+      - AVAX_CONTRACT_ADDR=${AVAX_CONTRACT_ADDR}
     restart: unless-stopped

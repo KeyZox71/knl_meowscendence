@@ -8,6 +8,7 @@ services:
       - log-user:/var/log/user-api
       - log-auth:/var/log/auth-api
       - log-nginx:/var/log/nginx
+      - log-scoreStore:/var/log/scoreStore
     environment:
       - LOG_LEVEL=info
     networks:
