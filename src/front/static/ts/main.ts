@@ -1,11 +1,3 @@
-/*import MainMenu from "./views/MainMenu.ts";
-import PongMenu from "./views/PongMenu.ts";
-
-import LoginPage from "./views/LoginPage.ts";
-import RegisterPage from "./views/RegisterPage.ts";
-
-import Game from "./views/Game.ts";*/
-
 const navigationManager = url => {
 	history.pushState(null, null, url);
 	router();
@@ -14,17 +6,11 @@ const navigationManager = url => {
 let view;
 
 const routes = [
-	/*{ path: "/", view: MainMenu },
-
-	{ path: "/pong", view: PongMenu },
-	{ path: "/pong/solo", view: Game },
-
-	{ path: "/login", view: LoginPage },
-	{ path: "/register", view: RegisterPage },*/
 	{ path: "/", view: () => import("./views/MainMenu.ts") },
 
 	{ path: "/pong", view: () => import("./views/PongMenu.ts") },
-	{ path: "/pong/solo", view: () => import("./views/Game.ts") },
+	{ path: "/pong/local", view: () => import("./views/Game.ts") },
+	{ path: "/pong/tournament", view: () => import("./views/TournamentMenu.ts") },
 
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },

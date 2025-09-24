@@ -7,7 +7,7 @@ export default class extends Aview {
 	constructor()
 	{
 		super();
-		this.setTitle("pog or pong ? :3");
+		this.setTitle("pong (local match)");
 		this.running = true;
 	}
 
@@ -67,7 +67,7 @@ export default class extends Aview {
 				rightPaddleY -= paddleSpeed * elapsed;
 			if (keys["ArrowDown"] && rightPaddleY < canvas.height - paddleHeight)
 				rightPaddleY += paddleSpeed * elapsed;
-        }
+		}
 
 		function getBounceVelocity(paddleY) {
 			const speed = ballSpeed;
@@ -209,6 +209,7 @@ export default class extends Aview {
 			countdown = 3;
 			countdownTimer = performance.now();
 		});
+
 		requestAnimationFrame(gameLoop);
 	}
 }
