@@ -16,12 +16,48 @@ export default class extends Aview {
 			<input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
 			<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 border w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
 
-			<button type="submit" class="bg-blue-600 text-white hover:bg-blue-500 w-full py-2 rounded-md transition-colors">register</button>
+			<button id="register-button" type="submit" class="bg-blue-600 text-white hover:bg-blue-500 w-full py-2 rounded-md transition-colors">register</button>
 
 			<a class="text-gray-400 dark:text-gray-600 underline" href="/login" data-link>
 				i already have an account
 			</a>
 		</div>
 		`;
+	}
+
+	async run() {
+		const login = async () => {
+			const username = (document.getElementById("username") as HTMLInputElement).value;
+			const password = (document.getElementById("password") as HTMLInputElement).value;
+
+			try {
+				const response = await fetch("http://localhost:3001/register", {
+					method: "POST",
+					headers: { "Content-Type": "application/json", },
+					credentials: "include",
+					body: JSON.stringify({ user: username, password: password }),
+				});
+				const data = await response.json();
+
+				if (response.status === 200)
+				{
+					navigationManager("/");
+				}
+				else if (response.status === 400)
+				{
+					document.getElementById("login-error-message").innerHTML = "error: " + data.error;
+					document.getElementById("login-error-message").classList.remove("hidden");
+				}
+
+			}
+			catch (error)
+			{
+				console.log(error);
+				document.getElementById("login-error-message").innerHTML = "error: server error, try again later...";
+				document.getElementById("login-error-message").classList.remove("hidden");
+			}
+		};
+
+		document.getElementById("register-button")?.addEventListener("click", login);
 	}
 }

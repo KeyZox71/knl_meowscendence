@@ -37,11 +37,7 @@ export default class extends Aview {
 					credentials: "include",
 					body: JSON.stringify({ user: username, password: password }),
 				});
-
 				const data = await response.json();
-				/*const data = { "error": "invalid password or smth" };
-				const response = { status: 400};*/
-
 
 				if (response.status === 200)
 				{
