@@ -59,9 +59,9 @@ export default class extends Aview {
 		document.addEventListener("keyup", e => { keys[e.key] = false; });
 
 		function movePaddles() {
-			if (keys["w"] && leftPaddleY > 0)
+			if ((keys["w"] || keys["W"]) && leftPaddleY > 0)
 				leftPaddleY -= paddleSpeed * elapsed;
-			if (keys["s"] && leftPaddleY < canvas.height - paddleHeight)
+			if ((keys["s"] || keys["S"]) && leftPaddleY < canvas.height - paddleHeight)
 				leftPaddleY += paddleSpeed * elapsed;
 			if (keys["ArrowUp"] && rightPaddleY > 0)
 				rightPaddleY -= paddleSpeed * elapsed;
@@ -116,7 +116,14 @@ export default class extends Aview {
 					p1_score++;
 
 				if (p1_score === 3 || p2_score === 3)
+				{
+					// ------------------------------------------------------------------------------------------------------------------------------------------
+					//
+					// insert the fetch to the ScoreStore api here
+					//
+					// ------------------------------------------------------------------------------------------------------------------------------------------
 					match_over = true;
+				}
 				else
 				{
 					countdown = 3;
@@ -191,7 +198,6 @@ export default class extends Aview {
 				moveBall();
 			}
 			draw();
-			console.log(game_playing);
 			if (!game_playing)
 				startCountdown();
 			if (this.running)
@@ -209,6 +215,12 @@ export default class extends Aview {
 			countdown = 3;
 			countdownTimer = performance.now();
 		});
+
+		// --------------------------------------------------------------------------------------------------------------------------------------------------------
+		//
+		// insert logic to set both names
+		//
+		// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 		requestAnimationFrame(gameLoop);
 	}

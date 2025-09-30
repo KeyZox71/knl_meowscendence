@@ -1,4 +1,5 @@
 import Aview from "./Aview.ts"
+import { isLogged, navigationManager } from "../main.ts"
 
 export default class extends Aview {
 
@@ -31,28 +32,33 @@ export default class extends Aview {
 			const password = (document.getElementById("password") as HTMLInputElement).value;
 
 			try {
-				const response = await fetch("http://localhost:3001/login", {
+				const data_req = await fetch("http://localhost:3001/login", {
 					method: "POST",
 					headers: { "Content-Type": "application/json", },
 					credentials: "include",
 					body: JSON.stringify({ user: username, password: password }),
 				});
-				const data = await response.json();
+				const data = await data_req.json();
 
-				if (response.status === 200)
+				if (data_req.status === 200)
 				{
+					isLogged();
 					navigationManager("/");
 				}
-				else if (response.status === 400)
+				else if (data_req.status === 400)
 				{
 					document.getElementById("login-error-message").innerHTML = "error: " + data.error;
 					document.getElementById("login-error-message").classList.remove("hidden");
+				}
+				else
+				{
+					throw new Error("invalid response");
 				}
 
 			}
 			catch (error)
 			{
-				console.log(error);
+				console.error(error);
 				document.getElementById("login-error-message").innerHTML = "error: server error, try again later...";
 				document.getElementById("login-error-message").classList.remove("hidden");
 			}

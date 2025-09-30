@@ -1,4 +1,41 @@
-const navigationManager = url => {
+export async function isLogged(): boolean {
+	let uuid_req = await fetch("http://localhost:3001/me", {
+		method: "GET",
+		credentials: "include",
+	});
+	if (uuid_req.status == 200)
+	{
+		let uuid = await uuid_req.json();
+		document.cookie = `uuid=${uuid.user};max-age=${60*60*24*7}`;
+
+		const old_button = document.getElementById("profile-button");
+		const logged_dropdown = document.createElement("button");
+		logged_dropdown.innerHTML = "logged in, more like locked in ahah i'm gonna kill myself the 12th of October";
+		logged_dropdown.classList.add("text-neutral-900", "hover:text-neutral-700", "dark:text-white", "dark:hover:text-neutral-400");
+		logged_dropdown.id = "profile-button";
+
+		// add the dropdown button and the dropdown logic
+
+		old_button.replaceWith(logged_dropdown);
+		return true;
+	}
+	else // 401
+	{
+		document.cookie = `uuid=;max-age=0`;
+		const old_button = document.getElementById("profile-button");
+		const login_button = document.createElement("a");
+		login_button.id = "profile-button";
+		login_button.text = "login";
+		login_button.classList.add("text-neutral-900", "hover:text-neutral-700", "dark:text-white", "dark:hover:text-neutral-400");
+		login_button.href = "/login";
+		login_button.setAttribute("data-link", "");
+
+		old_button.replaceWith(login_button);
+		return false;
+	}
+}
+
+export const navigationManager = url => {
 	history.pushState(null, null, url);
 	router();
 };
@@ -14,6 +51,8 @@ const routes = [
 
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },
+
+	{ path: "/tetris", view: () => import("./views/Tetris.ts") },
 ];
 
 const router = async () => {
@@ -30,7 +69,7 @@ const router = async () => {
 	if (view)
 		view.running = false;
 	
-	console.log(match);
+	//console.log(match);
 
 	const module = await match.route.view();
 	view = new module.default();
@@ -42,6 +81,7 @@ const router = async () => {
 window.addEventListener("popstate", router);
 
 document.addEventListener("DOMContentLoaded", () => {
+	isLogged();
 
 	document.body.addEventListener("click", e=> {
 		if (e.target.matches("[data-link]"))
