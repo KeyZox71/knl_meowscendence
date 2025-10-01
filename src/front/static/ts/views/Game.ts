@@ -1,4 +1,5 @@
 import Aview from "./Aview.ts"
+import { isLogged } from "../main.js"
 
 export default class extends Aview {
 	
@@ -13,10 +14,13 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-			<script type="module" src="static/ts/pong-logic.ts"></script>
-			<div class="text-center p-5 bg-white rounded-xl shadow space-y-4">
-				<canvas id="gameCanvas" class="rounded-md" width="400" height="400"></canvas>
-				<div id="game-buttons" class="hidden flex">
+			<div class="text-center p-5 bg-white rounded-xl shadow">
+				<div id="player-inputs" class="flex row">
+					<input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+					<input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+				</div>
+				<canvas id="gameCanvas" class="hidden rounded-md" width="400" height="400"></canvas>
+				<div id="game-buttons" class="hidden flex mt-4">
 					<button id="game-retry" class="bg-blue-600 text-white hover:bg-blue-500 w-full mx-4 py-2 rounded-md transition-colors">play again</button>
 					<a id="game-back" class="bg-gray-600 text-white hover:bg-gray-500 w-full mx-4 py-2 rounded-md transition-colors" href="/pong" data-link>back</a>
 				</div>
@@ -32,6 +36,8 @@ export default class extends Aview {
 		let match_over: boolean = false;
 		let p1_score: number = 0;
 		let p2_score: number = 0;
+		let p1_name: string;
+		let p2_name: string;
 
 		let countdown: number = 3;
 		let countdownTimer: number = 0;
@@ -46,7 +52,7 @@ export default class extends Aview {
 
 		let leftPaddleY: number = canvas.height / 2 - paddleHeight / 2;
 		let rightPaddleY: number = canvas.height / 2 - paddleHeight / 2;
-		let paddleSpeed: number = 727 * 0.69;
+		const paddleSpeed: number = 727 * 0.69;
 		let ballX: number = canvas.width / 2;
 		let ballY: number = canvas.height / 2;
 		let ballSpeed: number = 200;
@@ -154,13 +160,14 @@ export default class extends Aview {
 				ctx.fillRect(ballX, ballY, ballSize, ballSize);
 
 			ctx.font = "24px sans-serif";
-			ctx.fillText(`${p1_score} - ${p2_score}`, canvas.width / 2 - 20, 30);
+			let text_score = `${p1_name} ${p1_score} - ${p2_score} ${p2_name}`;
+			ctx.fillText(text_score, canvas.width / 2 - (ctx.measureText(text_score).width / 2), 30);
 
 			if (match_over)
 			{
-				ctx.font = "48px sans-serif";
-				const winner = p1_score > p2_score ? "Player 1" : "Player 2";
-				ctx.fillText(`${winner} won :D`, canvas.width / 2 - 150, canvas.height / 2 + 22);
+				ctx.font = "32px sans-serif";
+				const winner = `${p1_score > p2_score ? p1_name : p2_name} won :D`;
+				ctx.fillText(winner, canvas.width / 2 - (ctx.measureText(winner).width / 2), canvas.height / 2 + 16);
 				document.getElementById("game-buttons").classList.remove("hidden");
 			}
 		}
@@ -215,6 +222,13 @@ export default class extends Aview {
 			countdown = 3;
 			countdownTimer = performance.now();
 		});
+
+		p1_name = "Player 1";
+		p2_name = "Player 2";
+		if (await isLogged())
+		{
+			p1_name = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+		}
 
 		// --------------------------------------------------------------------------------------------------------------------------------------------------------
 		//

@@ -3,20 +3,53 @@ export async function isLogged(): boolean {
 		method: "GET",
 		credentials: "include",
 	});
-	if (uuid_req.status == 200)
+	if (uuid_req.status === 200)
 	{
 		let uuid = await uuid_req.json();
 		document.cookie = `uuid=${uuid.user};max-age=${60*60*24*7}`;
 
 		const old_button = document.getElementById("profile-button");
-		const logged_dropdown = document.createElement("button");
-		logged_dropdown.innerHTML = "logged in, more like locked in ahah i'm gonna kill myself the 12th of October";
-		logged_dropdown.classList.add("text-neutral-900", "hover:text-neutral-700", "dark:text-white", "dark:hover:text-neutral-400");
-		logged_dropdown.id = "profile-button";
 
-		// add the dropdown button and the dropdown logic
+		const dropdown = document.createElement("div");
+		dropdown.classList.add("relative", "inline-block", "group");
+		dropdown.id = "profile-button";
+		const button_dropdown = dropdown.appendChild(document.createElement("button"));
+		button_dropdown.innerHTML = uuid.user;
+		button_dropdown.classList.add("text-neutral-900", "group-hover:text-neutral-700", "dark:text-white", "dark:group-hover:text-neutral-400");
 
-		old_button.replaceWith(logged_dropdown);
+		const menu_div = dropdown.appendChild(document.createElement("div"));
+		menu_div.classList.add("float:right", "hidden", "absolute", "right-0", "bg-[#f9f9f9]",  "min-w-[160px]", "shadow-lg", "z-10",  "group-hover:block");
+
+		const profile_a = menu_div.appendChild(document.createElement("a"));
+		const settings_a = menu_div.appendChild(document.createElement("a"));
+		const logout_button = menu_div.appendChild(document.createElement("button"));
+
+		profile_a.text = "profile";
+		profile_a.classList.add("block", "no-underline", "px-4", "py-3");
+		profile_a.href = "/profile";
+		profile_a.setAttribute("data-link", "");
+
+		settings_a.text = "settings";
+		settings_a.classList.add("block", "no-underline", "px-4", "py-3");
+		settings_a.href = "/settings";
+		settings_a.setAttribute("data-link", "");
+
+		logout_button.innerHTML = "logout";
+		logout_button.classList.add("block", "no-underline", "px-4", "py-3");
+		logout_button.id = "logout-button";
+		//document.getElementById("logout-button")?.addEventListener("click", async () => {
+		logout_button.addEventListener("click", async () => {
+			let req = await fetch("http://localhost:3001/logout", {
+				method: "GET",
+				credentials: "include",
+			});
+			if (req.status === 200)
+				isLogged();
+			else
+				console.error("logout failed");
+		});
+
+		old_button.replaceWith(dropdown);
 		return true;
 	}
 	else // 401

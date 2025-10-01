@@ -11,18 +11,18 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-		<div class="text-center p-10 bg-white dark:bg-neutral-800 rounded-xl shadow space-y-4 flex flex-col">
+		<form method="dialog" class="text-center p-10 bg-white dark:bg-neutral-800 rounded-xl shadow space-y-4 flex flex-col">
 			<h1 class="text-4xl font-bold text-blue-600">login</h1>
 
-			<input type="text" placeholder="username" id="username" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
-			<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 border w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></input>
+			<input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+			<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 border w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
 			<p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
 			<button id="login-button" type="submit" class="bg-blue-600 text-white hover:bg-blue-500 w-full py-2 rounded-md transition-colors">login</button>
 
 			<a class="text-gray-400 dark:text-gray-600 underline" href="/register" data-link>
 				register
 			</a>
-		</div>
+		</form>
 		`;
 	}
 
