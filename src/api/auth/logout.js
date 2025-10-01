@@ -9,7 +9,7 @@ export async function logout(reply, fastify) {
 	try {
 		return reply
 			.code(200)
-			.clearCookie()
+			.clearCookie("token")
 			.send({ msg: "Logout successful" });
 	} catch {
 		fastify.log.error(err);
