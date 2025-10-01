@@ -109,5 +109,5 @@ export default async function(fastify, options) {
 		}
 	}, async (request, reply) => { return register(request, reply, saltRounds, fastify); });
 
-	fastify.get('/logout', {}, async (request, reply) => { return logout(request, reply, fastify); })
+	fastify.get('/logout', {}, async (request, reply) => { return logout(reply, fastify); })
 }
