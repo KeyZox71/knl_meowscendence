@@ -5,9 +5,12 @@ Available endpoints:
 - POST `/users/:userId/friends`
 - POST `/users/:userId/matchHistory`
 - GET `/users`
+- GET `/users/count`
 - GET `/users/:userId`
 - GET `/users/:userId/friends`
+- GET `/users/:userId/friends/count`
 - GET `/users/:userId/matchHistory`
+- GET `/users/:userId/matchHistory/count`
 - PATCH `/users/:userId/:member`
 - DELETE `/users/:userId`
 - DELETE `/users/:userId/:member`
@@ -54,16 +57,9 @@ Can return:
 }
 ```
 
-## POST `/users/:userId/friends`
+## POST `/users/:userId/friends/:friendId`
 
-Used to add a friend
-
-Input needed :
-```json
-{
-	"friend": "<the friend's username>"
-}
-```
+Used to add a friend to an user
 
 Can return:
 - 200 with response
@@ -72,7 +68,7 @@ Can return:
 	"msg": "Friend added successfully"
 }
 ```
-- 400 with response (if no user is specified in header, or friend is the user specified in header, or no friend is specified in body)
+- 400 with response (if no user is specified in header, or friend is the user specified in header, or friend is already added)
 ```json
 {
 	"error": "<corresponding error>"
@@ -93,7 +89,7 @@ Can return:
 
 ## POST `/users/:userId/matchHistory`
 
-Used to add a match result
+Used to add a match result to an user
 
 Input needed :
 ```json
@@ -130,22 +126,49 @@ Can return:
 }
 ```
 
-## GET `/users`
+## GET `/users?iStart=<starting index (included)>&iEnd=<ending index (excluded)>`
 
-Used to get the user list
+Used to get the list of users
+
+Can return:
+- 200 with response (list of user objects (between iStart and iEnd))
+```json
+{
+	"users":
+	[
+		{
+			"username": "<the username>",
+			"displayName": "<the display name>",
+			"wins": <the number of matches won>,
+			"losses": <the number of matches lost>
+		},
+		...
+	]
+}
+```
+- 400 with response (if iStart/iEnd is missing, or iEnd < iStart)
+```json
+{
+	"error": "<corresponding error>"
+}
+```
+- 404 with response (if no users exist in the selected range)
+```json
+{
+	"error": "<corresponding error>"
+}
+```
+
+## GET `/users/count`
+
+Used to get the number of users
 
 Always returns:
-- 200 with response (list of user objects)
+- 200 with response
 ```json
-[
-	{
-		"username": "<the username>",
-		"displayName": "<the display name>",
-		"wins": <the number of matches won>,
-		"losses": <the number of matches lost>
-	},
-	...
-]
+{
+	"n_<name of the counted objects>": <number of users>
+}
 ```
 
 ## GET `/users/:userId`
@@ -169,38 +192,57 @@ Can return:
 }
 ```
 
-## GET `/users/:userId/friends`
+## GET `/users/:userId/friends?iStart=<starting index (included)>&iEnd=<ending index (excluded)>`
 
-Used to the friends of a user
+Used to get the friends of an user
 
 Can return:
-- 200 with response (list of friend objects)
+- 200 with response (list of friend objects (between iStart and iEnd))
 ```json
-[
-	{
-		"friendName": "<the friend's username>"
-	},
-	...
-]
+{
+	"friends":
+	[
+		{
+			"friendName": "<the friend's username>"
+		},
+		...
+	]
+}
 ```
-- 404 with response (if user does not exist, or user does not have friends)
+- 400 with response (if iStart/iEnd is missing, or iEnd < iStart)
+```json
+{
+	"error": "<corresponding error>"
+}
+```
+- 404 with response (if user does not exist, or no friends exist in the selected range)
 ```json
 {
 	"error": "<corresponding error>"
 }
 ```
 
-## GET `/users/:userId/matchHistory`
+## GET `/users/:userId/friends/count`
 
-Used to the match history of a user
+Used to get the number of friends of an user
 
-Input needed :
+Can return:
+- 200 with response
 ```json
 {
-	"iStart": <the index of the first match>,
-	"iEnd": <the id of the last match>
+	"n_<name of the counted objects>": <number of users>
 }
 ```
+- 404 with response (if user does not exist)
+```json
+{
+	"error": "<corresponding error>"
+}
+```
+
+## GET `/users/:userId/matchHistory?iStart=<starting index (included)>&iEnd=<ending index (excluded)>`
+
+Used to get the match history of an user
 
 Can return:
 - 200 with response (list of matches results (between iStart and iEnd))
@@ -225,7 +267,25 @@ Can return:
 	"error": "<corresponding error>"
 }
 ```
-- 404 with response (if user does not exist, or user did not play any matches)
+- 404 with response (if user does not exist, or no matches exist in the selected range)
+```json
+{
+	"error": "<corresponding error>"
+}
+```
+
+## GET `/users/:userId/matchHistory/count`
+
+Used to get the number of matches an user played
+
+Can return:
+- 200 with response
+```json
+{
+	"n_<name of the counted objects>": <number of users>
+}
+```
+- 404 with response (if user does not exist)
 ```json
 {
 	"error": "<corresponding error>"
@@ -234,7 +294,7 @@ Can return:
 
 ## PATCH `/users/:userId/:member`
 
-Used to modify the member of a user (only displayName can be modified)
+Used to modify a member of an user (only displayName can be modified)
 
 Input needed :
 ```json
@@ -271,7 +331,7 @@ Can return:
 
 ## DELETE `/users/:userId`
 
-Used to delete a user
+Used to delete an user
 
 Can return:
 - 200 with response
@@ -289,7 +349,7 @@ Can return:
 
 ## DELETE `/users/:userId/:member`
 
-Used to delete a member (only displayName can be deleted)
+Used to delete a member of an user (only displayName can be deleted)
 
 Can return:
 - 200 with response
@@ -319,7 +379,7 @@ Can return:
 
 ## DELETE `/users/:userId/friends`
 
-Used to delete friends
+Used to delete the friends of an user
 
 Can return:
 - 200 with response
@@ -349,7 +409,7 @@ Can return:
 
 ## DELETE `/users/:userId/friends/:friendId`
 
-Used to delete a friend
+Used to delete a friend of an user
 
 Can return:
 - 200 with response
@@ -379,7 +439,7 @@ Can return:
 
 ## DELETE `/users/:userId/matchHistory`
 
-Used to delete the match history
+Used to delete the match history of an user
 
 Can return:
 - 200 with response
