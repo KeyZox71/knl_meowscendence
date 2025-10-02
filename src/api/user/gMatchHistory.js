@@ -1,0 +1,29 @@
+export async function gMatchHistory(request, reply, fastify, getUserInfo, getMatchHistory) {
+	try {
+		const userId = request.params.userId;
+		if (!getUserInfo.get(userId)) {
+			return reply.code(404).send({ error: "User does not exist" });
+		}
+		const { iStart, iEnd } = request.query;
+		if (Number(iEnd) < Number(iStart)) {
+			return reply.code(400).send({ error: "Starting index cannot be strictly inferior to ending index" });
+		}
+		const matchHistoryId = getMatchHistory.all(userId, Number(iEnd) - Number(iStart), Number(iStart));
+		if (!matchHistoryId.length) {
+			return reply.code(404).send({ error: "No matches exist in the selected range" });
+		}
+		const ids = matchHistoryId.map(obj => Object.values(obj)[0]);
+		const promises = ids.map(async (id) => {
+			const res = await fetch(`http://localhost:3003/${id}`, { method: "GET" });
+			if (!res.ok) {
+				throw new Error('Failed to fetch item from blockchain API');
+			}
+			return await res.json();
+		});
+		const matchHistory = await Promise.all(promises);
+		return reply.code(200).send({ matchHistory });
+	} catch (err) {
+		fastify.log.error(err);
+		return reply.code(500).send({ error: "Internal server error" });
+	}
+}
