@@ -95,8 +95,8 @@ Input needed :
 ```json
 {
 	"opponent": "<the opponent's username>",
-	"p1Score": <player 1's score>,
-	"p2Score": <player 2's score>
+	"myScore": <my score>,
+	"opponentScore": <the opponent's score>
 }
 ```
 
@@ -247,19 +247,22 @@ Used to get the match history of an user
 Can return:
 - 200 with response (list of matches results (between iStart and iEnd))
 ```json
-[
-	{
-		"score":
+{
+	"matchHistory":
+	[
 		{
-			"p1": "<the name of the p1>",
-			"p2": "<the name of the p2>",
-			"p1Score": "<the score of the p1>",
-			"p2Score": "<the score of the p2>"
+			"score":
+			{
+				"p1": "<the name of the p1>",
+				"p2": "<the name of the p2>",
+				"p1Score": "<the score of the p1>",
+				"p2Score": "<the score of the p2>"
+			},
+			"tx": "<the transcaction hash>"
 		},
-		"tx": "<the transcaction hash>"
-	},
-	...
-]
+		...
+	]
+}
 ```
 - 400 with response (if iStart/iEnd does not exist, or iEnd < iStart)
 ```json
