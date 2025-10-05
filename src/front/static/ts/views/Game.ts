@@ -14,12 +14,14 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-			<div class="text-center p-5 bg-white rounded-xl shadow">
-				<div id="player-inputs" class="flex row">
-					<input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
-					<input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+			<div id="main-div" class="text-center p-5 bg-white rounded-xl shadow">
+				<div id="player-inputs" class="flex flex-col space-y-4">
+					<div class="flex flex-row">
+						<input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+						<input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+					</div>
+					<button id="game-start" class="bg-blue-600 text-white hover:bg-blue-500 w-full py-2 rounded-md transition-colors">play</button>
 				</div>
-				<canvas id="gameCanvas" class="hidden rounded-md" width="400" height="400"></canvas>
 				<div id="game-buttons" class="hidden flex mt-4">
 					<button id="game-retry" class="bg-blue-600 text-white hover:bg-blue-500 w-full mx-4 py-2 rounded-md transition-colors">play again</button>
 					<a id="game-back" class="bg-gray-600 text-white hover:bg-gray-500 w-full mx-4 py-2 rounded-md transition-colors" href="/pong" data-link>back</a>
@@ -42,19 +44,19 @@ export default class extends Aview {
 		let countdown: number = 3;
 		let countdownTimer: number = 0;
 
-		const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-		const ctx = canvas.getContext("2d");
+		let canvas;
+		let ctx;
 
 		const paddleOffset: number = 15;
 		const paddleHeight: number = 100;
 		const paddleWidth: number = 10;
 		const ballSize: number = 10;
 
-		let leftPaddleY: number = canvas.height / 2 - paddleHeight / 2;
-		let rightPaddleY: number = canvas.height / 2 - paddleHeight / 2;
 		const paddleSpeed: number = 727 * 0.69;
-		let ballX: number = canvas.width / 2;
-		let ballY: number = canvas.height / 2;
+		let leftPaddleY: number;
+		let rightPaddleY: number;
+		let ballX: number;
+		let ballY: number;
 		let ballSpeed: number = 200;
 		let ballSpeedX: number = 300;
 		let ballSpeedY: number = 10;
@@ -222,20 +224,36 @@ export default class extends Aview {
 			countdown = 3;
 			countdownTimer = performance.now();
 		});
+		let p1_input = document.getElementById("player1");
+		let p2_input = document.getElementById("player2");
 
-		p1_name = "Player 1";
-		p2_name = "Player 2";
+		p2_input.value = "Player 2";
 		if (await isLogged())
-		{
-			p1_name = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-		}
+			p1_input.value = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+		else
+			p1_input.value = "Player 1";
 
-		// --------------------------------------------------------------------------------------------------------------------------------------------------------
-		//
-		// insert logic to set both names
-		//
-		// --------------------------------------------------------------------------------------------------------------------------------------------------------
+		document.getElementById("game-start")?.addEventListener("click", () => {
+			p1_name = p1_input.value;
+			p2_name = p2_input.value;
+			document.getElementById("player-inputs").remove();
 
-		requestAnimationFrame(gameLoop);
+			canvas = document.createElement("canvas");
+			canvas.id = "gameCanvas";
+			canvas.classList.add("rounded-md");
+
+			document.getElementById("main-div").prepend(canvas);
+
+			ctx = canvas.getContext("2d");
+			ctx.canvas.width  = 600;
+			ctx.canvas.height = 600;
+
+			leftPaddleY = canvas.height / 2 - paddleHeight / 2;
+			rightPaddleY = canvas.height / 2 - paddleHeight / 2;
+			ballX = canvas.width / 2;
+			ballY = canvas.height / 2;
+
+			requestAnimationFrame(gameLoop);
+		});
 	}
 }

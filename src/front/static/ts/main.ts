@@ -85,6 +85,8 @@ const routes = [
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },
 
+	{ path: "/profile", view: () => import("./views/Profile.ts") },
+
 	{ path: "/tetris", view: () => import("./views/Tetris.ts") },
 ];
 
