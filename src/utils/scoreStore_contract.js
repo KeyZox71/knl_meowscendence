@@ -29,7 +29,7 @@ async function loadContract() {
 async function callGetScore(id) {
 	try {
 		const contract = await loadContract();
-		const result = await contract.getScore(id);
+		const result = await contract.getScore(id - 1);
 		return result;
 	} catch (error) {
 		console.error('Error calling view function:', error);
