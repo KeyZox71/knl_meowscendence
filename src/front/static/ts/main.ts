@@ -18,7 +18,7 @@ export async function isLogged(): boolean {
 		button_dropdown.classList.add("text-neutral-900", "group-hover:text-neutral-700", "dark:text-white", "dark:group-hover:text-neutral-400");
 
 		const menu_div = dropdown.appendChild(document.createElement("div"));
-		menu_div.classList.add("float:right", "hidden", "absolute", "right-0", "bg-[#f9f9f9]",  "min-w-[160px]", "shadow-lg", "z-10",  "group-hover:block");
+		menu_div.classList.add("float:right", "hidden", "absolute", "left-0", "bottom-full", "dark:bg-neutral-800", "dark:text-white", "min-w-[160px]", "shadow-lg", "z-10", "group-hover:block");
 
 		const profile_a = menu_div.appendChild(document.createElement("a"));
 		const settings_a = menu_div.appendChild(document.createElement("a"));

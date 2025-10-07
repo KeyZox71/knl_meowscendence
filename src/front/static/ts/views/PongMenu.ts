@@ -10,15 +10,25 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-		<div class="text-center p-12 bg-white dark:bg-neutral-800 rounded-xl shadow space-y-4">
-			<p class="text-gray-700 dark:text-white text-3xl font-bold pb-4">pong is funny yay</p>
-			<div class="flex flex-col space-y-4">
-				<a class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded transition-colors" href="/pong/local" data-link>
-					local match
-				</a>
-				<a class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded transition-colors" href="/pong/tournament" data-link>
-					local tournament
-				</a>
+		<div class="default-border">
+			<div class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
+				<span class="font-[Kubasta]">pong_game.ts</span>
+				<div>
+					<button> - </button>
+					<button> □ </button>
+					<a href="/" data-link> × </a>
+				</div>
+			</div>
+			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
+				<p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">pong is funny yay</p>
+				<div class="flex flex-col space-y-4">
+					<a class="default-button" href="/pong/local" data-link>
+						local match
+					</a>
+					<a class="default-button" href="/pong/tournament" data-link>
+						local tournament
+					</a>
+				</div>
 			</div>
 		</div>
 		`;

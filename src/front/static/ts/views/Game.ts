@@ -14,19 +14,30 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-			<div id="main-div" class="text-center p-5 bg-white rounded-xl shadow">
+		<div class="default-border">
+			<div class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
+				<span class="font-[Kubasta]">knl_meowscendence</span>
+				<div>
+					<button> - </button>
+					<button> □ </button>
+					<a href="/" data-link> × </a>
+				</div>
+			</div>
+
+				
+			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
 				<div id="player-inputs" class="flex flex-col space-y-4">
 					<div class="flex flex-row">
-						<input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
-						<input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
+						<span class="reverse-border w-full ml-2"><input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input></span>
+						<span class="reverse-border w-full ml-2"><input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 px-4 py-2 w-full input-border" required></input></span>
 					</div>
-					<button id="game-start" class="bg-blue-600 text-white hover:bg-blue-500 w-full py-2 rounded-md transition-colors">play</button>
+					<button id="game-start" class="default-button">play</button>
 				</div>
 				<div id="game-buttons" class="hidden flex mt-4">
 					<button id="game-retry" class="bg-blue-600 text-white hover:bg-blue-500 w-full mx-4 py-2 rounded-md transition-colors">play again</button>
 					<a id="game-back" class="bg-gray-600 text-white hover:bg-gray-500 w-full mx-4 py-2 rounded-md transition-colors" href="/pong" data-link>back</a>
-				</div>
 			</div>
+		</div>
 		`;
 	}
 
@@ -153,6 +164,13 @@ export default class extends Aview {
 			ctx.fillStyle = "black";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+			ctx.strokeStyle = "white";
+			ctx.beginPath();
+			ctx.setLineDash([5, 10]);
+			ctx.moveTo(canvas.width / 2, 0);
+			ctx.lineTo(canvas.width / 2, canvas.height);
+			ctx.stroke();
+
 			ctx.fillStyle = "white";
 			ctx.fillRect(paddleOffset, leftPaddleY, paddleWidth, paddleHeight);
 			ctx.fillRect(canvas.width - paddleWidth - paddleOffset, rightPaddleY, paddleWidth, paddleHeight);
@@ -161,13 +179,15 @@ export default class extends Aview {
 			if (game_playing)
 				ctx.fillRect(ballX, ballY, ballSize, ballSize);
 
-			ctx.font = "24px sans-serif";
-			let text_score = `${p1_name} ${p1_score} - ${p2_score} ${p2_name}`;
-			ctx.fillText(text_score, canvas.width / 2 - (ctx.measureText(text_score).width / 2), 30);
+			ctx.font = "24px Kubasta";
+			let text_score = `${p1_score} - ${p2_score}`;
+			ctx.fillText(text_score, canvas.width / 2 - (ctx.measureText(text_score).width / 2), 25);
+			ctx.fillText(p1_name, canvas.width / 4 - (ctx.measureText(p1_name).width / 2), 45);
+			ctx.fillText(p2_name, (canvas.width / 4 * 3) - (ctx.measureText(p2_name).width / 2), 45);
 
 			if (match_over)
 			{
-				ctx.font = "32px sans-serif";
+				ctx.font = "32px Kubasta";
 				const winner = `${p1_score > p2_score ? p1_name : p2_name} won :D`;
 				ctx.fillText(winner, canvas.width / 2 - (ctx.measureText(winner).width / 2), canvas.height / 2 + 16);
 				document.getElementById("game-buttons").classList.remove("hidden");
@@ -184,12 +204,12 @@ export default class extends Aview {
 					countdown--;
 					countdownTimer = now;
 				}
-				ctx.font = "48px sans-serif";
+				ctx.font = "48px Kubasta";
 				ctx.fillText(countdown.toString(), canvas.width / 2 - 10, canvas.height / 2 + 24);
 			}
 			else if (countdown === 0)
 			{
-				ctx.font = "48px sans-serif";
+				ctx.font = "48px Kubasta";
 				ctx.fillText("Go!", canvas.width / 2 - 30, canvas.height / 2 + 24);
 				setTimeout(() => {
 					game_playing = true;
@@ -240,7 +260,7 @@ export default class extends Aview {
 
 			canvas = document.createElement("canvas");
 			canvas.id = "gameCanvas";
-			canvas.classList.add("rounded-md");
+			canvas.classList.add("reverse-border");
 
 			document.getElementById("main-div").prepend(canvas);
 
