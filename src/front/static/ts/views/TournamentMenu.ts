@@ -1,4 +1,5 @@
 import Aview from "./Aview.ts"
+import { setOnekoState, setBallPos } from "../oneko.ts"
 
 export default class extends Aview {
 
@@ -6,6 +7,7 @@ export default class extends Aview {
 	{
 		super();
 		this.setTitle("Tournament");
+		setOnekoState("default");
 	}
 
 	async getHTML() {

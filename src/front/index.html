@@ -13,7 +13,24 @@
 
 	<!--body class="bg-gray-100 dark:bg-neutral-950 h-screen flex flex-col"-->
 	<body class="bg-neutral-950 dark:bg-[url(https://api.kanel.ovh/random)] bg-center bg-cover h-screen flex flex-col">
-		<script src="https://kanel.ovh/oneko.js"></script>
+		<!--script src="https://kanel.ovh/oneko.js"></script-->
+		<!--script src="./static/ts/oneko.js"></script-->
+
+		<div class="absolute flex flex-col items-center space-y-5 top-4 left-5">
+			<!--a class="absolute flex flex-col items-center top-4 left-5" href="/pong" data-icon-->
+			<a class="flex flex-col items-center" href="/pong" data-icon>
+				<img src="./static/assets/pong.svg" width=32 height=32 />
+				<span class="text-white font-[Kubasta]">pong_game.ts</span>
+			</a>
+			<a class="flex flex-col items-center" href="/tetris" data-icon>
+				<img src="./static/assets/tetrio.svg" width=32 height=32 />
+				<span class="text-white font-[Kubasta]">tetris_game.ts</span>
+			</a>
+			<a class="flex flex-col items-center" href="https://tetr.io/">
+				<img src="./static/assets/tetrio.svg" width=32 height=32 />
+				<span class="text-white font-[Kubasta]">tetr.io</span>
+			</a>
+		</div>
 
 		<div id="app" class="flex-1 flex items-center justify-center">
 		</div>

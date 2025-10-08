@@ -1,3 +1,5 @@
+import { oneko } from "./oneko.ts";
+
 export async function isLogged(): boolean {
 	let uuid_req = await fetch("http://localhost:3001/me", {
 		method: "GET",
@@ -82,12 +84,14 @@ const routes = [
 	{ path: "/pong/local", view: () => import("./views/Game.ts") },
 	{ path: "/pong/tournament", view: () => import("./views/TournamentMenu.ts") },
 
+	{ path: "/tetris", view: () => import("./views/TetrisMenu.ts") },
+	{ path: "/tetris/solo", view: () => import("./views/Tetris.ts") },
+	{ path: "/tetris/versus", view: () => import("./views/Tetris.ts") },
+
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },
 
 	{ path: "/profile", view: () => import("./views/Profile.ts") },
-
-	{ path: "/tetris", view: () => import("./views/Tetris.ts") },
 ];
 
 const router = async () => {
@@ -124,7 +128,22 @@ document.addEventListener("DOMContentLoaded", () => {
 			e.preventDefault();
 			navigationManager(e.target.href);
 		}
+		if (e.target.closest("[data-icon]"))
+		{
+			console.log("xd");
+			e.preventDefault();
+		}
+	});
+
+	document.body.addEventListener("dblclick", e=> {
+		if (e.target.closest("[data-icon]"))
+		{
+			e.preventDefault();
+			navigationManager(e.target.closest("[data-icon]").href);
+		}
 	});
 
 	router();
 });
+
+oneko();

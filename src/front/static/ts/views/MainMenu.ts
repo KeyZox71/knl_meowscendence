@@ -1,4 +1,5 @@
 import Aview from "./Aview.ts"
+import { setOnekoState } from "../oneko.ts"
 
 export default class extends Aview {
 
@@ -6,12 +7,13 @@ export default class extends Aview {
 	{
 		super();
 		this.setTitle("knl is trans(cendence)");
+		setOnekoState("default");
 	}
 
 	async getHTML() {
 		// <div class="text-center p-10 bg-white dark:bg-neutral-800 rounded-xl shadow space-y-4"-->
 		return `
-		<div class="default-border">
+		<!--div class="default-border">
 			<div class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
 				<span class="font-[Kubasta]">knl_meowscendence</span>
 				<div>
@@ -26,7 +28,7 @@ export default class extends Aview {
 					Pong
 				</a>
 			</div>
-		</div>
+		</div-->
 		`;
 	}
 }

@@ -15,7 +15,7 @@ export default class extends Aview {
 		return `
 		<div id="window" class="absolute default-border">
 			<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
-				<span class="font-[Kubasta]">pong_game.ts</span>
+				<span class="font-[Kubasta]">tetris_game.ts</span>
 				<div>
 					<button> - </button>
 					<button> □ </button>
@@ -23,13 +23,13 @@ export default class extends Aview {
 				</div>
 			</div>
 			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
-				<p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome to pong!! Oo</p>
+				<p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome to tetris! :D</p>
 				<div class="flex flex-col space-y-4">
-					<a class="default-button" href="/pong/local" data-link>
-						local match
+					<a class="default-button" href="/tetris/solo" data-link>
+						solo game
 					</a>
-					<a class="default-button" href="/pong/tournament" data-link>
-						local tournament
+					<a class="default-button" href="/tetris/versus" data-link>
+						versus game
 					</a>
 				</div>
 			</div>

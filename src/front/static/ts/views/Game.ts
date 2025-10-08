@@ -1,5 +1,7 @@
 import Aview from "./Aview.ts"
 import { isLogged } from "../main.js"
+import { dragElement } from "./drag.js"
+import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
 export default class extends Aview {
 	
@@ -10,13 +12,14 @@ export default class extends Aview {
 		super();
 		this.setTitle("pong (local match)");
 		this.running = true;
+		setOnekoState("default");
 	}
 
 	async getHTML() {
 		return `
-		<div class="default-border">
-			<div class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
-				<span class="font-[Kubasta]">knl_meowscendence</span>
+		<div id="window" class="absolute default-border">
+			<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
+				<span class="font-[Kubasta]">pong_game.ts</span>
 				<div>
 					<button> - </button>
 					<button> □ </button>
@@ -34,14 +37,16 @@ export default class extends Aview {
 					<button id="game-start" class="default-button">play</button>
 				</div>
 				<div id="game-buttons" class="hidden flex mt-4">
-					<button id="game-retry" class="bg-blue-600 text-white hover:bg-blue-500 w-full mx-4 py-2 rounded-md transition-colors">play again</button>
-					<a id="game-back" class="bg-gray-600 text-white hover:bg-gray-500 w-full mx-4 py-2 rounded-md transition-colors" href="/pong" data-link>back</a>
+					<button id="game-retry" class="default-button w-full mx-4 py-2">play again</button>
+					<a id="game-back" class="default-button w-full mx-4 py-2" href="/pong" data-link>back</a>
 			</div>
 		</div>
 		`;
 	}
 
 	async run() {
+		dragElement(document.getElementById("window"));
+
 		let start: number = 0;
 		let elapsed: number;
 
@@ -128,6 +133,7 @@ export default class extends Aview {
 			// scoring
 			if (ballX < 0 || ballX > canvas.width - ballSize)
 			{
+				setOnekoState("default");
 				game_playing = false;
 				if (ballX < 0)
 					p2_score++;
@@ -158,6 +164,7 @@ export default class extends Aview {
 				leftPaddleY = canvas.height / 2 - paddleHeight / 2;
 				rightPaddleY = canvas.height / 2 - paddleHeight / 2;
 			}
+			setBallPos(ballX, ballY);
 		}
 
 		function draw() {
@@ -235,6 +242,7 @@ export default class extends Aview {
 
 
 		document.getElementById("game-retry")?.addEventListener("click", () => {
+			setOnekoState("pong");
 			document.getElementById("game-buttons").classList.add("hidden");
 			game_playing = false;
 			match_over = false;
@@ -273,6 +281,8 @@ export default class extends Aview {
 			ballX = canvas.width / 2;
 			ballY = canvas.height / 2;
 
+			setOnekoState("pong");
+			setOnekoOffset();
 			requestAnimationFrame(gameLoop);
 		});
 	}

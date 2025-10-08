@@ -1,4 +1,5 @@
 import Aview from "./Aview.ts"
+import { setOnekoState } from "../oneko.ts"
 import { isLogged, navigationManager } from "../main.ts"
 
 export default class extends Aview {
@@ -7,6 +8,7 @@ export default class extends Aview {
 	{
 		super();
 		this.setTitle("register");
+		setOnekoState("default");
 	}
 
 	async getHTML() {
