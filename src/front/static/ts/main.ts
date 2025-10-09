@@ -129,10 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			navigationManager(e.target.href);
 		}
 		if (e.target.closest("[data-icon]"))
-		{
-			console.log("xd");
 			e.preventDefault();
-		}
 	});
 
 	document.body.addEventListener("dblclick", e=> {

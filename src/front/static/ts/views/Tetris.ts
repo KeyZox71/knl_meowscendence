@@ -25,7 +25,11 @@ export default class extends Aview {
 
 				
 			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
-				<canvas id="board" class="reverse-border" width="300" height="600"></canvas>
+				<div class="flex flex-row justify-center items-start space-x-4">
+					<canvas id="hold" class="reverse-border" width="140" heigth="80"></canvas>
+					<canvas id="board" class="reverse-border" width="300" height="600"></canvas>
+					<canvas id="queue" class="reverse-border" width="140" height="420"></canvas>
+				</div>
 				<div id="game-buttons" class="hidden flex">
 					<button id="game-retry" class="default-button">play again</button>
 					<a id="game-back" class="default-button" href="/tetris" data-link>back</a>
@@ -223,7 +227,11 @@ export default class extends Aview {
 		class Game {
 			board: Cell[][];
 			canvas: HTMLCanvasElement;
+			holdCanvas: HTMLCanvasElement;
+			queueCanvas: HTMLCanvasElement;
 			ctx: CanvasRenderingContext2D;
+			holdCtx: CanvasRenderingContext2D;
+			queueCtx: CanvasRenderingContext2D;
 			piece: Piece | null = null;
 			holdPiece: Piece | null = null;
 			canHold: boolean = true;
@@ -242,9 +250,12 @@ export default class extends Aview {
 				this.canvas.width = COLS * BLOCK;
 				this.canvas.height = ROWS * BLOCK;
 				const ctx = this.canvas.getContext('2d');
-				if (!ctx)
-					throw new Error('2D context not available');
 				this.ctx = ctx;
+
+				this.holdCanvas = document.getElementById('hold');
+				this.queueCanvas = document.getElementById('queue');
+				this.holdCtx = this.holdCanvas.getContext('2d');
+				this.queueCtx = this.queueCanvas.getContext('2d');
 
 				this.board = this.createEmptyBoard();
 				this.fillBag();
@@ -286,8 +297,11 @@ export default class extends Aview {
 
 				this.piece.x = Math.floor((COLS - this.piece.shape[0].length) / 2);
 				this.piece.y = -2;
+				this.piece.rotationIndex = 0;
+				this.piece.shape = this.piece.rotations[this.piece.rotationIndex];
 
 				this.canHold = false;
+				this.drawHold();
 			}
 
 			spawnPiece() {
@@ -301,6 +315,9 @@ export default class extends Aview {
 				{
 					this.isGameOver = true;
 				}
+
+				this.drawHold();
+				this.drawQueue();
 			}
 
 			collides(piece: Piece): boolean {
@@ -316,12 +333,35 @@ export default class extends Aview {
 				return false;
 			}
 
+			getGhostOffset(piece: Piece): boolean {
+				let y: number = 0;
+				while (true)
+				{
+					for (const cell of piece.getCells())
+					{
+						console.log(cell.y + y);
+						if ((cell.y + y >= ROWS) || (cell.y + y >= 0 && this.board[cell.y + y][cell.x]))
+							return y - 1;
+					}
+
+					y++;
+				}
+			}
+
 			lockPiece() {
 				if (!this.piece)
 					return;
+				let isValid:boolean = false;
 				for (const cell of this.piece.getCells())
+				{
 					if (cell.y >= 0 && cell.y < ROWS && cell.x >= 0 && cell.x < COLS)
 						this.board[cell.y][cell.x] = cell.val;
+					if (cell.y < 20)
+						isValid = true;
+				}
+				if (!isValid)
+					this.isGameOver = true;
+
 				this.clearLines();
 				this.spawnPiece();
 			}
@@ -411,8 +451,12 @@ export default class extends Aview {
 					this.score += 1;
 			}
 
+			keys: Record<string, boolean> = {};
+
 			registerListeners() {
 				window.addEventListener('keydown', (e) => {
+					this.keys[e.key] = true;
+
 					if (this.isGameOver) return;
 					if (e.key === 'ArrowLeft')
 						this.movePiece(-1, 0);
@@ -437,6 +481,8 @@ export default class extends Aview {
 					else if (e.key === 'p' || e.key === 'P' || e.key === 'Escape')
 						this.isPaused = !this.isPaused;
 				});
+
+				document.addEventListener("keyup", e => { this.keys[e.key] = false; });
 			}
 
 			loop(timestamp: number)
@@ -494,17 +540,80 @@ export default class extends Aview {
 			drawPiece() {
 				if (!this.piece)
 					return;
+
 				for (const cell of this.piece.getCells())
 					if (cell.y >= 0)
 						this.fillBlock(cell.x, cell.y, COLORS[cell.val]);
+
+				let offset:number = this.getGhostOffset(this.piece);
+				for (const cell of this.piece.getCells())
+					if (cell.y + offset >= 0)
+						this.fillGhostBlock(cell.x, cell.y + offset, COLORS[cell.val]);
+			}
+
+			drawHold() {
+				if (!this.holdPiece)
+					return ;
+
+				this.holdCtx.clearRect(0, 0, 200, 200)
+				let y: number = 0;
+				for (const row of this.holdPiece.rotations[0])
+				{
+					let x:number = 0;
+					for (const val of row)
+					{
+						if (val)
+						{
+							this.holdCtx.fillStyle = this.canHold ? COLORS[this.holdPiece.findColorIndex()] : "gray";
+							this.holdCtx.fillRect(
+								x * BLOCK + 1 + ((4 - this.holdPiece.rotations[0].length) * 15) + 10,
+								y * BLOCK + 1 + 20,
+								BLOCK - 2, BLOCK - 2);
+						}
+						x++;
+					}
+					y++;
+				}
+			}
+
+
+			drawQueue() {
+				this.queueCtx.clearRect(0, 0, 500, 500)
+				let placement:number = 0;
+				console.log(this.nextQueue.slice(0, 5))
+				for (const nextPiece of this.nextQueue.slice(0, 5))
+				{
+					let y: number = 0;
+					for (const row of TETROMINOES[nextPiece][0])
+					{
+						let x:number = 0;
+						for (const val of row)
+						{
+							if (val)
+							{
+								this.queueCtx.fillStyle = COLORS[['I', 'J', 'L', 'O', 'S', 'T', 'Z'].indexOf(nextPiece) + 1];
+								this.queueCtx.fillRect(
+									x * BLOCK + 1 + ((4 - TETROMINOES[nextPiece][0].length) * 15) + 10,
+									y * BLOCK + 1 + (placement * 80) + 20 - (nextPiece === 'I' ? 15 : 0),
+									BLOCK - 2, BLOCK - 2);
+							}
+							x++;
+						}
+						y++;
+					}
+					placement++;
+				}
 			}
 
 			fillBlock(x: number, y: number, color: string) {
 				const ctx = this.ctx;
 				ctx.fillStyle = color;
 				ctx.fillRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
-				/*ctx.strokeStyle = '#111';
-				ctx.strokeRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);*/
+			}
+			fillGhostBlock(x: number, y: number, color: string) {
+				const ctx = this.ctx;
+				ctx.strokeStyle = color;
+				ctx.strokeRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
 			}
 
 			clearBlock(x: number, y: number) {
