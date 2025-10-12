@@ -1,6 +1,7 @@
 import Aview from "./Aview.ts"
 import { setOnekoState } from "../oneko.ts"
 import { isLogged, navigationManager } from "../main.ts"
+import { dragElement } from "./drag.ts";
 
 export default class extends Aview {
 
@@ -13,22 +14,30 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-		<form method="dialog" class="text-center p-10 bg-white dark:bg-neutral-800 rounded-xl shadow space-y-4 flex flex-col">
-			<h1 class="text-4xl font-bold text-blue-600">register</h1>
+		<div id="window" class="absolute default-border">
+					<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
+						<span class="font-[Kubasta]">register.ts</span>
+						<div>
+							<button> - </button>
+							<button> □ </button>
+							<a href="/" data-link> × </a>
+						</div>
+					</div>
 
-			<input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 border rounded-md w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
-			<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 border w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></input>
-			<p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
-			<button id="register-button" type="submit" class="bg-blue-600 text-white hover:bg-blue-500 w-full py-2 rounded-md transition-colors">register</button>
-
-			<a class="text-gray-400 dark:text-gray-600 underline" href="/login" data-link>
-				i already have an account
-			</a>
-		</form>
+		<form method="dialog" class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
+			  <p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</p>
+			  <input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+			  <input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+			  <p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
+			  </br>
+				<button id="register-button" type="submit" class="default-button w-full">register</button>
+			</form>
+		</div>
 		`;
 	}
 
 	async run() {
+    dragElement(document.getElementById("window"));
 		const login = async () => {
 			const username = (document.getElementById("username") as HTMLInputElement).value;
 			const password = (document.getElementById("password") as HTMLInputElement).value;
