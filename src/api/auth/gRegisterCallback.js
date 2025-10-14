@@ -49,7 +49,7 @@ export async function gRegisterCallback(request, reply, fastify) {
 
 		authUserCreate(user.username, fastify)
 
-		const token = fastify.jwt.sign(user);
+		const token = fastify.jwt.sign({ user: user.username});
 
 		return reply
 			.setCookie('token', token, {

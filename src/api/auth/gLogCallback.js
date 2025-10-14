@@ -37,7 +37,7 @@ export async function gLogCallback(request, reply, fastify) {
 			return reply.code(400).send({ error: "User does not exist" });
 		}
 
-		const token = fastify.jwt.sign(user);
+		const token = fastify.jwt.sign({ user: user.username});
 
 		return reply
 			.setCookie('token', token, {

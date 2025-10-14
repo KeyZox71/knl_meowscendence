@@ -13,7 +13,7 @@ export async function authUserCreate(username, fastify) {
 	const url = process.env.USER_URL || "http://localhost:3002/"
 
     await axios.post(
-        "http://localhost:3002/users/" + username,
+        url + "users/" + username,
         payload,
         {
             headers: {
