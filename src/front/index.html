@@ -1,19 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Tailwind Test</title>
-    <link href="/style.css" rel="stylesheet" />
-  </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="text-center p-10 bg-white rounded-xl shadow space-y-4">
-      <h1 class="text-4xl font-bold text-blue-600">Vite + Tailwind</h1>
-      <p class="text-gray-700 text-lg">🚀 Looks like it's working!</p>
-      <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-        Click Me
-      </button>
-    </div>
-  </body>
-</html>
 
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link href="/static/assets/favicon.ico" rel="icon" type="image/x-icon" >
+		<title>Vite + Tailwind Test</title>
+		<link href="/static/css/style.css" rel="stylesheet" type="text/css" />
+	</head>
+
+
+
+	<!--body class="bg-gray-100 dark:bg-neutral-950 h-screen flex flex-col"-->
+	<body class="bg-[url(https://y-syo.me/res/bg.jpg)] dark:bg-[url(https://api.kanel.ovh/random)] bg-center bg-cover h-screen flex flex-col">
+		<!--script src="https://kanel.ovh/oneko.js"></script-->
+		<!--script src="./static/ts/oneko.js"></script-->
+
+		<div class="absolute flex flex-col items-center space-y-5 top-4 left-5">
+			<!--a class="absolute flex flex-col items-center top-4 left-5" href="/pong" data-icon-->
+			<a class="flex flex-col items-center" href="/pong" data-icon>
+				<img src="./static/assets/pong.svg" width=32 height=32 />
+				<span class="text-white font-[Kubasta]">pong_game.ts</span>
+			</a>
+			<a class="flex flex-col items-center" href="/tetris" data-icon>
+				<img src="./static/assets/tetrio.svg" width=32 height=32 />
+				<span class="text-white font-[Kubasta]">tetris_game.ts</span>
+			</a>
+			<a class="flex flex-col items-center" href="https://tetr.io/">
+				<img src="./static/assets/tetrio.svg" width=32 height=32 />
+				<span class="text-white font-[Kubasta]">tetr.io</span>
+			</a>
+		</div>
+
+		<div id="app" class="flex-1 flex items-center justify-center">
+		</div>
+
+		<div id="taskbar-menu" class="absolute bottom-13 left-0"></div>
+
+		<div class="border-t-2 border-neutral-300 dark:border-neutral-800 sticky bottom-0">
+			<nav class="bg-neutral-200 dark:bg-neutral-900 shadow-md border-t-2 border-neutral-400 dark:border-neutral-700 flex justify-between h-12 items-center content-center space-x-6 font-[Kubasta]">
+				<div class="flex px-4 items-center content-center space-x-2">
+				    <button id="profile-button" class="taskbar-button flex flex-row justify-center items-center"><img class="object-scale-down mr-2 h-5 w-5" src="https://api.kanel.ovh/id?id=65" /> start</button>
+					<div class="text-neutral-700 dark:text-neutral-400">|</div>
+					<a class="taskbar-button" href="https://rusty.42angouleme.fr/">rusty</a>
+					<a class="taskbar-button" href="/tetris" data-link>tetris</a>
+				</div>
+				<div class="reverse-border m-1.5 h-8/10 content-center">
+					<span id="taskbar-clock" class="text- neutral-900 dark:text-white px-4">12:37</span>
+				</div>
+			</nav>
+		</div>
+
+		<script type="module" src="/static/ts/main.ts"></script>
+	</body>
+</html>

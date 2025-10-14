@@ -1,5 +1,5 @@
 export default {
-  content: ['./src/front/**/*.{html,js}'],
+	content: ['./src/front/**/*.{html,js,ts,css}'],
   theme: {
     extend: {},
   },
