@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import authDB from '../../utils/authDB.js';
+import { authUserCreate } from '../../utils/authUserCreate.js';
 
 var env = process.env.NODE_ENV || 'development';
 
@@ -45,6 +46,8 @@ export async function gRegisterCallback(request, reply, fastify) {
 		}
 
 		authDB.addUser(user.username, '');
+
+		authUserCreate(user.username, fastify)
 
 		const token = fastify.jwt.sign(user);
 
