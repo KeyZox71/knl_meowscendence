@@ -24,7 +24,7 @@ authDB.prepareDB();
 export default async function(fastify, options) {
 
 	fastify.register(cors, {
-		origin: "http://localhost:5173",
+		origin: process.ENV.CORS_ORIGIN || '*',
 		credentials: true,
 		methods: [ "GET", "POST", "DELETE", "OPTIONS" ]
 	});
