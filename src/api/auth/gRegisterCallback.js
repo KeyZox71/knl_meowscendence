@@ -54,7 +54,7 @@ export async function gRegisterCallback(request, reply, fastify) {
 				path: '/',
 				secure: env !== 'development',
 				sameSite: 'lax',
-			}).redirect('/');
+			}).redirect(process.env.CALLBACK_REDIR);
 	} catch (error) {
 		fastify.log.error(error);
 		reply.code(500).send({ error: 'Internal server error' });
