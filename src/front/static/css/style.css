@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: Kubasta;
+  src: url('../assets/fonts/Kubasta.otf') format("opentype");
+}
+
+@source inline("space-y-{18,46,102,214,438,886,1782,3574,7158,14326,28662,57334,114678,229366,458742,917494}");
+@source inline("mt-{28,56,84,112}");
+
+@theme {
+	--shadow-2x1: 2px 2px 0px black;
+	/*
+	--color-kanel-700: #ac5c24;
+	*/
+}
+
+.default-border {
+	@apply border-2
+	border-t-neutral-100 border-l-neutral-100 border-r-neutral-400 border-b-neutral-400
+	dark:border-t-neutral-500 dark:border-l-neutral-500 dark:border-r-neutral-700 dark:border-b-neutral-700
+	;
+}
+
+.reverse-border {
+	@apply border-2
+	border-t-neutral-400 border-l-neutral-400 border-r-neutral-100 border-b-neutral-100
+	dark:border-t-neutral-700 dark:border-l-neutral-700 dark:border-r-neutral-500 dark:border-b-neutral-500
+	;
+}
+
+.input-border {
+	@apply border-2
+	border-t-neutral-950 border-l-neutral-950 border-r-neutral-200 border-b-neutral-200
+	dark:border-t-neutral-950 dark:border-l-neutral-950 dark:border-r-neutral-600 dark:border-b-neutral-600
+	;
+}
+
+.default-button {
+	@apply shadow-2x1
+	bg-neutral-200 hover:bg-neutral-300 active:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:active:bg-neutral-700
+	text-neutral-900 dark:text-white
+	px-4 py-2
+	delay-0 duration-150 transition-colors
+
+	border-2 border-t-neutral-100 dark:border-t-neutral-500 border-l-neutral-100 dark:border-l-neutral-500 border-r-neutral-400 dark:border-r-neutral-700 border-b-neutral-400 dark:border-b-neutral-700
+	active:border-t-neutral-400 dark:active:border-t-neutral-700 active:border-l-neutral-400 dark:active:border-l-neutral-700 active:border-r-neutral-100 dark:active:border-r-neutral-500 active:border-b-neutral-100 dark:active:border-b-neutral-500
+	;
+}
+
+.taskbar-button {
+	@apply shadow-2x1
+	bg-neutral-200 hover:bg-neutral-300 active:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:active:bg-neutral-700
+	text-neutral-900 dark:text-white
+	px-4 py-0.5
+	content-center text-center
+	delay-0 duration-150 transition-colors
+
+	border-2 border-t-neutral-100 dark:border-t-neutral-500 border-l-neutral-100 dark:border-l-neutral-500 border-r-neutral-400 dark:border-r-neutral-700 border-b-neutral-400 dark:border-b-neutral-700
+	active:border-t-neutral-400 dark:active:border-t-neutral-700 active:border-l-neutral-400 dark:active:border-l-neutral-700 active:border-r-neutral-100 dark:active:border-r-neutral-500 active:border-b-neutral-100 dark:active:border-b-neutral-500
+	;
+}
+
+.menu-default-button {
+    @apply w-46 h-12
+    text-neutral-900 dark:text-white
+    bg-neutral-200 hover:bg-neutral-300
+    dark:bg-neutral-800 dark:hover:bg-neutral-700
+    ;
+}
+
+.menu-default-label {
+    @apply w-46 h-12
+    text-neutral-900 dark:text-white
+    bg-neutral-200
+    dark:bg-neutral-800
+    ;
+}
