@@ -1,3 +1,12 @@
+async function fetchSave(request, reply, userId, addMatch) {
+	const res = await fetch('http://localhost:3003/', { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p1: userId, p2: request.body.opponent, p1Score: request.body.myScore, p2Score: request.body.opponentScore }) });
+	if (!res.ok) {
+		throw new Error('Internal server error');
+	}
+	const data = await res.json();
+	addMatch.run(userId, data.id);
+}
+
 export async function pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWins, incLosses) {
 	try {
 		const userId = request.params.userId;
@@ -16,11 +25,7 @@ export async function pMatchHistory(request, reply, fastify, getUserInfo, addMat
 		if (request.body.opponent === userId) {
 			return reply.code(400).send({ error: "Do you have dementia ? You cannot have played a match against yourself gramps" });
 		}
-		const res = await fetch('http://localhost:3003/', { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p1: userId, p2: request.body.opponent, p1Score: request.body.myScore, p2Score: request.body.opponentScore }) });
-		if (!res.ok)
-			return reply.code(500).send({ error: "Internal server error" });
-		const data = await res.json();
-		addMatch.run(userId, data.id);
+		await fetchSave(request, reply, userId, addMatch);
 		if (request.body.myScore > request.body.opponentScore) {
 			incWins.run(userId);
 			incLosses.run(request.body.opponent);
