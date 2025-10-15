@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 
 import { isValidString } from '../../utils/authUtils.js';
 import authDB from '../../utils/authDB.js';
+import { authUserCreate } from '../../utils/authUserCreate.js';
 
 var env = process.env.NODE_ENV || 'development';
 
@@ -35,6 +36,8 @@ export async function register(request, reply, saltRounds, fastify) {
 
 		const hash = await bcrypt.hash(password, saltRounds);
 		authDB.addUser(user, hash);
+
+		authUserCreate(user, fastify)
 
 		const token = fastify.jwt.sign({ user });
 
