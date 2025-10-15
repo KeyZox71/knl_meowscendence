@@ -87,13 +87,14 @@ Can return:
 }
 ```
 
-## POST `/users/:userId/matchHistory`
+## POST `/users/:userId/matchHistory?game=<pong/tetris>`
 
-Used to add a match result to an user
+Used to add a match result to an user to a specific game
 
 Input needed :
 ```json
 {
+	"game": "<pong/tetris>"
 	"opponent": "<the opponent's username>",
 	"myScore": <my score>,
 	"opponentScore": <the opponent's score>
@@ -107,7 +108,7 @@ Can return:
 	"msg": "Match successfully saved to the blockchain"
 }
 ```
-- 400 with response (if no user is specified in header, or no opponent/p1Score/p2Score is specified in body, or opponent is the user specified in header, or a score is negative)
+- 400 with response (if no user is specified in header, or no opponent/p1Score/p2Score is specified in body, or opponent is the user specified in header, or a score is negative, or the game specified is invalid)
 ```json
 {
 	"error": "<corresponding error>"
@@ -139,8 +140,14 @@ Can return:
 		{
 			"username": "<the username>",
 			"displayName": "<the display name>",
-			"wins": <the number of matches won>,
-			"losses": <the number of matches lost>
+			"pong": {
+				"wins": <the number of pong matches won>,
+				"losses": <the number of pong matches lost>
+			},
+			"tetris": {
+				"wins": <the number of tetris matches won>,
+				"losses": <the number of tetris matches lost>
+			}
 		},
 		...
 	]
@@ -181,8 +188,14 @@ Can return:
 {
 	"username": "<the username>",
 	"displayName": "<the display name>",
-	"wins": <the number of matches won>,
-	"losses": <the number of matches lost>
+	"pong": {
+		"wins": <the number of pong matches won>,
+		"losses": <the number of pong matches lost>
+	},
+	"tetris": {
+		"wins": <the number of tetris matches won>,
+		"losses": <the number of tetris matches lost>
+	}
 }
 ```
 - 404 with response (if user does not exist)
@@ -240,9 +253,9 @@ Can return:
 }
 ```
 
-## GET `/users/:userId/matchHistory?iStart=<starting index (included)>&iEnd=<ending index (excluded)>`
+## GET `/users/:userId/matchHistory?game=<pong/tetris>&iStart=<starting index (included)>&iEnd=<ending index (excluded)>`
 
-Used to get the match history of an user
+Used to get the match history of an user for a specific game
 
 Can return:
 - 200 with response (list of matches results (between iStart and iEnd))
@@ -264,7 +277,7 @@ Can return:
 	]
 }
 ```
-- 400 with response (if iStart/iEnd does not exist, or iEnd < iStart)
+- 400 with response (if iStart/iEnd does not exist, or iEnd < iStart, or the game specified is invalid)
 ```json
 {
 	"error": "<corresponding error>"
@@ -277,15 +290,21 @@ Can return:
 }
 ```
 
-## GET `/users/:userId/matchHistory/count`
+## GET `/users/:userId/matchHistory/count?game=<pong/tetris>`
 
-Used to get the number of matches an user played
+Used to get the number of matches an user played for a specific game
 
 Can return:
 - 200 with response
 ```json
 {
 	"n_<name of the counted objects>": <number of users>
+}
+```
+- 400 with response (if game does not exist)
+```json
+{
+	"error": "<corresponding error>"
 }
 ```
 - 404 with response (if user does not exist)
@@ -440,9 +459,9 @@ Can return:
 }
 ```
 
-## DELETE `/users/:userId/matchHistory`
+## DELETE `/users/:userId/matchHistory?game=<pong/tetris>`
 
-Used to delete the match history of an user
+Used to delete the match history of an user for a specific game
 
 Can return:
 - 200 with response
@@ -451,7 +470,7 @@ Can return:
 	"msg": "Match history deleted successfully"
 }
 ```
-- 400 with response (if user specified in header is neither admin nor user)
+- 400 with response (if user specified in header is neither admin nor user, or the game specified is invalid)
 ```json
 {
 	"error": "<corresponding error>"

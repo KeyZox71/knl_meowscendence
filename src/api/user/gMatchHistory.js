@@ -4,11 +4,14 @@ export async function gMatchHistory(request, reply, fastify, getUserInfo, getMat
 		if (!getUserInfo.get(userId)) {
 			return reply.code(404).send({ error: "User does not exist" });
 		}
-		const { iStart, iEnd } = request.query;
+		const { game, iStart, iEnd } = request.query;
+		if (game !== 'pong' && game !== 'tetris') {
+			return reply.code(400).send({ error: "Specified game does not exist" });
+		}
 		if (Number(iEnd) < Number(iStart)) {
 			return reply.code(400).send({ error: "Starting index cannot be strictly inferior to ending index" });
 		}
-		const matchHistoryId = getMatchHistory.all(userId, Number(iEnd) - Number(iStart), Number(iStart));
+		const matchHistoryId = getMatchHistory.all(game, userId, Number(iEnd) - Number(iStart), Number(iStart));
 		if (!matchHistoryId.length) {
 			return reply.code(404).send({ error: "No matches exist in the selected range" });
 		}

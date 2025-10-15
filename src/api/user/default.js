@@ -35,11 +35,15 @@ function prepareDB() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT,
 			displayName TEXT,
-			wins INTEGER,
-			losses INTEGER,
+			pongWins INTEGER,
+			pongLosses INTEGER,
+			tetrisWins INTEGER,
+			tetrisLosses INTEGER,
 			UNIQUE(username),
-			CHECK(wins >= 0),
-			CHECK(losses >= 0)
+			CHECK(pongWins >= 0),
+			CHECK(pongLosses >= 0),
+			CHECK(tetrisWins >= 0),
+			CHECK(tetrisLosses >= 0)
 		) STRICT
 	`);
 	database.exec(`
@@ -54,8 +58,12 @@ function prepareDB() {
 	database.exec(`
 		CREATE TABLE IF NOT EXISTS matchHistory (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			username TEXT,
-			matchId INTEGER
+			game TEXT,
+			player1 TEXT,
+			player2 TEXT,
+			matchId INTEGER,
+			CHECK(player1 != player2),
+			CHECK(game = 'pong' OR game = 'tetris')
 		) STRICT
 	`);
 }
@@ -63,34 +71,40 @@ function prepareDB() {
 prepareDB();
 
 // POST
-const createUser = database.prepare('INSERT INTO userData (username, displayName, wins, losses) VALUES (?, ?, 0, 0);');
+const createUser = database.prepare('INSERT INTO userData (username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses) VALUES (?, ?, 0, 0, 0, 0);');
 const addFriend = database.prepare('INSERT INTO friends (username, friendName) VALUES (?, ?);');
-const addMatch = database.prepare('INSERT INTO matchHistory (username, matchId) VALUES (?, ?);');
-const incWins = database.prepare('UPDATE userData SET wins = wins + 1 WHERE username = ?;');
-const incLosses = database.prepare('UPDATE userData SET losses = losses + 1 WHERE username = ?');
+const addMatch = database.prepare('INSERT INTO matchHistory (game, player1, player2, matchId) VALUES (?, ?, ?, ?);');
+const incWinsPong = database.prepare('UPDATE userData SET pongWins = pongWins + 1 WHERE username = ?;');
+const incLossesPong = database.prepare('UPDATE userData SET pongLosses = pongLosses + 1 WHERE username = ?');
+const incWinsTetris = database.prepare('UPDATE userData SET tetrisWins = tetrisWins + 1 WHERE username = ?;');
+const incLossesTetris = database.prepare('UPDATE userData SET tetrisLosses = tetrisLosses + 1 WHERE username = ?');
 
 // PATCH
 const changeDisplayName = database.prepare('UPDATE userData SET displayName = ? WHERE username = ?;');
 
 // GET
-const getUserData = database.prepare('SELECT username, displayName, wins, losses FROM userData LIMIT ? OFFSET ?;');
-const getUserInfo = database.prepare('SELECT username, displayName, wins, losses FROM userData WHERE username = ?;');
+const getUserData = database.prepare('SELECT username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses FROM userData LIMIT ? OFFSET ?;');
+const getUserInfo = database.prepare('SELECT username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses FROM userData WHERE username = ?;');
 const getFriends = database.prepare('SELECT friendName FROM friends WHERE username = ? LIMIT ? OFFSET ?;');
 const getFriend = database.prepare('SELECT friendName FROM friends WHERE username = ? AND friendName = ?;');
-const getMatchHistory = database.prepare('SELECT matchId FROM matchHistory WHERE username = ? LIMIT ? OFFSET ?;');
+const getMatchHistory = database.prepare('SELECT matchId FROM matchHistory WHERE game = ? AND ? IN (player1, player2) LIMIT ? OFFSET ?;');
 const getNumberUsers = database.prepare('SELECT COUNT (DISTINCT username) AS n_users FROM userData;');
 const getNumberFriends = database.prepare('SELECT COUNT (DISTINCT friendName) AS n_friends FROM friends WHERE username = ?;');
-const getNumberMatches = database.prepare('SELECT COUNT (DISTINCT id) AS n_matches FROM matchHistory WHERE username = ?;')
+const getNumberMatches = database.prepare('SELECT COUNT (DISTINCT id) AS n_matches FROM matchHistory WHERE game = ? AND ? IN (player1, player2);')
 
 // DELETE
 const deleteUser = database.prepare('DELETE FROM userData WHERE username = ?;');
 const deleteFriend = database.prepare('DELETE FROM friends WHERE username = ? AND friendName = ?;');
 const deleteFriends = database.prepare('DELETE FROM friends WHERE username = ?;');
-const deleteMatchHistory = database.prepare('DELETE FROM matchHistory WHERE username = ?;');
-const deleteStats = database.prepare('UPDATE userData SET wins = 0, losses = 0 WHERE username = ?;');
+const deleteMatchHistory = database.prepare('DELETE FROM matchHistory WHERE game = ? AND ? IN (player1, player2);');
+const deleteStatsPong = database.prepare('UPDATE userData SET pongWins = 0, pongLosses = 0 WHERE username = ?;');
+const deleteStatsTetris = database.prepare('UPDATE userData SET tetrisWins = 0, tetrisLosses = 0 WHERE username = ?;');
 
 const querySchema = { type: 'object', required: ['iStart', 'iEnd'], properties: { iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
 const bodySchema = { type: 'object', required: ['opponent', 'myScore', 'opponentScore'], properties: { opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
+const querySchemaMatchHistory = { type: 'object', required: ['game', 'iStart', 'iEnd'], properties: { game: { type: 'string' }, iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
+const bodySchemaMatchHistory = { type: 'object', required: ['game', 'opponent', 'myScore', 'opponentScore'], properties: { game: { type: 'string' }, opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
+const querySchemaMatchHistoryGame = { type: 'object', required: ['game'], properties: { game: { type: 'string' } } }
 
 export default async function(fastify, options) {
 	fastify.register(fastifyJWT, {
@@ -137,10 +151,10 @@ export default async function(fastify, options) {
 	fastify.get('/users/:userId/friends/count', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return gNumberFriends(request, reply, fastify, getUserInfo, getNumberFriends);
 	});
-	fastify.get('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { querystring: querySchema } }, async (request, reply) => {
+	fastify.get('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { querystring: querySchemaMatchHistory } }, async (request, reply) => {
 		return gMatchHistory(request, reply, fastify, getUserInfo, getMatchHistory);
 	});
-	fastify.get('/users/:userId/matchHistory/count', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+	fastify.get('/users/:userId/matchHistory/count', { preHandler: [fastify.authenticate], schema: { query: querySchemaMatchHistoryGame } }, async (request, reply) => {
 		return gNumberMatches(request, reply, fastify, getUserInfo, getNumberMatches);
 	});
 
@@ -151,8 +165,8 @@ export default async function(fastify, options) {
 	fastify.post('/users/:userId/friends/:friendId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return pFriend(request, reply, fastify, getUserInfo, getFriend, addFriend);
 	});
-	fastify.post('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { body: bodySchema } }, async (request, reply) => {
-		return pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWins, incLosses);
+	fastify.post('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { body: bodySchemaMatchHistory } }, async (request, reply) => {
+		return pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWinsPong, incLossesPong, incWinsTetris, incLossesTetris);
 	});
 
 	// PATCH
@@ -173,7 +187,7 @@ export default async function(fastify, options) {
 	fastify.delete('/users/:userId/friends/:friendId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return dFriend(request, reply, fastify, getUserInfo, getFriend, deleteFriend);
 	});
-	fastify.delete('/users/:userId/matchHistory', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return dMatchHistory(request, reply, fastify, getUserInfo, deleteMatchHistory, deleteStats);
+	fastify.delete('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { query: querySchemaMatchHistoryGame } }, async (request, reply) => {
+		return dMatchHistory(request, reply, fastify, getUserInfo, deleteMatchHistory, deleteStatsPong, deleteStatsTetris);
 	});
 }

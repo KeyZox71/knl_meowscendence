@@ -1,4 +1,4 @@
-export async function dMatchHistory(request, reply, fastify, getUserInfo, deleteMatchHistory, deleteStats) {
+export async function dMatchHistory(request, reply, fastify, getUserInfo, deleteMatchHistory, deleteStatsPong, deleteStatsTetris) {
 	try {
 		if (!request.user) {
 			return reply.code(400).send({ error: "Please specify a user" });
@@ -10,8 +10,17 @@ export async function dMatchHistory(request, reply, fastify, getUserInfo, delete
 		if (request.user !== 'admin' && request.user !== userId) {
 			return reply.code(401).send({ error: "Unauthorized" });
 		}
-		deleteMatchHistory.run(userId);
-		deleteStats.run(userId);
+		const { game } = request.query;
+		if (game !== 'pong' && game !== 'tetris') {
+			return reply.code(400).send({ error: "Specified game does not exist" });
+		}
+		deleteMatchHistory.run(game, userId);
+		if (game === 'pong') {
+			deleteStatsPong.run(userId);
+		}
+		else if (game === 'tetris') {
+			deleteStatsTetris.run(userId);
+		}
 		return reply.code(200).send({ msg: "Match history deleted successfully" });
 	} catch (err) {
 		fastify.log.error(err);

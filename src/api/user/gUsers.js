@@ -8,7 +8,19 @@ export async function gUsers(request, reply, fastify, getUserData) {
 		if (!users.length) {
 			return reply.code(404).send({ error: "No users exist in the selected range" });
 		}
-		return reply.code(200).send({ users });
+		const usersFormat = users.map(obj => ({
+			username: obj.username,
+			displayName: obj.displayName,
+			pong: {
+				wins: obj.pongWins,
+				losses: obj.pongLosses
+			},
+			tetris: {
+				wins: obj.tetrisWins,
+				losses: obj.tetrisLosses
+			}
+		}));
+		return reply.code(200).send({ usersFormat });
 	} catch (err) {
 		fastify.log.error(err);
 		return reply.code(500).send({ error: "Internal server error" });
