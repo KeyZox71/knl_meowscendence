@@ -30,7 +30,7 @@ services:
       - back
     environment:
       - TZ=Europe/Paris
-      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GOOGLE_CALLBACK_URL=${AUTH_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - API_TARGET=auth

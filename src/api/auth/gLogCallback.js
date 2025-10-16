@@ -37,7 +37,7 @@ export async function gLogCallback(request, reply, fastify) {
 			return reply.code(400).send({ error: "User does not exist" });
 		}
 
-		const token = fastify.jwt.sign(user);
+		const token = fastify.jwt.sign({ user: user.username});
 
 		return reply
 			.setCookie('token', token, {
@@ -45,9 +45,7 @@ export async function gLogCallback(request, reply, fastify) {
 				path: '/',
 				secure: env !== 'development',
 				sameSite: 'lax',
-			})
-			.code(200)
-			.send({ msg: "Login successful" });
+			}).redirect(process.env.CALLBACK_REDIR);
 	} catch (error) {
 		fastify.log.error(error);
 		reply.code(500).send({ error: 'Internal server error' });

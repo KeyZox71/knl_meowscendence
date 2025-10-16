@@ -11,6 +11,7 @@ import { gRegisterCallback } from './gRegisterCallback.js';
 import { totpSetup } from './totpSetup.js';
 import { totpDelete } from './totpDelete.js';
 import { totpVerify } from './totpVerify.js';
+import { logout } from './logout.js';
 
 const saltRounds = 10;
 export const appName = process.env.APP_NAME || 'knl_meowscendence';
@@ -114,4 +115,6 @@ export default async function(fastify, options) {
 			}
 		}
 	}, async (request, reply) => { return register(request, reply, saltRounds, fastify); });
+
+	fastify.get('/logout', {}, async (request, reply) => { return logout(reply, fastify); })
 }
