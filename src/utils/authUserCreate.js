@@ -10,10 +10,10 @@ export async function authUserCreate(username, fastify) {
     };
     const cookie = fastify.jwt.sign({ user: "admin" });
 
-	const url = process.env.USER_URL + "/" || "http://localhost:3002/"
+	const url = process.env.USER_URL || "http://localhost:3002"
 
     await axios.post(
-        url + "users/" + username,
+        url + "/users/" + username,
         payload,
         {
             headers: {
