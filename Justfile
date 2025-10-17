@@ -11,6 +11,10 @@ set dotenv-load
 @user $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/user/default.js
 
+# For launching the images api
+@images $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
+	fastify start src/api/images/default.js
+
 @scoreStore $FASTIFY_LOG_LEVEL="info" $FASTIFY_PRETTY_LOGS="true":
 	fastify start src/api/scoreStore/default.js
 

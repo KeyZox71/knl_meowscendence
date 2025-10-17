@@ -1,8 +1,0 @@
-Todo :
-- create users with an avatar (by default) -> POST/GET/PATCH/DELETE avatar
-- create a whole image upload API that ensures files are not executables, converts to a single type, stores the image and returns a UID to address them
-- add a privacy setting so not anybody can GET friends, match history, etc. (what are the RGPD requirements ?) ?
-
-
-
-Always update API doc

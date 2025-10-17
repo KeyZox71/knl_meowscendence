@@ -1,4 +1,4 @@
-export async function uMember(request, reply, fastify, getUserInfo, changeDisplayName) {
+export async function uMember(request, reply, fastify, getUserInfo, changeDisplayName, changeAvatarId) {
 	try {
 		const userId = request.params.userId;
 		if (!request.user) {

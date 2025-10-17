@@ -2,22 +2,25 @@ import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import Database from 'better-sqlite3';
 
-import { gUsers } from './gUsers.js'
-import { gUser } from './gUser.js'
-import { gNumberUsers } from './gNumberUsers.js'
-import { gFriends } from './gFriends.js'
-import { gNumberFriends } from './gNumberFriends.js'
-import { gMatchHistory } from './gMatchHistory.js'
-import { gNumberMatches } from './gNumberMatches.js'
-import { pUser } from './pUser.js'
-import { pFriend } from './pFriend.js'
-import { pMatchHistory } from './pMatchHistory.js'
-import { uMember } from './uMember.js'
-import { dUser } from './dUser.js'
-import { dMember } from './dMember.js'
-import { dFriends } from './dFriends.js'
-import { dFriend } from './dFriend.js'
-import { dMatchHistory } from './dMatchHistory.js'
+import { gUsers } from './gUsers.js';
+import { gUser } from './gUser.js';
+import { gNumberUsers } from './gNumberUsers.js';
+import { gFriends } from './gFriends.js';
+import { gNumberFriends } from './gNumberFriends.js';
+import { gMatchHistory } from './gMatchHistory.js';
+import { gNumberMatches } from './gNumberMatches.js';
+import { pUser } from './pUser.js';
+import { pFriend } from './pFriend.js';
+import { pMatchHistory } from './pMatchHistory.js';
+import { uMember } from './uMember.js';
+import { dUser } from './dUser.js';
+import { dMember } from './dMember.js';
+import { dFriends } from './dFriends.js';
+import { dFriend } from './dFriend.js';
+import { dMatchHistory } from './dMatchHistory.js';
+import { pAvatar } from './pAvatar.js';
+import { gAvatar } from './gAvatar.js';
+import { dAvatar } from './dAvatar.js';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -35,6 +38,7 @@ function prepareDB() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT,
 			displayName TEXT,
+			avatarId INTEGER,
 			pongWins INTEGER,
 			pongLosses INTEGER,
 			tetrisWins INTEGER,
@@ -73,16 +77,18 @@ function prepareDB() {
 prepareDB();
 
 // POST
-const createUser = database.prepare('INSERT INTO userData (username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses) VALUES (?, ?, 0, 0, 0, 0);');
+const createUser = database.prepare('INSERT INTO userData (username, displayName, avatarId, pongWins, pongLosses, tetrisWins, tetrisLosses) VALUES (?, ?, -1, 0, 0, 0, 0);');
 const addFriend = database.prepare('INSERT INTO friends (username, friendName) VALUES (?, ?);');
 const addMatch = database.prepare('INSERT INTO matchHistory (game, date, player1, player2, matchId) VALUES (?, ?, ?, ?, ?);');
 const incWinsPong = database.prepare('UPDATE userData SET pongWins = pongWins + 1 WHERE username = ?;');
 const incLossesPong = database.prepare('UPDATE userData SET pongLosses = pongLosses + 1 WHERE username = ?');
 const incWinsTetris = database.prepare('UPDATE userData SET tetrisWins = tetrisWins + 1 WHERE username = ?;');
 const incLossesTetris = database.prepare('UPDATE userData SET tetrisLosses = tetrisLosses + 1 WHERE username = ?');
+const setAvatarId = database.prepare('UPDATE userData SET avatarId = ? WHERE username = ?;');
 
 // PATCH
 const changeDisplayName = database.prepare('UPDATE userData SET displayName = ? WHERE username = ?;');
+const changeAvatarId = database.prepare('UPDATE userData SET avatarId = ? WHERE username = ?;');
 
 // GET
 const getUserData = database.prepare('SELECT username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses FROM userData LIMIT ? OFFSET ?;');
@@ -92,7 +98,8 @@ const getFriend = database.prepare('SELECT friendName FROM friends WHERE usernam
 const getMatchHistory = database.prepare('SELECT matchId, date FROM matchHistory WHERE game = ? AND ? IN (player1, player2) LIMIT ? OFFSET ?;');
 const getNumberUsers = database.prepare('SELECT COUNT (DISTINCT username) AS n_users FROM userData;');
 const getNumberFriends = database.prepare('SELECT COUNT (DISTINCT friendName) AS n_friends FROM friends WHERE username = ?;');
-const getNumberMatches = database.prepare('SELECT COUNT (DISTINCT id) AS n_matches FROM matchHistory WHERE game = ? AND ? IN (player1, player2);')
+const getNumberMatches = database.prepare('SELECT COUNT (DISTINCT id) AS n_matches FROM matchHistory WHERE game = ? AND ? IN (player1, player2);');
+const getAvatarId = database.prepare('SELECT avatarId FROM userData WHERE username = ?;');
 
 // DELETE
 const deleteUser = database.prepare('DELETE FROM userData WHERE username = ?;');
@@ -101,6 +108,7 @@ const deleteFriends = database.prepare('DELETE FROM friends WHERE username = ?;'
 const deleteMatchHistory = database.prepare('DELETE FROM matchHistory WHERE game = ? AND ? IN (player1, player2);');
 const deleteStatsPong = database.prepare('UPDATE userData SET pongWins = 0, pongLosses = 0 WHERE username = ?;');
 const deleteStatsTetris = database.prepare('UPDATE userData SET tetrisWins = 0, tetrisLosses = 0 WHERE username = ?;');
+const deleteAvatarId = database.prepare('UPDATE userData SET avatarId = -1 WHERE username = ?;');
 
 const querySchema = { type: 'object', required: ['iStart', 'iEnd'], properties: { iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
 const bodySchema = { type: 'object', required: ['opponent', 'myScore', 'opponentScore'], properties: { opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
@@ -159,6 +167,9 @@ export default async function(fastify, options) {
 	fastify.get('/users/:userId/matchHistory/count', { preHandler: [fastify.authenticate], schema: { query: querySchemaMatchHistoryGame } }, async (request, reply) => {
 		return gNumberMatches(request, reply, fastify, getUserInfo, getNumberMatches);
 	});
+	fastify.get('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return gAvatar(request, reply, fastify, getAvatarId);
+	});
 
 	// POST
 	fastify.post('/users/:userId', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
@@ -170,10 +181,13 @@ export default async function(fastify, options) {
 	fastify.post('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { body: bodySchemaMatchHistory } }, async (request, reply) => {
 		return pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWinsPong, incLossesPong, incWinsTetris, incLossesTetris);
 	});
+	fastify.post('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return pAvatar(request, reply, fastify, setAvatarId);
+	});
 
 	// PATCH
 	fastify.patch('/users/:userId/:member', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return uMember(request, reply, fastify, getUserInfo, changeDisplayName);
+		return uMember(request, reply, fastify, getUserInfo, changeDisplayName, changeAvatarId);
 	});
 
 	// DELETE
@@ -191,5 +205,8 @@ export default async function(fastify, options) {
 	});
 	fastify.delete('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { query: querySchemaMatchHistoryGame } }, async (request, reply) => {
 		return dMatchHistory(request, reply, fastify, getUserInfo, deleteMatchHistory, deleteStatsPong, deleteStatsTetris);
+	});
+	fastify.delete('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return dAvatar(request, reply, fastify, deleteAvatarId);
 	});
 }

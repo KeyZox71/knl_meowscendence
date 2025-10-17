@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import authApi from './api/auth/default.js';
 import userApi from './api/user/default.js';
+import imagesApi from './api/images/default.js';
 import scoreApi from './api/scoreStore/default.js';
 import fs from 'fs';
 import path from 'path';
@@ -66,6 +67,16 @@ async function start() {
 		await score.listen({ port, host });
 		console.log(`ScoreStore API listening on http://${host}:${port}`);
 		servers.push(score);
+	}
+
+	if (target === 'images' || target === 'all') {
+		const images = Fastify({ logger: loggerOption('images') });
+		images.register(imagesApi);
+		const port = target === 'all' ? 3004 : 3000;
+		const host = target === 'all' ? '127.0.0.1' : '0.0.0.0';
+		await images.listen({ port, host });
+		console.log(`Images API listening on http://${host}:${port}`);
+		servers.push(images);
 	}
 
 	// Graceful shutdown on SIGINT
