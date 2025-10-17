@@ -15,13 +15,14 @@ export async function gMatchHistory(request, reply, fastify, getUserInfo, getMat
 		if (!matchHistoryId.length) {
 			return reply.code(404).send({ error: "No matches exist in the selected range" });
 		}
-		const ids = matchHistoryId.map(obj => Object.values(obj)[0]);
-		const promises = ids.map(async (id) => {
-			const res = await fetch(`http://localhost:3003/${id}`, { method: "GET" });
+		const promises = matchHistoryId.map(async (match) => {
+			const res = await fetch(`http://localhost:3003/${match.matchId}`, { method: "GET" });
 			if (!res.ok) {
 				throw new Error('Failed to fetch item from blockchain API');
 			}
-			return await res.json();
+			const resJson = await res.json();
+			resJson.score.date = match.date;
+			return resJson;
 		});
 		const matchHistory = await Promise.all(promises);
 		return reply.code(200).send({ matchHistory });

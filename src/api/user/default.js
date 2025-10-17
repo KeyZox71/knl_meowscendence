@@ -59,11 +59,13 @@ function prepareDB() {
 		CREATE TABLE IF NOT EXISTS matchHistory (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			game TEXT,
+			date INTEGER,
 			player1 TEXT,
 			player2 TEXT,
 			matchId INTEGER,
 			CHECK(player1 != player2),
-			CHECK(game = 'pong' OR game = 'tetris')
+			CHECK(game = 'pong' OR game = 'tetris'),
+			CHECK(date >= 0)
 		) STRICT
 	`);
 }
@@ -73,7 +75,7 @@ prepareDB();
 // POST
 const createUser = database.prepare('INSERT INTO userData (username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses) VALUES (?, ?, 0, 0, 0, 0);');
 const addFriend = database.prepare('INSERT INTO friends (username, friendName) VALUES (?, ?);');
-const addMatch = database.prepare('INSERT INTO matchHistory (game, player1, player2, matchId) VALUES (?, ?, ?, ?);');
+const addMatch = database.prepare('INSERT INTO matchHistory (game, date, player1, player2, matchId) VALUES (?, ?, ?, ?, ?);');
 const incWinsPong = database.prepare('UPDATE userData SET pongWins = pongWins + 1 WHERE username = ?;');
 const incLossesPong = database.prepare('UPDATE userData SET pongLosses = pongLosses + 1 WHERE username = ?');
 const incWinsTetris = database.prepare('UPDATE userData SET tetrisWins = tetrisWins + 1 WHERE username = ?;');
@@ -87,7 +89,7 @@ const getUserData = database.prepare('SELECT username, displayName, pongWins, po
 const getUserInfo = database.prepare('SELECT username, displayName, pongWins, pongLosses, tetrisWins, tetrisLosses FROM userData WHERE username = ?;');
 const getFriends = database.prepare('SELECT friendName FROM friends WHERE username = ? LIMIT ? OFFSET ?;');
 const getFriend = database.prepare('SELECT friendName FROM friends WHERE username = ? AND friendName = ?;');
-const getMatchHistory = database.prepare('SELECT matchId FROM matchHistory WHERE game = ? AND ? IN (player1, player2) LIMIT ? OFFSET ?;');
+const getMatchHistory = database.prepare('SELECT matchId, date FROM matchHistory WHERE game = ? AND ? IN (player1, player2) LIMIT ? OFFSET ?;');
 const getNumberUsers = database.prepare('SELECT COUNT (DISTINCT username) AS n_users FROM userData;');
 const getNumberFriends = database.prepare('SELECT COUNT (DISTINCT friendName) AS n_friends FROM friends WHERE username = ?;');
 const getNumberMatches = database.prepare('SELECT COUNT (DISTINCT id) AS n_matches FROM matchHistory WHERE game = ? AND ? IN (player1, player2);')
@@ -103,7 +105,7 @@ const deleteStatsTetris = database.prepare('UPDATE userData SET tetrisWins = 0, 
 const querySchema = { type: 'object', required: ['iStart', 'iEnd'], properties: { iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
 const bodySchema = { type: 'object', required: ['opponent', 'myScore', 'opponentScore'], properties: { opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
 const querySchemaMatchHistory = { type: 'object', required: ['game', 'iStart', 'iEnd'], properties: { game: { type: 'string' }, iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
-const bodySchemaMatchHistory = { type: 'object', required: ['game', 'opponent', 'myScore', 'opponentScore'], properties: { game: { type: 'string' }, opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
+const bodySchemaMatchHistory = { type: 'object', required: ['game', 'date', 'opponent', 'myScore', 'opponentScore'], properties: { game: { type: 'string' }, date: { type: 'integer', minimum: 0 }, opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
 const querySchemaMatchHistoryGame = { type: 'object', required: ['game'], properties: { game: { type: 'string' } } }
 
 export default async function(fastify, options) {

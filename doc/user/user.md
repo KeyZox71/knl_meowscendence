@@ -97,7 +97,8 @@ Input needed :
 	"game": "<pong/tetris>"
 	"opponent": "<the opponent's username>",
 	"myScore": <my score>,
-	"opponentScore": <the opponent's score>
+	"opponentScore": <the opponent's score>,
+	"date": <seconds since Epoch (Date.now() return)>
 }
 ```
 
@@ -174,7 +175,7 @@ Always returns:
 - 200 with response
 ```json
 {
-	"n_<name of the counted objects>": <number of users>
+	"n_users": <number of users>
 }
 ```
 
@@ -243,7 +244,7 @@ Can return:
 - 200 with response
 ```json
 {
-	"n_<name of the counted objects>": <number of users>
+	"n_friends": <number of friends>
 }
 ```
 - 404 with response (if user does not exist)
@@ -269,7 +270,8 @@ Can return:
 				"p1": "<the name of the p1>",
 				"p2": "<the name of the p2>",
 				"p1Score": "<the score of the p1>",
-				"p2Score": "<the score of the p2>"
+				"p2Score": "<the score of the p2>",
+				"date": <seconds since Epoch (Date.now() return)>
 			},
 			"tx": "<the transcaction hash>"
 		},
@@ -298,7 +300,7 @@ Can return:
 - 200 with response
 ```json
 {
-	"n_<name of the counted objects>": <number of users>
+	"n_matches": <number of matches played by the user>
 }
 ```
 - 400 with response (if game does not exist)

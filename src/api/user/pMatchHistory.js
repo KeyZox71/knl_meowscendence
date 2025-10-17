@@ -4,7 +4,7 @@ async function fetchSave(request, reply, userId, addMatch) {
 		throw new Error('Internal server error');
 	}
 	const data = await res.json();
-	addMatch.run(request.body.game, userId, request.body.opponent, data.id);
+	addMatch.run(request.body.game, request.body.date, userId, request.body.opponent, data.id);
 }
 
 export async function pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWinsPong, incLossesPong, incWinsTetris, incLossesTetris) {
