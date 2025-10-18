@@ -23,14 +23,13 @@ export default class extends Aview {
 			</div>
 
 			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
-
-			<form method="dialog" class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
+			  <form method="dialog" class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
 				<input type="text" id="new-friend" placeholder="new friend" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 				<button id="add-friends-button" type="submit" class="default-button w-full">add friend</button>
 				<button id="rm-friends-button" class="default-button w-full">remove friend</button>
 				<p id="add-friend-err" class="hidden text-red-700 dark:text-red-500"></p>
 				<p id="add-friend-msg" class="hidden text-gray-900 dark:text-white text-lg"></p>
-			</form>
+			  </form>
 			  <p id="friends_n" class="hidden text-gray-900 dark:text-white text-lg"></p>
 			  <p id="friends-error-message" class="hidden text-red-700 dark:text-red-500"></p>
 			  <ul id="friends_list" class="hidden text-gray-900 dark:text-white text-lg">
@@ -161,5 +160,4 @@ export default class extends Aview {
 		document.getElementById("add-friends-button")?.addEventListener("click", add_friend);
 		document.getElementById("rm-friends-button")?.addEventListener("click", rm_friend);
 	}
-
 }
