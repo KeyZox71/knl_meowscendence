@@ -5,6 +5,8 @@ import { isLogged, navigationManager } from "../main.ts"
 
 export default class extends Aview {
 
+	open: Boolean = false;
+
 	constructor() {
 		super();
 		this.setTitle("friends list");
@@ -13,28 +15,22 @@ export default class extends Aview {
 
 	async getHTML() {
 		return `
-		<div id="window" class="absolute default-border">
-			<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
+		<div class="relative b-0 default-border bg-neutral-200">
+			<div class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-40 justify-between px-2">
 				<span class="font-[Kubasta]">friends.ts</span>
-				<div>
-					<button> - </button>
-					<button> □ </button>
-					<a href="/" data-link> × </a>
-				</div>
 			</div>
 
-			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
-			  <form method="dialog" class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
-				<input type="text" id="new-friend" placeholder="new friend" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-				<button id="add-friends-button" type="submit" class="default-button w-full">add friend</button>
+			<div class="bg-neutral-200 pb-5 dark:bg-neutral-800 justify-center text-center reverse-border">
+			  <form method="dialog" class="justify-center bg-neutral-200 dark:bg-neutral-800 space-y-4 space-x-2 px-4 pt-4">
+				<input type="text" id="new-friend" placeholder="new friend" class="bg-white text-neutral-900 input-border" required></input>
+				<button id="add-friends-button" type="submit" class="default-button text-center mx-0 my-0">add friend</button>
 				<p id="add-friend-err" class="hidden text-red-700 dark:text-red-500"></p>
 				<p id="add-friend-msg" class="hidden text-gray-900 dark:text-white text-lg"></p>
 			  </form>
-			  <p id="friends_n" class="hidden text-gray-900 dark:text-white text-lg"></p>
 			  <p id="friends-error-message" class="hidden text-red-700 dark:text-red-500"></p>
 			  <p id="friend-msg" class="hidden text-gray-900 dark:text-white text-lg"></p>
-			  <div class="flex flex-row space-x-4 w-full min-w-145">
-				<ul id="friends_list" class="reverse-border space-y-2 hidden text-gray-900 dark:text-white text-lg overflow-scroll h-48 w-full">
+			  <div class="flex flex-row space-x-4 w-full min-w-60 px-4 py-2">
+				<ul id="friends_list" class="bg-neutral-300 dark:bg-neutral-900 reverse-border space-y-2 hidden text-gray-900 dark:text-white overflow-scroll h-48 w-full">
 				</ul>
 		      </div>
 			</div>
@@ -46,27 +42,37 @@ export default class extends Aview {
 		if (!await isLogged())
 			navigationManager("/");
 
-		dragElement(document.getElementById("window"));
+		if (this.open === true) {
+			document.getElementById("friends-menu").innerHTML = await this.getHTML();
+		} else {
+			document.getElementById("friends-menu").innerHTML = "";
+			return;
+		}
+
 		let uuid: String;
 		uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-		const n_friends = (document.getElementById("friends_n") as HTMLParagraphElement);
 		const friends_error_message = (document.getElementById("friends-error-message") as HTMLParagraphElement);
-		const friends_message = (document.getElementById("friends-msg") as HTMLParagraphElement)
 		const friends_list = (document.getElementById("friends_list") as HTMLUListElement);
 		const new_friend = (document.getElementById("new-friend") as HTMLInputElement);
 		const add_friend_err = (document.getElementById("add-friend-err") as HTMLParagraphElement);
 		const add_friend_msg = (document.getElementById("add-friend-msg") as HTMLParagraphElement);
 
-		async function removeFriend(name) {
+		async function removeFriend(name: String) {
 			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/" + name, {
 				method: "DELETE",
 				credentials: "include",
 			});
 			if (data_req.status === 200) {
-				console.log("friends removed success fully");
+				console.log("friends removed successfully");
 			} else {
 				console.log("could not remove friend");
 			}
+			list_friends();
+			list_friends();
+			list_friends();
+			list_friends();
+			list_friends();
+			list_friends();
 		}
 
 		async function isFriendLogged(name: string): Promise<Boolean> {
@@ -92,6 +98,9 @@ export default class extends Aview {
 			if (data_req.status === 404) {
 			}
 			let data = await data_req.json();
+			while (friends_list.firstChild) {
+				friends_list.removeChild(friends_list.firstChild);
+			}
 
 			if (data.n_friends > 0) {
 				const list_req = await fetch("http://localhost:3002/users/" + uuid + "/friends?iStart=0&iEnd=2147483647", {
@@ -105,9 +114,6 @@ export default class extends Aview {
 					friends_list.classList.add("hidden")
 					return;
 				} else if (list_req.status === 200) {
-					while (friends_list.firstChild) {
-						friends_list.removeChild(friends_list.firstChild);
-					}
 					friends_list.classList.remove("hidden")
 
 					let list = (await list_req.json()).friends as JSON;
@@ -120,7 +126,7 @@ export default class extends Aview {
 						activitySpan.textContent = "•";
 						if (isLogged == true)
 							activitySpan.className = "px-0 text-green-500";
-						else 
+						else
 							activitySpan.className = "px-0 text-red-500";
 
 
@@ -130,11 +136,10 @@ export default class extends Aview {
 
 						const but = document.createElement('button');
 						but.textContent = "-";
-						but.className = "bg-red-500 text-white px-2 py-0 rounded hover:bg-red-600";
+						but.classList.add("px-0", "py-0", "taskbar-button");
 						but.onclick = function() {
 							removeFriend(list[i].friendName);
-							list_friends()
-						}
+						};
 
 						new_friends.appendChild(activitySpan);
 						new_friends.appendChild(span);
@@ -142,16 +147,13 @@ export default class extends Aview {
 						friends_list.appendChild(new_friends);
 					}
 				} else {
-					n_friends.classList.add("hidden");
 					friends_error_message.innerHTML = (await list_req.json()).error;
 					friends_error_message.classList.remove("hidden");
 				}
 			} else {
-				friends_message.innerHTML = "you have no friends D:";
-				friends_message.classList.remove("hidden");
+				friends_list.classList.add("hidden")
 			}
 		}
-
 
 		const add_friend = async () => {
 			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/" + new_friend.value, {
@@ -185,10 +187,7 @@ export default class extends Aview {
 				credentials: "include",
 			});
 			if (data_req.status === 200) {
-				let data = await data_req.json();
-				n_friends.innerHTML = ":D friends count : " + data.n_friends;
-				n_friends.classList.remove("hidden");
-
+				// let data = await data_req.json();
 				list_friends()
 			}
 		} catch (error) {

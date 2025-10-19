@@ -1,6 +1,8 @@
 import { oneko } from "./oneko.ts";
 import ProfileMenu from "./views/ProfileMenu.ts";
+import FriendsMenu from "./views/Friends.ts";
 let profile_view = new ProfileMenu;
+let friends_view = new FriendsMenu;
 
 export async function isLogged(): Promise<boolean> {
 	let uuid_req = await fetch("http://localhost:3001/me", {
@@ -40,7 +42,6 @@ const routes = [
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },
 
-	{ path: "/friends", view: () => import("./views/Friends.ts") },
 	{ path: "/profile", view: () => import("./views/Profile.ts") },
 	{ path: "/settings", view: () => import("./views/Settings.ts") },
 ];
@@ -74,10 +75,16 @@ window.addEventListener("popstate", router);
 document.addEventListener("DOMContentLoaded", () => {
 	isLogged();
 
+
+
 	document.body.addEventListener("click", e => {
 		if (!e.target.closest("#taskbar-menu") && !e.target.matches("#profile-button")) {
 			profile_view.open = false;
 			document.getElementById("taskbar-menu").innerHTML = "";
+		}
+		if (e.target.matches("#friends-btn")) {
+			friends_view.open = !friends_view.open;
+			friends_view.run();
 		}
 		if (e.target.matches("[data-link]")) {
 			e.preventDefault();
@@ -113,6 +120,8 @@ function updateClock()
 
 	clock.innerHTML = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ` + hours + ":" + minutes;
 }
+
+friends_view.run();
 
 setInterval(updateClock, 5000);
 updateClock();

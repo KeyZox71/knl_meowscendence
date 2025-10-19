@@ -2,7 +2,6 @@ import Aview from "./Aview.ts"
 import { isLogged, navigationManager } from "../main.ts"
 
 export default class extends Aview {
-
 	async getHTML() {
 		return `
 		<div id="main-window" class="default-border shadow-2x1 bg-neutral-200 dark:bg-neutral-800">
