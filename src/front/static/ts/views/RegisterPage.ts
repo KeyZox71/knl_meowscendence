@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
+import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
 import { isLogged, navigationManager } from "../main.ts"
-import { dragElement } from "./drag.ts";
 
 export default class extends Aview {
 
@@ -24,14 +24,30 @@ export default class extends Aview {
 						</div>
 					</div>
 
-		<form method="dialog" class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
-			  <p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</p>
-			  <input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-			  <input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-			  <p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
-			  </br>
-				<button id="register-button" type="submit" class="default-button w-full">register</button>
-			</form>
+			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 reverse-border flex flex-col items-center">
+		    <form method="dialog" class="space-y-4">
+				  <p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</p>
+			    <input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+					<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+			    <p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
+					</br>
+					<button id="register-button" type="submit" class="default-button w-full">register</button>
+				</form>
+
+				<hr class="my-4 w-64 reverse-border">
+
+			  <div class="flex flex-col space-y-4 w-full">
+			    <a target="_blank" href="http://localhost:3001/register/google" class="default-button inline-flex items-center justify-center w-full">
+					  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height=20 width=20 class="mr-2 justify-self-start" />
+					  register with John Google
+					</a>
+				  <a target="_blank" href="https://rusty.42angouleme.fr/issues/all" class="default-button inline-flex items-center justify-center w-full">
+		        <img src="https://rusty.42angouleme.fr/assets/favicon-bb06adc80c8495db.ico" height=20 width=20 class="mr-2 justify-self-start" />
+						register with Rusty
+					</a>
+				</div>
+			</div>
+
 		</div>
 		`;
 	}

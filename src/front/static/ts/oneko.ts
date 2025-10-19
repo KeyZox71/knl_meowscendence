@@ -18,20 +18,23 @@ export function setOnekoState(state: string) {
 		default:
 			oneko_state = 0;
 	}
+  return;
 }
 
 export function setOnekoOffset() {
-	if (oneko_state == 1)
+	if (oneko_state != 0)
 	{
 		offsetX = document.getElementById("window").offsetLeft + 44;
 		offsetY = document.getElementById("window").offsetTop + 44 + 24;
-		console.log(offsetX, offsetY);
 	}
+  return;
 }
 
-export function setBallPos(x: number, y: number) {
+export function setBallPos(x: number, y: number)
+{
 	mousePosX = x + offsetX;
 	mousePosY = y + offsetY;
+  return;
 }
 
 export function oneko() {
@@ -39,7 +42,7 @@ export function oneko() {
     window.matchMedia(`(prefers-reduced-motion: reduce)`) === true ||
     window.matchMedia(`(prefers-reduced-motion: reduce)`).matches === true;
 
-  if (isReducedMotion) return;
+  if (isReducedMotion) return ;
 
   const nekoEl = document.createElement("div");
 
@@ -141,15 +144,15 @@ export function oneko() {
       {
         mousePosX = event.clientX;
         mousePosY = event.clientY;
-	  }
+      }
     });
 
     window.requestAnimationFrame(onAnimationFrame);
   }
 
-  let lastFrameTimestamp;
+  let lastFrameTimestamp: number;
 
-  function onAnimationFrame(timestamp) {
+  function onAnimationFrame(timestamp: number) {
     // Stops execution if the neko element is removed from DOM
     if (!nekoEl.isConnected) {
       return;

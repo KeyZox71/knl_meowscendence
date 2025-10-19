@@ -1,6 +1,6 @@
 import { oneko } from "./oneko.ts";
-import Profile from "./views/Profile.ts";
-let profile_view = new Profile;
+import ProfileMenu from "./views/ProfileMenu.ts";
+let profile_view = new ProfileMenu;
 
 export async function isLogged(): Promise<boolean> {
 	let uuid_req = await fetch("http://localhost:3001/me", {
@@ -40,6 +40,9 @@ const routes = [
 
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },
+
+	{ path: "/profile", view: () => import("./views/Profile.ts") },
+	{ path: "/settings", view: () => import("./views/Settings.ts") },
 ];
 
 const router = async () => {
@@ -97,8 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	router();
 });
 
-oneko();
-
 function updateClock()
 {
 	const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -116,3 +117,5 @@ function updateClock()
 
 setInterval(updateClock, 5000);
 updateClock();
+
+oneko();
