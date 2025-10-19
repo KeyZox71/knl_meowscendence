@@ -69,6 +69,18 @@ export default class extends Aview {
 			}
 		}
 
+		async function isFriendLogged(name: string): Promise<Boolean> {
+			const data_req = await fetch("http://localhost:3002/ping/" + name, {
+				method: "GET",
+				credentials: "include",
+			});
+
+			if (data_req.status === 404)
+				return false;
+
+			return (await data_req.json()).isLogged
+		}
+
 		const list_friends = async () => {
 			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/count", {
 				method: "GET",
@@ -77,6 +89,8 @@ export default class extends Aview {
 				},
 				credentials: "include",
 			});
+			if (data_req.status === 404) {
+			}
 			let data = await data_req.json();
 
 			if (data.n_friends > 0) {
@@ -87,7 +101,10 @@ export default class extends Aview {
 					},
 					credentials: "include",
 				});
-				if (list_req.status === 200) {
+				if (list_req.status == 404) {
+					friends_list.classList.add("hidden")
+					return;
+				} else if (list_req.status === 200) {
 					while (friends_list.firstChild) {
 						friends_list.removeChild(friends_list.firstChild);
 					}
@@ -97,8 +114,18 @@ export default class extends Aview {
 
 					for (let i = 0; i < data.n_friends; i++) {
 						let new_friends = document.createElement('li');
-						
+
+						const activitySpan = document.createElement('span');
+						const isLogged = await isFriendLogged(list[i].friendName)
+						activitySpan.textContent = "•";
+						if (isLogged == true)
+							activitySpan.className = "px-0 text-green-500";
+						else 
+							activitySpan.className = "px-0 text-red-500";
+
+
 						const span = document.createElement('span');
+						span.className = "px-3";
 						span.textContent = list[i].friendName;
 
 						const but = document.createElement('button');
@@ -109,6 +136,7 @@ export default class extends Aview {
 							list_friends()
 						}
 
+						new_friends.appendChild(activitySpan);
 						new_friends.appendChild(span);
 						new_friends.appendChild(but);
 						friends_list.appendChild(new_friends);
@@ -123,7 +151,7 @@ export default class extends Aview {
 				friends_message.classList.remove("hidden");
 			}
 		}
-		
+
 
 		const add_friend = async () => {
 			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/" + new_friend.value, {
@@ -168,5 +196,6 @@ export default class extends Aview {
 			friends_error_message.classList.remove("hidden");
 		}
 		document.getElementById("add-friends-button")?.addEventListener("click", add_friend);
+		setInterval(list_friends, 30000);
 	}
 }
