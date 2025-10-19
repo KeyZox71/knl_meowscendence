@@ -16,7 +16,7 @@ export default class extends Aview {
     return `
 		<div id="window" class="absolute default-border">
 			<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
-				<span class="font-[Kubasta]">pong_game.ts</span>
+				<span class="font-[Kubasta]">tetris_game.ts</span>
 				<div>
 					<button> - </button>
 					<button> □ </button>
@@ -27,13 +27,13 @@ export default class extends Aview {
 
 			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
 				<div class="flex flex-row justify-center items-start space-x-4">
-					<canvas id="hold" class="reverse-border" width="140" heigth="80"></canvas>
+					<canvas id="hold" class="reverse-border" width="140" height="100"></canvas>
 					<canvas id="board" class="reverse-border" width="300" height="600"></canvas>
 					<canvas id="queue" class="reverse-border" width="140" height="420"></canvas>
 				</div>
-				<div id="game-buttons" class="hidden flex">
-					<button id="game-retry" class="default-button">play again</button>
-					<a id="game-back" class="default-button" href="/tetris" data-link>back</a>
+				<div id="game-buttons" class="hidden flex mt-4">
+					<button id="game-retry" class="default-button w-full mx-4 py-2">play again</button>
+					<a id="game-back" class="default-button w-full mx-4 py-2" href="/tetris" data-link>back</a>
 				</div>
 			</div>
 		</div>
@@ -242,7 +242,10 @@ export default class extends Aview {
       }
 
       findColorIndex() {
-        for (const row of this.shape) for (const v of row) if (v) return v;
+        for (const row of this.shape)
+          for (const v of row)
+            if (v)
+              return v;
         return 1;
       }
 
@@ -314,6 +317,11 @@ export default class extends Aview {
           throw console.error("no canvas :c");
         this.holdCtx = this.holdCanvas.getContext("2d");
         this.queueCtx = this.queueCanvas.getContext("2d");
+        if (!this.holdCtx || !this.queueCtx)
+          return;
+
+        this.holdCtx.clearRect(0, 0, 200, 200);
+        this.queueCtx.clearRect(0, 0, 500, 500);
 
         this.board = this.createEmptyBoard();
         this.fillBag();
@@ -424,7 +432,6 @@ export default class extends Aview {
 
         if (linesCleared > 0) {
           this.lines += linesCleared;
-          // scoring like classic tetris
           const points = [0, 40, 100, 300, 1200];
           this.score += (points[linesCleared] || 0) * this.level;
           // level up every 10 lines (Fixed Goal System)
@@ -440,7 +447,7 @@ export default class extends Aview {
         if (!this.piece) return;
         if (this.isLocking && this.lockRotationCount < 15)
           this.lockRotationCount++;
-        // Try rotation with wall kicks
+        // Try wall kicks
         const originalIndex = this.piece.rotationIndex;
         if (dir === "cw") this.piece.rotateCW();
         else this.piece.rotateCCW();
@@ -450,7 +457,7 @@ export default class extends Aview {
           if (!this.collides(this.piece)) return;
           this.piece.x -= k;
         }
-        // no valid kick, revert
+        // no kick, revert
         this.piece.rotationIndex = originalIndex;
         this.piece.shape = this.piece.rotations[originalIndex];
       }
@@ -479,7 +486,6 @@ export default class extends Aview {
       softDrop() {
         if (!this.piece) return;
         if (!this.movePiece(0, 1)) return;
-        //this.lockPiece();
         else this.score += 1;
       }
 
@@ -571,8 +577,12 @@ export default class extends Aview {
           }
         }
         this.draw();
+
         if (this.isGameOver)
-          return;
+        {
+          document.getElementById("game-buttons")?.classList.remove("hidden");
+          return ;
+        }
         requestAnimationFrame(this.loop.bind(this));
       }
 
@@ -627,19 +637,8 @@ export default class extends Aview {
         for (const row of this.holdPiece.rotations[0]) {
           let x: number = 0;
           for (const val of row) {
-            if (val) {
-              this.fillBlock(x, y, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
-              /*this.holdCtx.fillStyle = ;
-              this.holdCtx.fillRect(
-                x * BLOCK +
-                  1 +
-                  (4 - this.holdPiece.rotations[0].length) * 15 +
-                  10,
-                y * BLOCK + 1 + 20,
-                BLOCK - 2,
-                BLOCK - 2,
-                );*/
-            }
+            if (val)
+              this.fillBlock(x + (4 - this.holdPiece.rotations[0].length)/ 2 + 0.35, y + 0.5, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
             x++;
           }
           y++;
@@ -655,25 +654,8 @@ export default class extends Aview {
           for (const row of TETROMINOES[nextPiece][0]) {
             let x: number = 0;
             for (const val of row) {
-              if (val) {
-                this.queueCtx.fillStyle =
-                  COLORS[
-                    ["I", "J", "L", "O", "S", "T", "Z"].indexOf(nextPiece) + 1
-                    ][0];
-                this.queueCtx.fillRect(
-                  x * BLOCK +
-                    1 +
-                    (4 - TETROMINOES[nextPiece][0].length) * 15 +
-                    10,
-                  y * BLOCK +
-                    1 +
-                    placement * 80 +
-                    20 -
-                    (nextPiece === "I" ? 15 : 0),
-                  BLOCK - 2,
-                  BLOCK - 2,
-                );
-              }
+              if (val)
+                this.fillBlock(x + (4 - TETROMINOES[nextPiece][0].length) / 2 + 0.25, y + 0.5 + placement * 2.69 - (nextPiece ==="I" ? 0.35 : 0), COLORS[["I", "J", "L", "O", "S", "T", "Z"].indexOf(nextPiece) + 1], this.queueCtx);
               x++;
             }
             y++;
@@ -694,17 +676,15 @@ export default class extends Aview {
         return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
       }
 
-      fillBlock(x: number, y: number, color: string[], ctx) {
+      fillBlock(x: number, y: number, color: string[], ctx: CanvasRenderingContext2D | null) {
         if (!ctx) return;
-        //const ctx = this.ctx;
-        //ctx.fillStyle = color;
         const grad = ctx.createLinearGradient(x * BLOCK, y * BLOCK, x * BLOCK, y * BLOCK + BLOCK);
         grad.addColorStop(0, color[0]);
         grad.addColorStop(1, color[1]);
         ctx.fillStyle = grad;
-        ctx.fillRect(x * BLOCK + 4, y * BLOCK + 4, BLOCK - 4, BLOCK - 4);
-        const X = x * BLOCK;
-        const Y = y * BLOCK;
+        ctx.fillRect(Math.round(x * BLOCK) + 4, Math.round(y * BLOCK) + 4, BLOCK - 4, BLOCK - 4);
+        const X = Math.round(x * BLOCK);
+        const Y = Math.round(y * BLOCK);
         const W = BLOCK;
         const H = BLOCK;
         const S = 4;
@@ -779,7 +759,7 @@ export default class extends Aview {
           ctx.font = "24px Kubasta";
           ctx.textAlign = "center";
           ctx.fillText(
-            "PAUSED",
+            "paused",
             this.canvas.width / 2,
             this.canvas.height / 2 + 8,
           );
@@ -793,7 +773,7 @@ export default class extends Aview {
           ctx.font = "28px Kubasta";
           ctx.textAlign = "center";
           ctx.fillText(
-            "GAME OVER",
+            "game over",
             this.canvas.width / 2,
             this.canvas.height / 2 + 8,
           );
@@ -830,6 +810,7 @@ export default class extends Aview {
       }
     }
 
+    document.getElementById("game-retry")?.addEventListener("click", () => { document.getElementById("game-buttons")?.classList.add("hidden"); const game = new Game("board"); });
     const game = new Game("board");
   }
 }

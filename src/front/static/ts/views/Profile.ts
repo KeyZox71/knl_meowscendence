@@ -49,15 +49,14 @@ export default class extends Aview {
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
 
     const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
-			method: "GET",
-			credentials: "include",
-		});
-		if (userdata_req.status == 404)
-		{
-			console.error("invalid user");
-			return ;
-		}
-		let userdata = await userdata_req.json();
+      method: "GET",
+      credentials: "include",
+    });
+    if (userdata_req.status == 404) {
+      console.error("invalid user");
+      return;
+    }
+    let userdata = await userdata_req.json();
 
     const matchCount_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory/count`, {
       method: "GET",
@@ -75,39 +74,40 @@ export default class extends Aview {
     if (!main)
       return console.error("what");
 
-    console.log(matches);
-    if (matches.matchHistory)
-    {
-      for (let match of matches.matchHistory)
-      {
+    if (matches.matchHistory) {
+      for (let match of matches.matchHistory) {
         const newEntry = document.createElement("li");
         newEntry.classList.add("m-2", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
         newEntry.innerHTML = match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`;
         main.insertBefore(newEntry, main.firstChild);
+        // ###########################################################################################################################################
+        //
+        // ADD TX LINK : https://testnet.snowscan.xyz/tx/${match.tx}
+        //
+        // ###########################################################################################################################################
         console.log(match.tx);
       }
     }
 
-		const profile = document.getElementById("profile-profile");
+    const profile = document.getElementById("profile-profile");
     if (!profile) return;
 
-		const picture = profile.appendChild(document.createElement("img"));
-		picture.src = "https://api.kanel.ovh/pp";
-		picture.classList.add("text-neutral-900", "dark:text-white", "center", "h-18", "w-18", "mx-3");
+    const picture = profile.appendChild(document.createElement("img"));
+    picture.src = "https://api.kanel.ovh/pp";
+    picture.classList.add("text-neutral-900", "dark:text-white", "center", "h-18", "w-18", "mx-3");
 
-		const nametag = profile.appendChild(document.createElement("div"));
-		nametag.innerHTML = `
+    const nametag = profile.appendChild(document.createElement("div"));
+    nametag.innerHTML = `
 		  <div class="text-lg">Hi ${userdata.displayName} ! :D</div>
 			<div class="italic">${uuid}<div>
 		`;
-		nametag.classList.add("text-neutral-900", "dark:text-white");
+    nametag.classList.add("text-neutral-900", "dark:text-white");
 
-		const winrate = profile.appendChild(document.createElement("div"));
-
-		winrate.innerHTML = `
+    const winrate = profile.appendChild(document.createElement("div"));
+    winrate.innerHTML = `
 		  <div> wins: ${userdata.wins} </div>
 			<div> losses: ${userdata.losses} </div>
-			<div> winrate: ${Math.round(userdata.wins / (userdata.wins + userdata.losses) * 100)} % </div>
+			<div> winrate: ${ (userdata.wins != 0 && userdata.losses != 0) ? Math.round(userdata.wins / (userdata.wins + userdata.losses) * 100) + " %" : "-" }</div>
 		`;
     winrate.classList.add("text-neutral-900", "dark:text-white", "grow", "content-center");
   }
