@@ -21,6 +21,8 @@ import { dMatchHistory } from './dMatchHistory.js';
 import { pAvatar } from './pAvatar.js';
 import { gAvatar } from './gAvatar.js';
 import { dAvatar } from './dAvatar.js';
+import { pPing } from './pPing.js';
+import { gPing } from './gPing.js';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -72,6 +74,12 @@ function prepareDB() {
 			CHECK(date >= 0)
 		) STRICT
 	`);
+	database.exec(`
+		CREATE TABLE IF NOT EXISTS activityTime (
+			username TEXT PRIMARY KEY,
+			time TEXT
+		) STRICT
+	`);
 }
 
 prepareDB();
@@ -85,6 +93,11 @@ const incLossesPong = database.prepare('UPDATE userData SET pongLosses = pongLos
 const incWinsTetris = database.prepare('UPDATE userData SET tetrisWins = tetrisWins + 1 WHERE username = ?;');
 const incLossesTetris = database.prepare('UPDATE userData SET tetrisLosses = tetrisLosses + 1 WHERE username = ?');
 const setAvatarId = database.prepare('UPDATE userData SET avatarId = ? WHERE username = ?;');
+const setActivityTime = database.prepare(`
+  INSERT INTO activityTime (username, time)
+  VALUES (?, ?)
+  ON CONFLICT(username) DO UPDATE SET time = excluded.time;
+`);
 
 // PATCH
 const changeDisplayName = database.prepare('UPDATE userData SET displayName = ? WHERE username = ?;');
@@ -100,6 +113,7 @@ const getNumberUsers = database.prepare('SELECT COUNT (DISTINCT username) AS n_u
 const getNumberFriends = database.prepare('SELECT COUNT (DISTINCT friendName) AS n_friends FROM friends WHERE username = ?;');
 const getNumberMatches = database.prepare('SELECT COUNT (DISTINCT id) AS n_matches FROM matchHistory WHERE game = ? AND ? IN (player1, player2);');
 const getAvatarId = database.prepare('SELECT avatarId FROM userData WHERE username = ?;');
+const getActivityTime = database.prepare('SELECT time FROM activityTime WHERE username = ?;')
 
 // DELETE
 const deleteUser = database.prepare('DELETE FROM userData WHERE username = ?;');
@@ -170,6 +184,9 @@ export default async function(fastify, options) {
 	fastify.get('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return gAvatar(request, reply, fastify, getAvatarId);
 	});
+	fastify.get('/ping/:userId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return gPing(request, reply, fastify, getActivityTime);
+	});
 
 	// POST
 	fastify.post('/users/:userId', { preHandler: [fastify.authenticateAdmin] }, async (request, reply) => {
@@ -184,6 +201,9 @@ export default async function(fastify, options) {
 	fastify.post('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return pAvatar(request, reply, fastify, setAvatarId);
 	});
+	fastify.post('/ping', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return pPing(request, reply, fastify, setActivityTime);
+	})
 
 	// PATCH
 	fastify.patch('/users/:userId/:member', { preHandler: [fastify.authenticate] }, async (request, reply) => {
