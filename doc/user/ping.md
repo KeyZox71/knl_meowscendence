@@ -36,6 +36,6 @@ Can return:
 - 200
 ```json
 {
-    "lastSeenTime": "<last seen time>"
+    "isLogged": "<true/false>"
 }
 ```
