@@ -8,10 +8,16 @@ export async function gFriends(request, reply, fastify, getUserInfo, getFriends)
 		if (Number(iEnd) < Number(iStart)) {
 			return reply.code(400).send({ error: "Starting index cannot be strictly inferior to ending index" });
 		}
-		const friends = getFriends.all(userId, Number(iEnd) - Number(iStart), Number(iStart));
-		if (!friends.length) {
+		const friendNames = getFriends.all(userId, Number(iEnd) - Number(iStart), Number(iStart));
+		if (!friendNames.length) {
 			return reply.code(404).send({ error: "No friends exist in the selected range" });
 		}
+		const promises = friendNames.map(async (friendName) => {
+			const friend = getUserInfo.get(friendName.friendName);
+			friendName.friendDisplayName = friend.displayName;
+			return friendName;
+		});
+		const friends = await Promise.all(promises);
 		return reply.code(200).send({ friends });
 	} catch (err) {
 		fastify.log.error(err);
