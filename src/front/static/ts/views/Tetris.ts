@@ -213,14 +213,14 @@ export default class extends Aview {
     };
 
     const COLORS = [
-      "#000000", // placeholder for 0
-      "#00ffff", // I - cyan
-      "#0000ff", // J - blue
-      "#ff7f00", // L - orange
-      "#ffff00", // O - yellow
-      "#00ff00", // S - green
-      "#800080", // T - purple
-      "#ff0000", // Z - red
+      [ "#000000", "#000000" ] , // placeholder for 0
+      [ "#00d2e1", "#0080a8" ], // I - cyan
+      [ "#0092e9", "#001fbf" ], // J - blue
+      [ "#e79700", "#c75700" ], // L - orange
+      [ "#d8c800", "#8f7700" ], // O - yellow
+      [ "#59e000", "#038b00" ], // S - green
+      [ "#de1fdf", "#870087" ], // T - purple
+      [ "#f06600", "#c10d07" ], // Z - red
     ];
 
     class Piece {
@@ -548,7 +548,7 @@ export default class extends Aview {
 
       loop(timestamp: number) {
         if (!this.lastDrop) this.lastDrop = timestamp;
-        if (!this.isPaused && !this.isGameOver)
+        if (!this.isPaused)
         {
           this.inputManager();
           if (this.isLocking ? timestamp - this.lastDrop > 500 : timestamp - this.lastDrop > this.dropInterval)
@@ -571,6 +571,8 @@ export default class extends Aview {
           }
         }
         this.draw();
+        if (this.isGameOver)
+          return;
         requestAnimationFrame(this.loop.bind(this));
       }
 
@@ -599,7 +601,7 @@ export default class extends Aview {
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
             const val = this.board[r][c];
-            if (val) this.fillBlock(c, r, COLORS[val]);
+            if (val) this.fillBlock(c, r, COLORS[val], this.ctx);
             else this.clearBlock(c, r);
           }
         }
@@ -609,11 +611,11 @@ export default class extends Aview {
         if (!this.piece) return;
 
         for (const cell of this.piece.getCells())
-          if (cell.y >= 0) this.fillBlock(cell.x, cell.y, COLORS[cell.val]);
+          if (cell.y >= 0) this.fillBlock(cell.x, cell.y, COLORS[cell.val], this.ctx);
 
         let offset: number = this.getGhostOffset(this.piece);
         for (const cell of this.piece.getCells())
-          if (cell.y + offset >= 0)
+          if (cell.y + offset >= 0 && offset > 0)
             this.fillGhostBlock(cell.x, cell.y + offset, COLORS[cell.val]);
       }
 
@@ -626,10 +628,8 @@ export default class extends Aview {
           let x: number = 0;
           for (const val of row) {
             if (val) {
-              this.holdCtx.fillStyle = this.canHold
-                ? COLORS[this.holdPiece.findColorIndex()]
-                : "gray";
-              console.log(this.holdCtx.fillStyle);
+              this.fillBlock(x, y, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
+              /*this.holdCtx.fillStyle = ;
               this.holdCtx.fillRect(
                 x * BLOCK +
                   1 +
@@ -638,7 +638,7 @@ export default class extends Aview {
                 y * BLOCK + 1 + 20,
                 BLOCK - 2,
                 BLOCK - 2,
-              );
+                );*/
             }
             x++;
           }
@@ -659,7 +659,7 @@ export default class extends Aview {
                 this.queueCtx.fillStyle =
                   COLORS[
                     ["I", "J", "L", "O", "S", "T", "Z"].indexOf(nextPiece) + 1
-                  ];
+                    ][0];
                 this.queueCtx.fillRect(
                   x * BLOCK +
                     1 +
@@ -682,17 +682,77 @@ export default class extends Aview {
         }
       }
 
-      fillBlock(x: number, y: number, color: string) {
-        if (!this.ctx) return;
-        const ctx = this.ctx;
-        ctx.fillStyle = color;
-        ctx.fillRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+      adjustColor(hex: string, amount: number): string {
+        let color = hex.startsWith('#') ? hex.slice(1) : hex;
+        const num = parseInt(color, 16);
+        let r = (num >> 16) + amount;
+        let g = ((num >> 8) & 0x00FF) + amount;
+        let b = (num & 0x0000FF) + amount;
+        r = Math.max(Math.min(255, r), 0);
+        g = Math.max(Math.min(255, g), 0);
+        b = Math.max(Math.min(255, b), 0);
+        return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
       }
-      fillGhostBlock(x: number, y: number, color: string) {
+
+      fillBlock(x: number, y: number, color: string[], ctx) {
+        if (!ctx) return;
+        //const ctx = this.ctx;
+        //ctx.fillStyle = color;
+        const grad = ctx.createLinearGradient(x * BLOCK, y * BLOCK, x * BLOCK, y * BLOCK + BLOCK);
+        grad.addColorStop(0, color[0]);
+        grad.addColorStop(1, color[1]);
+        ctx.fillStyle = grad;
+        ctx.fillRect(x * BLOCK + 4, y * BLOCK + 4, BLOCK - 4, BLOCK - 4);
+        const X = x * BLOCK;
+        const Y = y * BLOCK;
+        const W = BLOCK;
+        const H = BLOCK;
+        const S = 4;
+
+        ctx.lineWidth = S;
+        ctx.beginPath();
+        ctx.strokeStyle = color[0];
+        ctx.moveTo(X, Y + S / 2);
+        ctx.lineTo(X + W, Y + S / 2);
+        ctx.moveTo(X + S / 2, Y);
+        ctx.lineTo(X + S / 2, Y + H);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = this.adjustColor(color[1], -20);
+        ctx.moveTo(X, Y + H - S / 2);
+        ctx.lineTo(X + W, Y + H - S / 2);
+        ctx.moveTo(X + W - S / 2, Y);
+        ctx.lineTo(X + W - S / 2, Y + H);
+        ctx.stroke();
+      }
+      fillGhostBlock(x: number, y: number, color: string[]) {
         if (!this.ctx) return;
         const ctx = this.ctx;
-        ctx.strokeStyle = color;
-        ctx.strokeRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+
+        const X = x * BLOCK;
+        const Y = y * BLOCK;
+        const W = BLOCK;
+        const H = BLOCK;
+        const S = 4;
+
+        ctx.lineWidth = S;
+        ctx.beginPath();
+        ctx.strokeStyle = this.adjustColor(color[0], -40);
+        ctx.moveTo(X, Y + S / 2);
+        ctx.lineTo(X + W, Y + S / 2);
+        ctx.moveTo(X + S / 2, Y);
+        ctx.lineTo(X + S / 2, Y + H);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = this.adjustColor(color[1], -60);
+        ctx.moveTo(X, Y + H - S / 2);
+        ctx.lineTo(X + W, Y + H - S / 2);
+        ctx.moveTo(X + W - S / 2, Y);
+        ctx.lineTo(X + W - S / 2, Y + H);
+        ctx.stroke();
+        //ctx.strokeRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
       }
 
       clearBlock(x: number, y: number) {
