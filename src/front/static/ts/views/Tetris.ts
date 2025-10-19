@@ -1,5 +1,6 @@
 import Aview from "./Aview.ts";
 import { dragElement } from "./drag.js";
+import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
 export default class extends Aview {
   running: boolean;
@@ -7,6 +8,7 @@ export default class extends Aview {
   constructor() {
     super();
     this.setTitle("tetris (local match)");
+    setOnekoState("tetris");
     this.running = true;
   }
 
@@ -211,14 +213,14 @@ export default class extends Aview {
     };
 
     const COLORS = [
-      "#000000", // placeholder for 0
-      "#00ffff", // I - cyan
-      "#0000ff", // J - blue
-      "#ff7f00", // L - orange
-      "#ffff00", // O - yellow
-      "#00ff00", // S - green
-      "#800080", // T - purple
-      "#ff0000", // Z - red
+      [ "#000000", "#000000" ] , // placeholder for 0
+      [ "#00d2e1", "#0080a8" ], // I - cyan
+      [ "#0092e9", "#001fbf" ], // J - blue
+      [ "#e79700", "#c75700" ], // L - orange
+      [ "#d8c800", "#8f7700" ], // O - yellow
+      [ "#59e000", "#038b00" ], // S - green
+      [ "#de1fdf", "#870087" ], // T - purple
+      [ "#f06600", "#c10d07" ], // Z - red
     ];
 
     class Piece {
@@ -274,33 +276,42 @@ export default class extends Aview {
       canvas: HTMLCanvasElement | null;
       holdCanvas: HTMLCanvasElement | null;
       queueCanvas: HTMLCanvasElement | null;
-      ctx: CanvasRenderingContext2D;
-      holdCtx: CanvasRenderingContext2D;
-      queueCtx: CanvasRenderingContext2D;
+      ctx: CanvasRenderingContext2D | null;
+      holdCtx: CanvasRenderingContext2D | null;
+      queueCtx: CanvasRenderingContext2D | null;
       piece: Piece | null = null;
       holdPiece: Piece | null = null;
       canHold: boolean = true;
       nextQueue: string[] = [];
-      score = 0;
-      level = 1;
-      lines = 0;
-      dropInterval = 1000;
-      lastDrop = 0;
-      isGameOver = false;
-      isPaused = false;
+      score: number = 0;
+      level: number = 1;
+      lines: number = 0;
+      dropInterval: number = 1000;
+      lastDrop: number = 0;
+      isLocking: boolean = false;
+      lockRotationCount: number = 0;
+      lockLastRotationCount: number = 0;
+      isGameOver: boolean = false;
+      isPaused: boolean = false;
 
       constructor(canvasId: string) {
         const el = document.getElementById(
           canvasId,
         ) as HTMLCanvasElement | null;
         this.canvas = el;
+        if (!this.canvas)
+          throw console.error("no canvas :c");
         this.canvas.width = COLS * BLOCK;
         this.canvas.height = ROWS * BLOCK;
         const ctx = this.canvas.getContext("2d");
         this.ctx = ctx;
+        if (!this.ctx)
+          throw console.error("no ctx D:");
 
-        this.holdCanvas = document.getElementById("hold");
-        this.queueCanvas = document.getElementById("queue");
+        this.holdCanvas = document.getElementById("hold") as HTMLCanvasElement;
+        this.queueCanvas = document.getElementById("queue") as HTMLCanvasElement;
+        if (!this.holdCanvas || !this.queueCanvas)
+          throw console.error("no canvas :c");
         this.holdCtx = this.holdCanvas.getContext("2d");
         this.queueCtx = this.queueCanvas.getContext("2d");
 
@@ -337,6 +348,7 @@ export default class extends Aview {
 
         [this.piece, this.holdPiece] = [this.holdPiece, this.piece];
         if (!this.piece) this.spawnPiece();
+        if (!this.piece) return;
 
         this.piece.x = Math.floor((COLS - this.piece.shape[0].length) / 2);
         this.piece.y = -2;
@@ -352,7 +364,6 @@ export default class extends Aview {
         if (this.nextQueue.length < 7) this.fillBag();
         const type = this.nextQueue.shift()!;
         this.piece = new Piece(type);
-        // If spawn collides immediately -> game over
         if (this.collides(this.piece)) {
           this.isGameOver = true;
         }
@@ -374,12 +385,11 @@ export default class extends Aview {
         let y: number = 0;
         while (true) {
           for (const cell of piece.getCells()) {
-            console.log(cell.y + y);
             if (
               cell.y + y >= ROWS ||
               (cell.y + y >= 0 && this.board[cell.y + y][cell.x])
             )
-              return y - 1;
+            return y - 1;
           }
 
           y++;
@@ -388,11 +398,12 @@ export default class extends Aview {
 
       lockPiece() {
         if (!this.piece) return;
+        this.isLocking = false;
         let isValid: boolean = false;
         for (const cell of this.piece.getCells()) {
           if (cell.y >= 0 && cell.y < ROWS && cell.x >= 0 && cell.x < COLS)
             this.board[cell.y][cell.x] = cell.val;
-          if (cell.y < 20) isValid = true;
+          if (cell.y > 0) isValid = true;
         }
         if (!isValid) this.isGameOver = true;
 
@@ -427,6 +438,8 @@ export default class extends Aview {
 
       rotatePiece(dir: "cw" | "ccw") {
         if (!this.piece) return;
+        if (this.isLocking && this.lockRotationCount < 15)
+          this.lockRotationCount++;
         // Try rotation with wall kicks
         const originalIndex = this.piece.rotationIndex;
         if (dir === "cw") this.piece.rotateCW();
@@ -446,6 +459,7 @@ export default class extends Aview {
         if (!this.piece) return;
         this.piece.x += dx;
         this.piece.y += dy;
+
         if (this.collides(this.piece)) {
           this.piece.x -= dx;
           this.piece.y -= dy;
@@ -470,6 +484,26 @@ export default class extends Aview {
       }
 
       keys: Record<string, boolean> = {};
+      direction: number = 0;
+      inputDelay = 200;
+      inputTimestamp = Date.now();
+      move: boolean = false;
+
+      inputManager() {
+        if (this.move || Date.now() > this.inputTimestamp + this.inputDelay)
+        {
+          if (this.keys["ArrowLeft"] && !this.keys["ArrowRight"])
+            this.movePiece(-1, 0);
+          else if (!this.keys["ArrowLeft"] && this.keys["ArrowRight"])
+            this.movePiece(1, 0);
+          else if (this.keys["ArrowLeft"] && this.keys["ArrowRight"])
+            this.movePiece(this.direction, 0);
+          this.move = false;
+        }
+
+        /*if (this.keys["ArrowDown"])
+          this.softDrop();*/
+      }
 
       registerListeners() {
         window.addEventListener("keydown", (e) => {
@@ -482,8 +516,18 @@ export default class extends Aview {
 
           if (this.isPaused) return;
 
-          if (e.key === "ArrowLeft") this.movePiece(-1, 0);
-          else if (e.key === "ArrowRight") this.movePiece(1, 0);
+          if (e.key === "ArrowLeft")
+          {
+            this.inputTimestamp = Date.now();
+            this.direction = -1;//this.movePiece(-1, 0);
+            this.move = true;
+          }
+          else if (e.key === "ArrowRight")
+          {
+            this.inputTimestamp = Date.now();
+            this.direction = 1;//this.movePiece(1, 0);
+            this.move = true;
+          }
           else if (e.key === "ArrowDown") this.softDrop();
           else if (e.code === "Space") {
             e.preventDefault();
@@ -504,18 +548,38 @@ export default class extends Aview {
 
       loop(timestamp: number) {
         if (!this.lastDrop) this.lastDrop = timestamp;
-        if (!this.isPaused && !this.isGameOver) {
-          if (timestamp - this.lastDrop > this.dropInterval) {
-            if (!this.movePiece(0, 1)) this.lockPiece();
+        if (!this.isPaused)
+        {
+          this.inputManager();
+          if (this.isLocking ? timestamp - this.lastDrop > 500 : timestamp - this.lastDrop > this.dropInterval)
+          {
+            if (this.isLocking && this.lockRotationCount == this.lockLastRotationCount)
+              this.lockPiece();
+            this.lockLastRotationCount = this.lockRotationCount;
+            if (!this.movePiece(0, 1))
+            {
+              if (!this.isLocking)
+              {
+                this.lockRotationCount = 0;
+                this.lockLastRotationCount = 0;
+                this.isLocking = true;
+              }
+            }
+            else if (this.isLocking)
+              this.lockRotationCount = 0;
             this.lastDrop = timestamp;
           }
         }
         this.draw();
+        if (this.isGameOver)
+          return;
         requestAnimationFrame(this.loop.bind(this));
       }
 
       drawGrid() {
         const ctx = this.ctx;
+        if (!ctx || !this.canvas)
+          return;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.strokeStyle = "#222";
         for (let r = 0; r <= ROWS; r++) {
@@ -537,7 +601,7 @@ export default class extends Aview {
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
             const val = this.board[r][c];
-            if (val) this.fillBlock(c, r, COLORS[val]);
+            if (val) this.fillBlock(c, r, COLORS[val], this.ctx);
             else this.clearBlock(c, r);
           }
         }
@@ -547,16 +611,16 @@ export default class extends Aview {
         if (!this.piece) return;
 
         for (const cell of this.piece.getCells())
-          if (cell.y >= 0) this.fillBlock(cell.x, cell.y, COLORS[cell.val]);
+          if (cell.y >= 0) this.fillBlock(cell.x, cell.y, COLORS[cell.val], this.ctx);
 
         let offset: number = this.getGhostOffset(this.piece);
         for (const cell of this.piece.getCells())
-          if (cell.y + offset >= 0)
+          if (cell.y + offset >= 0 && offset > 0)
             this.fillGhostBlock(cell.x, cell.y + offset, COLORS[cell.val]);
       }
 
       drawHold() {
-        if (!this.holdPiece) return;
+        if (!this.holdPiece || !this.holdCtx) return;
 
         this.holdCtx.clearRect(0, 0, 200, 200);
         let y: number = 0;
@@ -564,9 +628,8 @@ export default class extends Aview {
           let x: number = 0;
           for (const val of row) {
             if (val) {
-              this.holdCtx.fillStyle = this.canHold
-                ? COLORS[this.holdPiece.findColorIndex()]
-                : "gray";
+              this.fillBlock(x, y, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
+              /*this.holdCtx.fillStyle = ;
               this.holdCtx.fillRect(
                 x * BLOCK +
                   1 +
@@ -575,7 +638,7 @@ export default class extends Aview {
                 y * BLOCK + 1 + 20,
                 BLOCK - 2,
                 BLOCK - 2,
-              );
+                );*/
             }
             x++;
           }
@@ -584,9 +647,9 @@ export default class extends Aview {
       }
 
       drawQueue() {
+        if (!this.queueCtx) return ;
         this.queueCtx.clearRect(0, 0, 500, 500);
         let placement: number = 0;
-        console.log(this.nextQueue.slice(0, 5));
         for (const nextPiece of this.nextQueue.slice(0, 5)) {
           let y: number = 0;
           for (const row of TETROMINOES[nextPiece][0]) {
@@ -596,7 +659,7 @@ export default class extends Aview {
                 this.queueCtx.fillStyle =
                   COLORS[
                     ["I", "J", "L", "O", "S", "T", "Z"].indexOf(nextPiece) + 1
-                  ];
+                    ][0];
                 this.queueCtx.fillRect(
                   x * BLOCK +
                     1 +
@@ -619,23 +682,87 @@ export default class extends Aview {
         }
       }
 
-      fillBlock(x: number, y: number, color: string) {
-        const ctx = this.ctx;
-        ctx.fillStyle = color;
-        ctx.fillRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+      adjustColor(hex: string, amount: number): string {
+        let color = hex.startsWith('#') ? hex.slice(1) : hex;
+        const num = parseInt(color, 16);
+        let r = (num >> 16) + amount;
+        let g = ((num >> 8) & 0x00FF) + amount;
+        let b = (num & 0x0000FF) + amount;
+        r = Math.max(Math.min(255, r), 0);
+        g = Math.max(Math.min(255, g), 0);
+        b = Math.max(Math.min(255, b), 0);
+        return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
       }
-      fillGhostBlock(x: number, y: number, color: string) {
+
+      fillBlock(x: number, y: number, color: string[], ctx) {
+        if (!ctx) return;
+        //const ctx = this.ctx;
+        //ctx.fillStyle = color;
+        const grad = ctx.createLinearGradient(x * BLOCK, y * BLOCK, x * BLOCK, y * BLOCK + BLOCK);
+        grad.addColorStop(0, color[0]);
+        grad.addColorStop(1, color[1]);
+        ctx.fillStyle = grad;
+        ctx.fillRect(x * BLOCK + 4, y * BLOCK + 4, BLOCK - 4, BLOCK - 4);
+        const X = x * BLOCK;
+        const Y = y * BLOCK;
+        const W = BLOCK;
+        const H = BLOCK;
+        const S = 4;
+
+        ctx.lineWidth = S;
+        ctx.beginPath();
+        ctx.strokeStyle = color[0];
+        ctx.moveTo(X, Y + S / 2);
+        ctx.lineTo(X + W, Y + S / 2);
+        ctx.moveTo(X + S / 2, Y);
+        ctx.lineTo(X + S / 2, Y + H);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = this.adjustColor(color[1], -20);
+        ctx.moveTo(X, Y + H - S / 2);
+        ctx.lineTo(X + W, Y + H - S / 2);
+        ctx.moveTo(X + W - S / 2, Y);
+        ctx.lineTo(X + W - S / 2, Y + H);
+        ctx.stroke();
+      }
+      fillGhostBlock(x: number, y: number, color: string[]) {
+        if (!this.ctx) return;
         const ctx = this.ctx;
-        ctx.strokeStyle = color;
-        ctx.strokeRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+
+        const X = x * BLOCK;
+        const Y = y * BLOCK;
+        const W = BLOCK;
+        const H = BLOCK;
+        const S = 4;
+
+        ctx.lineWidth = S;
+        ctx.beginPath();
+        ctx.strokeStyle = this.adjustColor(color[0], -40);
+        ctx.moveTo(X, Y + S / 2);
+        ctx.lineTo(X + W, Y + S / 2);
+        ctx.moveTo(X + S / 2, Y);
+        ctx.lineTo(X + S / 2, Y + H);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = this.adjustColor(color[1], -60);
+        ctx.moveTo(X, Y + H - S / 2);
+        ctx.lineTo(X + W, Y + H - S / 2);
+        ctx.moveTo(X + W - S / 2, Y);
+        ctx.lineTo(X + W - S / 2, Y + H);
+        ctx.stroke();
+        //ctx.strokeRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
       }
 
       clearBlock(x: number, y: number) {
+        if (!this.ctx) return;
         const ctx = this.ctx;
         ctx.clearRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
       }
 
       drawHUD() {
+        if (!this.ctx || !this.canvas) return;
         const ctx = this.ctx;
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(4, 4, 120, 60);
@@ -675,6 +802,7 @@ export default class extends Aview {
       }
 
       draw() {
+        if (!this.ctx || !this.canvas) return;
         // clear everything
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -698,6 +826,7 @@ export default class extends Aview {
         this.drawBoard();
         this.drawPiece();
         this.drawHUD();
+        this.drawQueue();
       }
     }
 

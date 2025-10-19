@@ -4,7 +4,7 @@ import { dragElement } from "./drag.js"
 import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
 export default class extends Aview {
-	
+
 	running: boolean;
 
 	constructor()
@@ -27,7 +27,7 @@ export default class extends Aview {
 				</div>
 			</div>
 
-				
+
 			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
 				<div id="player-inputs" class="flex flex-col space-y-4">
 					<div class="flex flex-row">
@@ -46,6 +46,7 @@ export default class extends Aview {
 
 	async run() {
 		dragElement(document.getElementById("window"));
+    let uuid: string;
 
 		let start: number = 0;
 		let elapsed: number;
@@ -103,7 +104,7 @@ export default class extends Aview {
 			ballSpeedY = ballSpeed * Math.sin(theta);
 		}
 
-		function moveBall() {
+		async function moveBall() {
 			let length = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
 			let scale = ballSpeed / length;
 			ballX += (ballSpeedX * scale) * elapsed;
@@ -142,6 +143,17 @@ export default class extends Aview {
 
 				if (p1_score === 3 || p2_score === 3)
 				{
+          console.log(isLogged());
+          if (await isLogged())
+          {
+            let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+            fetch(`http://localhost:3002/users/${uuid}/matchHistory`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", },
+              credentials: "include",
+              body: JSON.stringify({ "opponent": p2_name, "myScore": p1_score, "opponentScore": p2_score })
+            });
+          }
 					// ------------------------------------------------------------------------------------------------------------------------------------------
 					//
 					// insert the fetch to the ScoreStore api here
@@ -225,13 +237,13 @@ export default class extends Aview {
 			}
 		}
 
-		const gameLoop = (timestamp: number) => {
+		const gameLoop = async (timestamp: number) => {
 			elapsed = (timestamp - start) / 1000;
 			start = timestamp;
 			if (game_playing)
 			{
 				movePaddles();
-				moveBall();
+				await moveBall();
 			}
 			draw();
 			if (!game_playing)
@@ -257,13 +269,26 @@ export default class extends Aview {
 
 		p2_input.value = "Player 2";
 		if (await isLogged())
-			p1_input.value = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+		{
+      uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+      const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+  			method: "GET",
+  			credentials: "include",
+  		});
+  		if (userdata_req.status == 404)
+  		{
+  			console.error("invalid user");
+  			return ;
+  		}
+      let userdata = await userdata_req.json();
+			p1_input.value = userdata.displayName;
+		}
 		else
 			p1_input.value = "Player 1";
 
 		document.getElementById("game-start")?.addEventListener("click", () => {
-			p1_name = p1_input.value;
-			p2_name = p2_input.value;
+      p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
+			p2_name = p2_input.value.length > 16 ? p2_input.value.substring(0, 16) + "." : p2_input.value;
 			document.getElementById("player-inputs").remove();
 
 			canvas = document.createElement("canvas");
@@ -272,7 +297,7 @@ export default class extends Aview {
 
 			document.getElementById("main-div").prepend(canvas);
 
-			ctx = canvas.getContext("2d");
+			ctx = canvas.getContext("2d", {alpha: false});
 			ctx.canvas.width  = 600;
 			ctx.canvas.height = 600;
 
