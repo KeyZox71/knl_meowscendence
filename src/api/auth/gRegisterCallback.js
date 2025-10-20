@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import authDB from '../../utils/authDB.js';
+import { authUserCreate } from '../../utils/authUserCreate.js';
 
 var env = process.env.NODE_ENV || 'development';
 
@@ -46,7 +47,9 @@ export async function gRegisterCallback(request, reply, fastify) {
 
 		authDB.addUser(user.username, '');
 
-		const token = fastify.jwt.sign(user);
+		authUserCreate(user.username, fastify)
+
+		const token = fastify.jwt.sign({ user: user.username});
 
 		return reply
 			.setCookie('token', token, {
@@ -54,9 +57,7 @@ export async function gRegisterCallback(request, reply, fastify) {
 				path: '/',
 				secure: env !== 'development',
 				sameSite: 'lax',
-			})
-			.code(200)
-			.send({ msg: "Register successful" });
+			}).redirect(process.env.CALLBACK_REDIR);
 	} catch (error) {
 		fastify.log.error(error);
 		reply.code(500).send({ error: 'Internal server error' });
