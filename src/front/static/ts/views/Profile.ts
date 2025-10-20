@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { isLogged, navigationManager, user_api } from "../main.ts"
 
 
 export default class extends Aview {
@@ -48,7 +48,7 @@ export default class extends Aview {
     let uuid: String;
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
 
-    const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+    const userdata_req = await fetch(user_api + `/users/${uuid}`, {
       method: "GET",
       credentials: "include",
     });
@@ -58,13 +58,13 @@ export default class extends Aview {
     }
     let userdata = await userdata_req.json();
 
-    const matchCount_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory/count`, {
+    const matchCount_req = await fetch(user_api + `/users/${uuid}/matchHistory/count`, {
       method: "GET",
       credentials: "include",
     });
     const matchCount = await matchCount_req.json();
 
-    const matches_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory?iStart=0&iEnd=${matchCount.n_matches}`, {
+    const matches_req = await fetch(user_api + `/users/${uuid}/matchHistory?iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
       credentials: "include",
     });

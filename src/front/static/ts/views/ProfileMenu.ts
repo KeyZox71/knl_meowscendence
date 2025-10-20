@@ -1,5 +1,5 @@
 import Aview from "./Aview.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { auth_api, isLogged, navigationManager, user_api } from "../main.ts"
 
 export default class extends Aview {
 	async getHTML() {
@@ -49,7 +49,7 @@ export default class extends Aview {
       document.getElementById("menu-bottom-div").classList.remove("hidden");
 
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-	  const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+	  const userdata_req = await fetch(user_api + `/users/${uuid}`, {
 		method: "GET",
 		credentials: "include",
 	  });
@@ -73,7 +73,7 @@ export default class extends Aview {
     document.getElementById("profile-items").innerHTML = await getMainHTML();
 
     document.getElementById("menu-logout").addEventListener("click", async () => {
-      let req = await fetch("http://localhost:3001/logout", {
+      let req = await fetch(auth_api + "/logout", {
         method: "GET",
         credentials: "include",
       });

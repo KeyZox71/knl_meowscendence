@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { isLogged, navigationManager, auth_api } from "../main.ts"
 
 export default class extends Aview {
 
@@ -37,7 +37,7 @@ export default class extends Aview {
 				<hr class="my-4 w-64 reverse-border">
 
 			  <div class="flex flex-col space-y-4 w-full">
-			    <a target="_blank" href="http://localhost:3001/register/google" class="default-button inline-flex items-center justify-center w-full">
+			    <a target="_blank" href="${auth_api}/register/google" class="default-button inline-flex items-center justify-center w-full">
 					  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height=20 width=20 class="mr-2 justify-self-start" />
 					  register with John Google
 					</a>
@@ -59,7 +59,7 @@ export default class extends Aview {
 			const password = (document.getElementById("password") as HTMLInputElement).value;
 
 			try {
-				const data_req = await fetch("http://localhost:3001/register", {
+				const data_req = await fetch(auth_api + "/register", {
 					method: "POST",
 					headers: { "Content-Type": "application/json", },
 					credentials: "include",
@@ -69,7 +69,7 @@ export default class extends Aview {
 
 				if (data_req.status === 200)
 				{
-					let uuid_req = await fetch("http://localhost:3001/me", {
+					let uuid_req = await fetch(auth_api + "/me", {
 						method: "GET",
 						credentials: "include",
 					});

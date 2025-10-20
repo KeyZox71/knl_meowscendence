@@ -1,5 +1,5 @@
 import Aview from "./Aview.ts"
-import { isLogged } from "../main.js"
+import { isLogged, user_api, auth_api } from "../main.js"
 import { dragElement } from "./drag.js"
 import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
@@ -147,7 +147,7 @@ export default class extends Aview {
           if (await isLogged())
           {
             let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-            fetch(`http://localhost:3002/users/${uuid}/matchHistory`, {
+            fetch(user_api + `/users/${uuid}/matchHistory`, {
               method: "POST",
               headers: { "Content-Type": "application/json", },
               credentials: "include",
@@ -271,7 +271,7 @@ export default class extends Aview {
 		if (await isLogged())
 		{
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-      const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+      const userdata_req = await fetch(user_api + `/users/${uuid}`, {
   			method: "GET",
   			credentials: "include",
   		});

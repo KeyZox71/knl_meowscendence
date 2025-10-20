@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { isLogged, navigationManager, user_api } from "../main.ts"
 
 
 export default class extends Aview {
@@ -41,7 +41,7 @@ export default class extends Aview {
 
     let uuid: String;
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-    const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+    const userdata_req = await fetch(user_api + `/users/${uuid}`, {
       method: "GET",
       credentials: "include",
     });
@@ -55,7 +55,7 @@ export default class extends Aview {
     (document.getElementById("displayName-input") as HTMLInputElement).value = userdata.displayName;
 
     document.getElementById("displayName-button")?.addEventListener("click", async () => {
-      const changeDisplayName_req = await fetch(`http://localhost:3002/users/${uuid}/displayName`, {
+      const changeDisplayName_req = await fetch(user_api + `/users/${uuid}/displayName`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", },
         credentials: "include",
@@ -70,7 +70,7 @@ export default class extends Aview {
     });
 
     document.getElementById("deleteAccount-button")?.addEventListener("click", async () => {
-      const delete_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+      const delete_req = await fetch(user_api + `/users/${uuid}`, {
         method: "DELETE",
         credentials: "include",
       });
