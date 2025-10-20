@@ -1,6 +1,8 @@
 import { oneko } from "./oneko.ts";
 import ProfileMenu from "./views/ProfileMenu.ts";
+import FriendsMenu from "./views/Friends.ts";
 let profile_view = new ProfileMenu;
+let friends_view = new FriendsMenu;
 
 export async function isLogged(): Promise<boolean> {
 	let uuid_req = await fetch("http://localhost:3001/me", {
@@ -78,6 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			profile_view.open = false;
 			document.getElementById("taskbar-menu").innerHTML = "";
 		}
+		if (e.target.matches("#friends-btn")) {
+			friends_view.open = !friends_view.open;
+			friends_view.run();
+		}
 		if (e.target.matches("[data-link]")) {
 			e.preventDefault();
 			navigationManager(e.target.href);
@@ -96,7 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	router();
 });
 
-function updateClock() {
+oneko();
+
+function updateClock()
+{
 	const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 	const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 	const clock = document.getElementById("taskbar-clock");
