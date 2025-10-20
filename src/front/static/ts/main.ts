@@ -7,10 +7,9 @@ export async function isLogged(): Promise<boolean> {
 		method: "GET",
 		credentials: "include",
 	});
-	if (uuid_req.status === 200)
-	{
+	if (uuid_req.status === 200) {
 		let uuid = await uuid_req.json();
-		document.cookie = `uuid=${uuid.user};max-age=${60*60*24*7}`;
+		document.cookie = `uuid=${uuid.user};max-age=${60 * 60 * 24 * 7}`;
 		return true;
 	}
 	else // 401
@@ -68,20 +67,18 @@ const router = async () => {
 	view.run();
 };
 
-document.getElementById("profile-button")?.addEventListener("click", () => {profile_view.run();});
+document.getElementById("profile-button")?.addEventListener("click", () => { profile_view.run(); });
 window.addEventListener("popstate", router);
 
 document.addEventListener("DOMContentLoaded", () => {
 	isLogged();
 
-	document.body.addEventListener("click", e=> {
-    if (!e.target.closest("#taskbar-menu") && !e.target.matches("#profile-button"))
-    {
-      profile_view.open = false;
-      document.getElementById("taskbar-menu").innerHTML = "";
-    }
-		if (e.target.matches("[data-link]"))
-		{
+	document.body.addEventListener("click", e => {
+		if (!e.target.closest("#taskbar-menu") && !e.target.matches("#profile-button")) {
+			profile_view.open = false;
+			document.getElementById("taskbar-menu").innerHTML = "";
+		}
+		if (e.target.matches("[data-link]")) {
 			e.preventDefault();
 			navigationManager(e.target.href);
 		}
@@ -89,9 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			e.preventDefault();
 	});
 
-	document.body.addEventListener("dblclick", e=> {
-		if (e.target.closest("[data-icon]"))
-		{
+	document.body.addEventListener("dblclick", e => {
+		if (e.target.closest("[data-icon]")) {
 			e.preventDefault();
 			navigationManager(e.target.closest("[data-icon]").href);
 		}
@@ -100,8 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	router();
 });
 
-function updateClock()
-{
+function updateClock() {
 	const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 	const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 	const clock = document.getElementById("taskbar-clock");
@@ -115,7 +110,18 @@ function updateClock()
 	clock.innerHTML = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ` + hours + ":" + minutes;
 }
 
+async function pingClock() {
+	if (await isLogged()) {
+		fetch(`http://localhost:3002/ping`, {
+			method: "POST",
+		credentials: "include"
+		});
+	}
+}
+
 setInterval(updateClock, 5000);
 updateClock();
+
+setInterval(pingClock, 30000);
 
 oneko();
