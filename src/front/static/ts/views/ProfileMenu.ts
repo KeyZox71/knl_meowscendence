@@ -2,7 +2,6 @@ import Aview from "./Aview.ts"
 import { isLogged, navigationManager } from "../main.ts"
 
 export default class extends Aview {
-
 	async getHTML() {
 		return `
 		<div id="main-window" class="default-border shadow-2x1 bg-neutral-200 dark:bg-neutral-800">
@@ -66,6 +65,7 @@ export default class extends Aview {
 				<hr class="my-2 w-32 reverse-border">
      			<a class="menu-default-button inline-flex items-center justify-center" href="/profile" data-link>profile</a>
      			<a class="menu-default-button inline-flex items-center justify-center" href="/settings" data-link>settings</a>
+				<a class="menu-default-button inline-flex items-center justify-center" href="/friends" data-link>friends</a>
       `;
     }
 

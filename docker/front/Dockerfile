@@ -13,6 +13,9 @@ RUN			cd /build \
 
 FROM		node:lts-alpine AS builder-vite
 
+ARG			VITE_USER_URL
+ARG			VITE_AUTH_URL
+
 RUN			npm install -g pnpm
 
 WORKDIR		/app
@@ -24,8 +27,8 @@ RUN			pnpm install --frozen-lockfile
 COPY		vite.config.js tailwind.config.js ./
 COPY		src ./src
 
-RUN			pnpm vite build
-
+RUN			VITE_USER_URL=${VITE_USER_URL} VITE_AUTH_URL=${VITE_AUTH_URL}\
+			pnpm vite build
 
 FROM		alpine:3.22
 
