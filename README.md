@@ -39,7 +39,7 @@ Press F to pay respect
   - [ ] User and game stats dashboards - Minor
 - **Cybersecurity**
   - [ ] ~~WAF/ModSecurity and Hashicorp Vault - Major~~
-  - [ ] RGPD compliance - Minor
+  - [ ] ~~RGPD compliance - Minor~~
   - [x] 2FA and JWT - Major
 - **DevOps**
   - [x] Infrasctructure setup for log management - Major
