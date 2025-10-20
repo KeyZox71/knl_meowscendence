@@ -28,9 +28,12 @@ export default class extends Aview {
 
 			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
 				<div class="flex flex-row justify-center items-start space-x-4">
-					<canvas id="hold" class="reverse-border" width="140" height="100"></canvas>
-					<canvas id="board" class="reverse-border" width="300" height="600"></canvas>
-					<canvas id="queue" class="reverse-border" width="140" height="420"></canvas>
+					<canvas id="board1-hold" class="reverse-border" width="140" height="100"></canvas>
+					<canvas id="board1-board" class="reverse-border" width="300" height="600"></canvas>
+					<canvas id="board1-queue" class="reverse-border" width="140" height="420"></canvas>
+					<canvas id="board2-hold" class="reverse-border" width="140" height="100"></canvas>
+					<canvas id="board2-board" class="reverse-border" width="300" height="600"></canvas>
+					<canvas id="board2-queue" class="reverse-border" width="140" height="420"></canvas>
 				</div>
 				<div id="game-buttons" class="hidden flex mt-4">
 					<button id="game-retry" class="default-button w-full mx-4 py-2">play again</button>
@@ -42,6 +45,8 @@ export default class extends Aview {
   }
 
   async run() {
+    let game1: Game;
+    let game2: Game;
     dragElement(document.getElementById("window"));
     const COLS = 10;
     const ROWS = 20;
@@ -222,6 +227,7 @@ export default class extends Aview {
       [ "#59e000", "#038b00" ], // S - green
       [ "#de1fdf", "#870087" ], // T - purple
       [ "#f06600", "#c10d07" ], // Z - red
+      [ "#8c8c84", "#393934" ], // garbage - gray
     ];
 
     class Piece {
@@ -290,6 +296,7 @@ export default class extends Aview {
       score: number = 0;
       level: number = 1;
       lines: number = 0;
+      garbage: number = 0;
       dropInterval: number = 1000;
       lastDrop: number = 0;
       isLocking: boolean = false;
@@ -297,10 +304,12 @@ export default class extends Aview {
       lockLastRotationCount: number = 0;
       isGameOver: boolean = false;
       isPaused: boolean = false;
+      id: number;
 
-      constructor(canvasId: string) {
+      constructor(canvasId: string, id: number) {
+        this.id = id;
         const el = document.getElementById(
-          canvasId,
+          canvasId + "-board",
         ) as HTMLCanvasElement | null;
         this.canvas = el;
         if (!this.canvas)
@@ -312,8 +321,8 @@ export default class extends Aview {
         if (!this.ctx)
           throw console.error("no ctx D:");
 
-        this.holdCanvas = document.getElementById("hold") as HTMLCanvasElement;
-        this.queueCanvas = document.getElementById("queue") as HTMLCanvasElement;
+        this.holdCanvas = document.getElementById(canvasId + "-hold") as HTMLCanvasElement;
+        this.queueCanvas = document.getElementById(canvasId + "-queue") as HTMLCanvasElement;
         if (!this.holdCanvas || !this.queueCanvas)
           throw console.error("no canvas :c");
         this.holdCtx = this.holdCanvas.getContext("2d");
@@ -325,9 +334,14 @@ export default class extends Aview {
         this.queueCtx.clearRect(0, 0, 500, 500);
 
         this.board = this.createEmptyBoard();
-        this.fillBag();
+        if (id == 0)
+          this.fillBag();
+        else
+          this.nextQueue = game1.nextQueue;
 
         this.spawnPiece();
+        if (id != 0)
+          this.piece.type = game1.piece.type;
         this.registerListeners();
         requestAnimationFrame(this.loop.bind(this));
       }
@@ -416,8 +430,24 @@ export default class extends Aview {
         }
         if (!isValid) this.isGameOver = true;
 
+        if (this.garbage)
+        {
+          const empty_spot = Math.floor(Math.random() * 10);
+          while (this.garbage)
+          {
+            //if () // if anything else than 0 on top, die >:3
+            this.board.shift();
+            this.board.push(Array(COLS).fill(8));
+            this.board[19][empty_spot] = 0;
+            this.garbage--;
+          }
+        }
         this.clearLines();
         this.spawnPiece();
+      }
+
+      addGarbage(lines: number) {
+        this.garbage += lines;
       }
 
       clearLines() {
@@ -441,6 +471,21 @@ export default class extends Aview {
             this.level = newLevel;
             this.dropInterval = Math.max(100, 1000 - (this.level - 1) * 75);
           }
+
+          if (this.garbage)
+          {
+            while (linesCleared)
+            {
+              this.garbage--;
+              linesCleared--;
+              if (!this.garbage)
+                break;
+            }
+          }
+          if (this.id == 0 && linesCleared)
+            game2.addGarbage(linesCleared < 4 ? linesCleared - 1 : linesCleared);
+          else
+            game1.addGarbage(linesCleared < 4 ? linesCleared - 1 : linesCleared);
         }
       }
 
@@ -497,13 +542,15 @@ export default class extends Aview {
       move: boolean = false;
 
       inputManager() {
+        const left = this.id === 0 ? this.keys["KeyA"] : this.keys["Numpad4"]
+        const right = this.id === 0 ? this.keys["KeyD"] : this.keys["Numpad6"]
         if (this.move || Date.now() > this.inputTimestamp + this.inputDelay)
         {
-          if (this.keys["ArrowLeft"] && !this.keys["ArrowRight"])
+          if (left && !right)
             this.movePiece(-1, 0);
-          else if (!this.keys["ArrowLeft"] && this.keys["ArrowRight"])
+          else if (!left && right)
             this.movePiece(1, 0);
-          else if (this.keys["ArrowLeft"] && this.keys["ArrowRight"])
+          else if (left && right)
             this.movePiece(this.direction, 0);
           this.move = false;
         }
@@ -514,7 +561,7 @@ export default class extends Aview {
 
       registerListeners() {
         window.addEventListener("keydown", (e) => {
-          this.keys[e.key] = true;
+          this.keys[e.code] = true;
 
           if (this.isGameOver) return;
 
@@ -523,33 +570,33 @@ export default class extends Aview {
 
           if (this.isPaused) return;
 
-          if (e.key === "ArrowLeft")
+          if (this.id === 0 ? e.code === "KeyA" : e.code === "Numpad4")
           {
             this.inputTimestamp = Date.now();
             this.direction = -1;//this.movePiece(-1, 0);
             this.move = true;
           }
-          else if (e.key === "ArrowRight")
+          else if (this.id === 0 ? e.code === "KeyD" : e.code === "Numpad6")
           {
             this.inputTimestamp = Date.now();
             this.direction = 1;//this.movePiece(1, 0);
             this.move = true;
           }
-          else if (e.key === "ArrowDown") this.softDrop();
-          else if (e.code === "Space") {
+          else if (this.id === 0 ? e.code === "KeyS" : e.code === "Numpad5") this.softDrop();
+          else if (this.id === 0 ? e.code === "Space" : e.code === "Numpad0") {
             e.preventDefault();
             this.hardDrop();
-          } else if (e.key === "Shift" || e.key === "c" || e.key === "C") {
+          } else if (this.id === 0 ? e.code === "ShiftLeft" : e.code === "NumpadEnter") {
             e.preventDefault();
             this.hold();
-          } else if (e.key === "x" || e.key === "X" || e.key === "ArrowUp")
+          } else if (this.id === 0 ? e.code === "KeyE" : e.code === "Numpad9")
             this.rotatePiece("cw");
-          else if (e.key === "z" || e.key === "Z" || e.key === "Control")
+          else if (this.id === 0 ? e.code === "KeyQ" : e.code === "Numpad7")
             this.rotatePiece("ccw");
         });
 
         document.addEventListener("keyup", (e) => {
-          this.keys[e.key] = false;
+          this.keys[e.code] = false;
         });
       }
 
@@ -655,7 +702,7 @@ export default class extends Aview {
           let x: number = 0;
           for (const val of row) {
             if (val)
-              this.fillBlock(x + (4 - this.holdPiece.rotations[0].length)/ 2 + 0.35, y + 0.5, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
+              this.fillBlock(x + (4 - this.holdPiece.rotations[0].length)/ 2 + 0.35, y + 0.5, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : COLORS[8], this.holdCtx);
             x++;
           }
           y++;
@@ -761,6 +808,13 @@ export default class extends Aview {
       drawHUD() {
         if (!this.ctx || !this.canvas) return;
         const ctx = this.ctx;
+
+        if (this.garbage)
+        {
+          ctx.fillStyle ="red";
+          ctx.fillRect(0, this.canvas.height - BLOCK * this.garbage, 6, BLOCK * this.garbage);
+        }
+
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(4, 4, 120, 60);
         ctx.fillStyle = "#fff";
@@ -827,7 +881,8 @@ export default class extends Aview {
       }
     }
 
-    document.getElementById("game-retry")?.addEventListener("click", () => { document.getElementById("game-buttons")?.classList.add("hidden"); const game = new Game("board"); });
-    const game = new Game("board");
+    document.getElementById("game-retry")?.addEventListener("click", () => { document.getElementById("game-buttons")?.classList.add("hidden"); game1 = new Game("board1", 0); game2 = new Game("board2", 1); });
+    game1 = new Game("board1", 0);
+    game2 = new Game("board2", 1);
   }
 }

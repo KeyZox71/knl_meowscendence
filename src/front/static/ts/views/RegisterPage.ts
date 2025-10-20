@@ -15,18 +15,18 @@ export default class extends Aview {
 	async getHTML() {
 		return `
 		<div id="window" class="absolute default-border">
-					<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
-						<span class="font-[Kubasta]">register.ts</span>
-						<div>
-							<button> - </button>
-							<button> □ </button>
-							<a href="/" data-link> × </a>
-						</div>
-					</div>
+			<div id="window-header" class="bg-linear-to-r from-orange-200 to-orange-300 flex flex-row min-w-75 justify-between px-2">
+				<span class="font-[Kubasta]">register.ts</span>
+				<div>
+					<button> - </button>
+					<button> □ </button>
+					<a href="/" data-link> × </a>
+				</div>
+			</div>
 
 			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 reverse-border flex flex-col items-center">
 		    <form method="dialog" class="space-y-4">
-				  <p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</p>
+				  <h1 class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</h1>
 			    <input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<button id="register-button" type="submit" class="default-button w-full">register</button>

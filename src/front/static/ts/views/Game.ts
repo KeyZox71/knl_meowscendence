@@ -147,18 +147,19 @@ export default class extends Aview {
           if (await isLogged())
           {
             let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-            fetch(`http://localhost:3002/users/${uuid}/matchHistory`, {
+            fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=pong`, {
               method: "POST",
               headers: { "Content-Type": "application/json", },
               credentials: "include",
-              body: JSON.stringify({ "opponent": p2_name, "myScore": p1_score, "opponentScore": p2_score })
+              body: JSON.stringify({
+                "game": "pong",
+                "opponent": p2_name,
+                "myScore": p1_score,
+                "opponentScore": p2_score,
+                "date": Date.now(),
+              }),
             });
           }
-					// ------------------------------------------------------------------------------------------------------------------------------------------
-					//
-					// insert the fetch to the ScoreStore api here
-					//
-					// ------------------------------------------------------------------------------------------------------------------------------------------
 					match_over = true;
 				}
 				else

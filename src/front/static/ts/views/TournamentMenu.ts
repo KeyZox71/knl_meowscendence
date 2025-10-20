@@ -26,7 +26,7 @@ export default class extends Aview {
 	async run() {
 		const generateBracket = async (playerCount: number) => {
 			document.getElementById("bracket").innerHTML = "";
-			
+
 			const rounds = Math.ceil(Math.log2(playerCount));
 			const totalSlots = 2 ** rounds;
 			const byes = totalSlots - playerCount;
@@ -34,10 +34,10 @@ export default class extends Aview {
 			let odd = 0;
 			if (playerCount % 2)
 			{
-				console.error("odd numbers are temporarily invalids");
-				return ;
-				/*++odd;
-				--playerCount;*/
+				//console.error("odd numbers are temporarily invalids");
+				//return ;
+				++odd;
+				--playerCount;
 			}
 
 			let notPowPlayersCount = 0;
@@ -106,7 +106,7 @@ export default class extends Aview {
 					input.placeholder = `Player ${++playerCount}`;
 					input.className =
 						"w-32 h-10 p-2 text-sm border rounded bg-white shadow disabled:bg-gray-200";
-					roundColumn.appendChild(input);	
+					roundColumn.appendChild(input);
 					--notPowPlayersCount;
 					nextRound.push("");
 				}
