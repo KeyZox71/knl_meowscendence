@@ -29,10 +29,10 @@ export default class extends Aview {
 				  <p class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</p>
 			    <input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-			    <p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
-					</br>
 					<button id="register-button" type="submit" class="default-button w-full">register</button>
 				</form>
+
+				<p id="login-error-message" class="hidden text-red-700 dark:text-red-500 pt-4"></p>
 
 				<hr class="my-4 w-64 reverse-border">
 

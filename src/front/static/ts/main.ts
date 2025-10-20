@@ -75,8 +75,6 @@ window.addEventListener("popstate", router);
 document.addEventListener("DOMContentLoaded", () => {
 	isLogged();
 
-
-
 	document.body.addEventListener("click", e => {
 		if (!e.target.closest("#taskbar-menu") && !e.target.matches("#profile-button")) {
 			profile_view.open = false;
@@ -121,9 +119,18 @@ function updateClock()
 	clock.innerHTML = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ` + hours + ":" + minutes;
 }
 
-friends_view.run();
+async function pingClock() {
+	if (await isLogged()) {
+		fetch(`http://localhost:3002/ping`, {
+			method: "POST",
+		credentials: "include"
+		});
+	}
+}
 
 setInterval(updateClock, 5000);
 updateClock();
+
+setInterval(pingClock, 30000);
 
 oneko();
