@@ -269,7 +269,7 @@ export default class extends Aview {
 		let p1_input: HTMLInputElement = document.getElementById("player1") as HTMLInputElement;
 		let p2_input: HTMLInputElement = document.getElementById("player2") as HTMLInputElement;
 
-		p2_input.value = "Player 2";
+		p2_input.value = "player 2";
 		if (await isLogged())
 		{
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
@@ -287,7 +287,7 @@ export default class extends Aview {
 			p1_input.readOnly = true;
 		}
 		else
-			p1_input.value = "Player 1";
+			p1_input.value = "player 1";
 
 		document.getElementById("game-start")?.addEventListener("click", () => {
       p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
