@@ -20,7 +20,7 @@ export default async function(fastify, options) {
 				required: ['p1', 'p2', 'p1Score', 'p2Score'],
 				properties: {
 					p1: { type: 'string', minLength: 1 },
-					p2: { type: 'string', minLength: 1 },
+					p2: { type: 'string', minLength: 0 },
 					p1Score: { type: 'integer', minimum: 0 },
 					p2Score: { type: 'integer', minimum: 0 },
 				}

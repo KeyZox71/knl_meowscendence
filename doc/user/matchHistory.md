@@ -22,9 +22,9 @@ Input needed :
 ```json
 {
 	"game": "<pong/tetris>"
-	"opponent": "<the opponent's username>",
+	"opponent": "<the opponent's username>",	<= item only present if the match involved 2 players
 	"myScore": <my score>,
-	"opponentScore": <the opponent's score>,
+	"opponentScore": <the opponent's score>,	<= item only present if the match involved 2 players
 	"date": <seconds since Epoch (Date.now() return)>
 }
 ```
@@ -36,7 +36,7 @@ Can return:
 	"msg": "Match successfully saved to the blockchain"
 }
 ```
-- 400 with response (if no user is specified in header, or no opponent/p1Score/p2Score is specified in body, or opponent is the user specified in header, or a score is negative, or the game specified is invalid)
+- 400 with response (if no user is specified in header, or no opponent/p1Score/p2Score is specified in body, or opponent is the user specified in header, or a score is negative, or the game specified is invalid, or the game should involve more players than was specified)
 ```json
 {
 	"error": "<corresponding error>"
@@ -69,9 +69,9 @@ Can return:
 			"score":
 			{
 				"p1": "<the name of the p1>",
-				"p2": "<the name of the p2>",
+				"p2": "<the name of the p2>",		<= item only present if the match involved 2 players
 				"p1Score": "<the score of the p1>",
-				"p2Score": "<the score of the p2>",
+				"p2Score": "<the score of the p2>",	<= item only present if the match involved 2 players
 				"date": <seconds since Epoch (Date.now() return)>
 			},
 			"tx": "<the transcaction hash>"

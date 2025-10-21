@@ -69,9 +69,9 @@ function prepareDB() {
 			player1 TEXT,
 			player2 TEXT,
 			matchId INTEGER,
-			CHECK(player1 != player2),
 			CHECK(game = 'pong' OR game = 'tetris'),
-			CHECK(date >= 0)
+			CHECK(date >= 0),
+			CHECK(player1 != player2)
 		) STRICT
 	`);
 	database.exec(`
@@ -125,9 +125,8 @@ const deleteStatsTetris = database.prepare('UPDATE userData SET tetrisWins = 0, 
 const deleteAvatarId = database.prepare('UPDATE userData SET avatarId = -1 WHERE username = ?;');
 
 const querySchema = { type: 'object', required: ['iStart', 'iEnd'], properties: { iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
-const bodySchema = { type: 'object', required: ['opponent', 'myScore', 'opponentScore'], properties: { opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
 const querySchemaMatchHistory = { type: 'object', required: ['game', 'iStart', 'iEnd'], properties: { game: { type: 'string' }, iStart: { type: 'integer', minimum: 0 }, iEnd: { type: 'integer', minimum: 0 } } }
-const bodySchemaMatchHistory = { type: 'object', required: ['game', 'date', 'opponent', 'myScore', 'opponentScore'], properties: { game: { type: 'string' }, date: { type: 'integer', minimum: 0 }, opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
+const bodySchemaMatchHistory = { type: 'object', required: ['game', 'date', 'myScore'], properties: { game: { type: 'string' }, date: { type: 'integer', minimum: 0 }, opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } }
 const querySchemaMatchHistoryGame = { type: 'object', required: ['game'], properties: { game: { type: 'string' } } }
 
 export default async function(fastify, options) {
@@ -182,7 +181,7 @@ export default async function(fastify, options) {
 		return gNumberMatches(request, reply, fastify, getUserInfo, getNumberMatches);
 	});
 	fastify.get('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return gAvatar(request, reply, fastify, getAvatarId);
+		return gAvatar(request, reply, fastify, getUserInfo, getAvatarId);
 	});
 	fastify.get('/ping/:userId', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return gPing(request, reply, fastify, getActivityTime);
@@ -199,7 +198,7 @@ export default async function(fastify, options) {
 		return pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWinsPong, incLossesPong, incWinsTetris, incLossesTetris);
 	});
 	fastify.post('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return pAvatar(request, reply, fastify, setAvatarId);
+		return pAvatar(request, reply, fastify, getUserInfo, setAvatarId);
 	});
 	fastify.post('/ping', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return pPing(request, reply, fastify, setActivityTime);
@@ -227,6 +226,6 @@ export default async function(fastify, options) {
 		return dMatchHistory(request, reply, fastify, getUserInfo, deleteMatchHistory, deleteStatsPong, deleteStatsTetris);
 	});
 	fastify.delete('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return dAvatar(request, reply, fastify, deleteAvatarId);
+		return dAvatar(request, reply, fastify, getUserInfo, deleteAvatarId);
 	});
 }

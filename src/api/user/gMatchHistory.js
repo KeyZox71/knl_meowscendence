@@ -22,6 +22,10 @@ export async function gMatchHistory(request, reply, fastify, getUserInfo, getMat
 			}
 			const resJson = await res.json();
 			resJson.score.date = match.date;
+			if (resJson.score.p2 === "" && resJson.score.p2Score === 0) {
+				delete resJson.score.p2;
+				delete resJson.score.p2Score;
+			}
 			return resJson;
 		});
 		const matchHistory = await Promise.all(promises);
