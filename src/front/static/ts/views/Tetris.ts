@@ -47,6 +47,8 @@ export default class extends Aview {
     const ROWS = 20;
     const BLOCK = 30; // pixels per block
 
+    const view = this;
+
     type Cell = number; // 0 empty, >0 occupied (color index)
 
     // Tetromino definitions: each piece is an array of rotations, each rotation is a 2D matrix
@@ -542,10 +544,13 @@ export default class extends Aview {
           } else if (e.key === "Shift" || e.key === "c" || e.key === "C") {
             e.preventDefault();
             this.hold();
-          } else if (e.key === "x" || e.key === "X" || e.key === "ArrowUp")
+          } else if (e.key === "x" || e.key === "X" || e.key === "ArrowUp") {
+            e.preventDefault();
             this.rotatePiece("cw");
-          else if (e.key === "z" || e.key === "Z" || e.key === "Control")
+          }  else if (e.key === "z" || e.key === "Z" || e.key === "Control") {
+          e.preventDefault();
             this.rotatePiece("ccw");
+          }
         });
 
         document.addEventListener("keyup", (e) => {
@@ -554,6 +559,7 @@ export default class extends Aview {
       }
 
       async loop(timestamp: number) {
+        if (!view.running) return;
         if (!this.lastDrop) this.lastDrop = timestamp;
         if (!this.isPaused)
         {
@@ -608,7 +614,7 @@ export default class extends Aview {
         if (!ctx || !this.canvas)
           return;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.strokeStyle = "#222";
+        ctx.strokeStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(14.5% 0 0)" : "oklch(55.6% 0 0)";
         for (let r = 0; r <= ROWS; r++) {
           // horizontal lines
           ctx.beginPath();
@@ -625,6 +631,7 @@ export default class extends Aview {
       }
 
       drawBoard() {
+        this.drawGrid();
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
             const val = this.board[r][c];
@@ -647,15 +654,18 @@ export default class extends Aview {
       }
 
       drawHold() {
-        if (!this.holdPiece || !this.holdCtx) return;
+        if (!this.holdCtx || !this.holdCanvas) return;
 
-        this.holdCtx.clearRect(0, 0, 200, 200);
+        this.holdCtx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(20.5% 0 0)" : "oklch(70.8% 0 0)";
+        this.holdCtx.fillRect(0, 0, this.holdCanvas.width, this.holdCanvas.height);
+
+        if (!this.holdPiece) return;
         let y: number = 0;
         for (const row of this.holdPiece.rotations[0]) {
           let x: number = 0;
           for (const val of row) {
             if (val)
-              this.fillBlock(x + (4 - this.holdPiece.rotations[0].length)/ 2 + 0.35, y + 0.5, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
+              this.fillBlock(x + (4 - this.holdPiece.rotations[0].length)/ 2 + 0.35, y + 0.65, this.canHold ? COLORS[this.holdPiece.findColorIndex()] : ["#8c8c84", "#393934"], this.holdCtx);
             x++;
           }
           y++;
@@ -663,8 +673,10 @@ export default class extends Aview {
       }
 
       drawQueue() {
-        if (!this.queueCtx) return ;
-        this.queueCtx.clearRect(0, 0, 500, 500);
+        if (!this.queueCtx || !this.queueCanvas) return ;
+
+        this.queueCtx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(20.5% 0 0)" : "oklch(70.8% 0 0)";
+        this.queueCtx.fillRect(0, 0, this.queueCanvas.width, this.queueCanvas.height);
         let placement: number = 0;
         for (const nextPiece of this.nextQueue.slice(0, 5)) {
           let y: number = 0;
@@ -755,7 +767,8 @@ export default class extends Aview {
       clearBlock(x: number, y: number) {
         if (!this.ctx) return;
         const ctx = this.ctx;
-        ctx.clearRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+     	ctx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(20.5% 0 0)" : "oklch(70.8% 0 0)";
+			ctx.fillRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
       }
 
       drawHUD() {
@@ -765,9 +778,9 @@ export default class extends Aview {
         ctx.fillRect(4, 4, 120, 60);
         ctx.fillStyle = "#fff";
         ctx.font = "12px Kubasta";
-        ctx.fillText(`Score: ${this.score}`, 8, 20);
-        ctx.fillText(`Lines: ${this.lines}`, 8, 36);
-        ctx.fillText(`Level: ${this.level}`, 8, 52);
+        ctx.fillText(`score: ${this.score}`, 8, 20);
+        ctx.fillText(`lines: ${this.lines}`, 8, 36);
+        ctx.fillText(`level: ${this.level}`, 8, 52);
 
         if (this.isPaused) {
           ctx.fillStyle = "rgba(0,0,0,0.7)";

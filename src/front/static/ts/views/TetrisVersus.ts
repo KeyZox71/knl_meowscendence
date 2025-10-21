@@ -26,8 +26,16 @@ export default class extends Aview {
 			</div>
 
 
-			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
-				<div class="flex flex-row justify-center items-start space-x-4">
+			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-5 pt-2 space-y-4 reverse-border">
+			<div id="player-inputs" class="flex flex-col space-y-4">
+	      <h1 class="text-lg text-neutral-900 dark:text-white font-bold mt-2">enter the users ids/names</h1>
+				<div class="flex flex-row">
+					<span class="reverse-border w-full ml-2"><input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input></span>
+					<span class="reverse-border w-full ml-2"><input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 px-4 py-2 w-full input-border" required></input></span>
+				</div>
+				<button id="game-start" class="default-button">play</button>
+			</div>
+				<div id="game-boards" class="hidden flex flex-row justify-center items-start space-x-4">
 					<canvas id="board1-hold" class="reverse-border" width="140" height="100"></canvas>
 					<canvas id="board1-board" class="reverse-border" width="300" height="600"></canvas>
 					<canvas id="board1-queue" class="reverse-border" width="140" height="420"></canvas>
@@ -45,14 +53,22 @@ export default class extends Aview {
   }
 
   async run() {
-    let game1: Game;
-    let game2: Game;
     dragElement(document.getElementById("window"));
     const COLS = 10;
     const ROWS = 20;
     const BLOCK = 30; // pixels per block
 
-    type Cell = number; // 0 empty, >0 occupied (color index)
+    let uuid: string;
+    let game1: Game;
+    let game2: Game;
+    let p1_score: number = 0;
+		let p2_score: number = 0;
+		let p1_name: string;
+		let p2_name: string;
+
+    const view = this;
+
+    type Cell = number;
 
     // Tetromino definitions: each piece is an array of rotations, each rotation is a 2D matrix
     const TETROMINOES: { [key: string]: number[][][] } = {
@@ -388,7 +404,8 @@ export default class extends Aview {
         const type = this.nextQueue.shift()!;
         this.piece = new Piece(type);
         if (this.collides(this.piece)) {
-          this.isGameOver = true;
+          game1.isGameOver = true;
+          game2.isGameOver = true;
         }
 
         this.drawHold();
@@ -428,7 +445,12 @@ export default class extends Aview {
             this.board[cell.y][cell.x] = cell.val;
           if (cell.y > 0) isValid = true;
         }
-        if (!isValid) this.isGameOver = true;
+        if (!isValid)
+        {
+          this.id == 0 ? p2_score++ : p1_score++;
+          game1.isGameOver = true;
+          game2.isGameOver = true;
+        }
 
         if (this.garbage)
         {
@@ -589,10 +611,13 @@ export default class extends Aview {
           } else if (this.id === 0 ? e.code === "ShiftLeft" : e.code === "NumpadEnter") {
             e.preventDefault();
             this.hold();
-          } else if (this.id === 0 ? e.code === "KeyE" : e.code === "Numpad9")
+          } else if (this.id === 0 ? (e.code === "KeyE" || e.code === "KeyW") : (e.code === "Numpad9" || e.code === "Numpad8")) {
+            e.preventDefault();
             this.rotatePiece("cw");
-          else if (this.id === 0 ? e.code === "KeyQ" : e.code === "Numpad7")
+          }  else if (this.id === 0 ? (e.code === "KeyQ" || e.code === "ControlLeft") : e.code === "Numpad7") {
+            e.preventDefault();
             this.rotatePiece("ccw");
+          }
         });
 
         document.addEventListener("keyup", (e) => {
@@ -601,6 +626,7 @@ export default class extends Aview {
       }
 
       async loop(timestamp: number) {
+        if (!view.running) return;
         if (!this.lastDrop) this.lastDrop = timestamp;
         if (!this.isPaused)
         {
@@ -628,7 +654,16 @@ export default class extends Aview {
 
         if (this.isGameOver)
         {
-          if (await isLogged())
+          if (p1_score != 3 && p2_score != 3)
+          {
+            if (this.id == 0)
+            {
+              game1 = new Game("board1", 0);
+              game2 = new Game("board2", 1);
+            }
+            return ;
+          }
+          if (await isLogged() && this.id == 0)
           {
             let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
             fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=tetris`, {
@@ -637,9 +672,9 @@ export default class extends Aview {
               credentials: "include",
               body: JSON.stringify({
                 "game": "tetris",
-                "opponent": "xd",
-                "myScore": this.score,
-                "opponentScore": 0,
+                "opponent": p2_name,
+                "myScore": p1_score,
+                "opponentScore": p2_score,
                 "date": Date.now(),
               }),
             });
@@ -655,7 +690,7 @@ export default class extends Aview {
         if (!ctx || !this.canvas)
           return;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.strokeStyle = "#222";
+        ctx.strokeStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(14.5% 0 0)" : "oklch(55.6% 0 0)";
         for (let r = 0; r <= ROWS; r++) {
           // horizontal lines
           ctx.beginPath();
@@ -672,6 +707,7 @@ export default class extends Aview {
       }
 
       drawBoard() {
+        this.drawGrid();
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
             const val = this.board[r][c];
@@ -694,9 +730,12 @@ export default class extends Aview {
       }
 
       drawHold() {
-        if (!this.holdPiece || !this.holdCtx) return;
+        if (!this.holdCtx || !this.holdCanvas) return;
 
-        this.holdCtx.clearRect(0, 0, 200, 200);
+        this.holdCtx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(20.5% 0 0)" : "oklch(70.8% 0 0)";
+        this.holdCtx.fillRect(0, 0, this.holdCanvas.width, this.holdCanvas.height);
+
+        if (!this.holdPiece) return;
         let y: number = 0;
         for (const row of this.holdPiece.rotations[0]) {
           let x: number = 0;
@@ -710,8 +749,10 @@ export default class extends Aview {
       }
 
       drawQueue() {
-        if (!this.queueCtx) return ;
-        this.queueCtx.clearRect(0, 0, 500, 500);
+        if (!this.queueCtx || !this.queueCanvas) return ;
+
+        this.queueCtx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(20.5% 0 0)" : "oklch(70.8% 0 0)";
+        this.queueCtx.fillRect(0, 0, this.queueCanvas.width, this.queueCanvas.height);
         let placement: number = 0;
         for (const nextPiece of this.nextQueue.slice(0, 5)) {
           let y: number = 0;
@@ -802,7 +843,8 @@ export default class extends Aview {
       clearBlock(x: number, y: number) {
         if (!this.ctx) return;
         const ctx = this.ctx;
-        ctx.clearRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+       	ctx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? "oklch(20.5% 0 0)" : "oklch(70.8% 0 0)";
+        ctx.fillRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
       }
 
       drawHUD() {
@@ -819,9 +861,9 @@ export default class extends Aview {
         ctx.fillRect(4, 4, 120, 60);
         ctx.fillStyle = "#fff";
         ctx.font = "12px Kubasta";
-        ctx.fillText(`Score: ${this.score}`, 8, 20);
-        ctx.fillText(`Lines: ${this.lines}`, 8, 36);
-        ctx.fillText(`Level: ${this.level}`, 8, 52);
+        ctx.fillText(`${this.id == 0 ? p1_name : p2_name}: ${this.id == 0 ? p1_score : p2_score}`, 8, 20);
+        ctx.fillText(`score: ${this.score}`, 8, 36);
+        ctx.fillText(`lines: ${this.lines}`, 8, 52);
 
         if (this.isPaused) {
           ctx.fillStyle = "rgba(0,0,0,0.7)";
@@ -882,7 +924,38 @@ export default class extends Aview {
     }
 
     document.getElementById("game-retry")?.addEventListener("click", () => { document.getElementById("game-buttons")?.classList.add("hidden"); game1 = new Game("board1", 0); game2 = new Game("board2", 1); });
-    game1 = new Game("board1", 0);
-    game2 = new Game("board2", 1);
+
+    let p1_input: HTMLInputElement = document.getElementById("player1") as HTMLInputElement;
+		let p2_input: HTMLInputElement = document.getElementById("player2") as HTMLInputElement;
+
+		p2_input.value = "Player 2";
+		if (await isLogged())
+		{
+          uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+          const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+      			method: "GET",
+      			credentials: "include",
+      		});
+      		if (userdata_req.status == 404)
+      		{
+      			console.error("invalid user");
+      			return ;
+      		}
+          let userdata = await userdata_req.json();
+			p1_input.value = userdata.displayName;
+      p1_input.readOnly = true;
+		}
+		else
+			p1_input.value = "Player 1";
+
+    document.getElementById("game-start")?.addEventListener("click", () => {
+      p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
+      p2_name = p2_input.value.length > 16 ? p2_input.value.substring(0, 16) + "." : p2_input.value;
+      document.getElementById("player-inputs").remove();
+      document.getElementById("game-boards").classList.remove("hidden");
+      game1 = new Game("board1", 0);
+      game2 = new Game("board2", 1);
+    });
+
   }
 }

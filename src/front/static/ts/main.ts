@@ -12,11 +12,21 @@ export async function isLogged(): Promise<boolean> {
 	if (uuid_req.status === 200) {
 		let uuid = await uuid_req.json();
 		document.cookie = `uuid=${uuid.user};max-age=${60 * 60 * 24 * 7}`;
+		if (!document.getElementById("friends-btn"))
+		{
+      const btn: HTMLButtonElement = document.createElement("button") as HTMLButtonElement;
+      btn.id = "friends-btn";
+      btn?.classList.add("taskbar-button");
+      btn.innerText = "friends";
+      document.getElementById("taskbar-trail")?.prepend(btn);
+		}
 		return true;
 	}
 	else // 401
 	{
 		document.cookie = `uuid=;max-age=0`;
+    const btn = document.getElementById("friends-btn") as HTMLButtonElement;
+    if (btn) btn.remove();
 		return false;
 	}
 }
@@ -32,7 +42,7 @@ const routes = [
 	{ path: "/", view: () => import("./views/MainMenu.ts") },
 
 	{ path: "/pong", view: () => import("./views/PongMenu.ts") },
-	{ path: "/pong/local", view: () => import("./views/Game.ts") },
+	{ path: "/pong/local", view: () => import("./views/Pong.ts") },
 	{ path: "/pong/tournament", view: () => import("./views/TournamentMenu.ts") },
 
 	{ path: "/tetris", view: () => import("./views/TetrisMenu.ts") },
@@ -101,8 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	router();
 });
-
-oneko();
 
 function updateClock()
 {

@@ -70,7 +70,7 @@ export default class extends Aview {
     });
 
     document.getElementById("deleteAccount-button")?.addEventListener("click", async () => {
-      const delete_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+      const delete_req = await fetch(`http://localhost:3001/`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -78,7 +78,7 @@ export default class extends Aview {
       if (delete_req.status == 200)
         navigationManager("/");
       else
-        console.error("xd"); // should never happen, wtf
+        console.error("xd"); // xd?????????????
     });
   }
 }

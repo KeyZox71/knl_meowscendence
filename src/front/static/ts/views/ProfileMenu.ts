@@ -77,6 +77,7 @@ export default class extends Aview {
         method: "GET",
         credentials: "include",
       });
+      isLogged();
       if (req.status === 200)
         this.run();
       else
