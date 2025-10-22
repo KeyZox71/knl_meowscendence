@@ -40,7 +40,7 @@ const routes = [
 
 	{ path: "/tetris", view: () => import("./views/TetrisMenu.ts") },
 	{ path: "/tetris/solo", view: () => import("./views/Tetris.ts") },
-	{ path: "/tetris/versus", view: () => import("./views/Tetris.ts") },
+	{ path: "/tetris/versus", view: () => import("./views/TetrisVersus.ts") },
 
 	{ path: "/login", view: () => import("./views/LoginPage.ts") },
 	{ path: "/register", view: () => import("./views/RegisterPage.ts") },

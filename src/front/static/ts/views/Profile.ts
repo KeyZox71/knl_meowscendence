@@ -58,13 +58,13 @@ export default class extends Aview {
     }
     let userdata = await userdata_req.json();
 
-    const matchCount_req = await fetch(user_api + `/users/${uuid}/matchHistory/count`, {
+    const matchCount_req = await fetch(user_api + `/users/${uuid}/matchHistory/count?game=tetris`, {
       method: "GET",
       credentials: "include",
     });
     const matchCount = await matchCount_req.json();
 
-    const matches_req = await fetch(user_api + `/users/${uuid}/matchHistory?iStart=0&iEnd=${matchCount.n_matches}`, {
+    const matches_req = await fetch(user_api + `/users/${uuid}/matchHistory?game=tetris&iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
       credentials: "include",
     });

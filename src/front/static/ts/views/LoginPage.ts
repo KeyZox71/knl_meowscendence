@@ -1,5 +1,5 @@
 import Aview from "./Aview.ts"
-import { dragElement } from "./drag.js"
+import { dragElement } from "./drag.ts"
 import { setOnekoState } from "../oneko.ts"
 import { isLogged, navigationManager, user_api, auth_api } from "../main.ts"
 
@@ -29,10 +29,10 @@ export default class extends Aview {
 				  <h1 class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome back ! please login.</h1>
 					<input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-					<p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
-					</br>
 					<button id="login-button" type="submit" class="default-button w-full">login</button>
 				</form>
+
+				<p id="login-error-message" class="hidden text-red-700 dark:text-red-500"></p>
 
 				<hr class="my-4 w-64 reverse-border">
 
