@@ -15,7 +15,7 @@ export async function pAvatar(request, reply, fastify, getUserInfo, setAvatarId,
 					size += chunk.length;
 					chunks.push(chunk);
 				}
-				if (size === 2 * 1024 * 1024 + 1) {
+				if (size === 5 * 1024 * 1024 + 1) {
 					return reply.code(400).send({ error: "File too large" });
 				}
 				const buffer = Buffer.concat(chunks);
