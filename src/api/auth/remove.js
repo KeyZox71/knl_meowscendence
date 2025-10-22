@@ -1,5 +1,5 @@
-import authDB from '../../utils/authDB';
-import { authUserRemove } from '../../utils/authUserRemove';
+import authDB from '../../utils/authDB.js';
+import { authUserRemove } from '../../utils/authUserRemove.js';
 
 /**
  * @param {import('fastify').FastifyRequest} request
