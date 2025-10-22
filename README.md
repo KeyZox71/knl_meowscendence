@@ -11,6 +11,7 @@ Press F to pay respect
 │   └── volumes.yml          # Docker volume definitions
 ├── src/                     # Application source code
 │   ├── api/                 # Backend logic (auth, user management)
+│   ├── contract/            # Smart contract files
 │   ├── front/               # Frontend files
 │   └── utils/               # Utility modules (auth, TOTP, etc.)
 ├── flake.nix & flake.lock   # Nix flake configuration
