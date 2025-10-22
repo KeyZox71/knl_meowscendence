@@ -1,11 +1,12 @@
 import sharp from 'sharp';
 
-export async function pAvatar(request, reply, fastify, getUserInfo, setAvatarId, postImage) {
+export async function uAvatar(request, reply, fastify, getUserInfo, setAvatarId, getAvatarId, deleteAvatarId, postImage, deleteImage) {
 	try {
 		const userId = request.params.userId;
 		if (!getUserInfo.get(userId)) {
 			return reply.cose(404).send({ error: "User does not exist" });
 		}
+		deleteAvatarId.run(userId);
 		const parts = request.parts();
 		for await (const part of parts) {
 			if (part.file) {
@@ -27,11 +28,16 @@ export async function pAvatar(request, reply, fastify, getUserInfo, setAvatarId,
 				}
 				const webpBuffer = await sharp(buffer).toFormat('webp').toBuffer();
 				const imageId = postImage.run(part.filename, part.mimetype, webpBuffer);
+				const oldImageId = getAvatarId.get(userId);
+				if (oldImageId.avatarId !== -1) {
+					deleteImage.run(oldImageId.avatarId);
+					deleteAvatarId.run(userId);
+				}
 				setAvatarId.run(imageId.lastInsertRowid, userId);
-				return reply.code(200).send({ msg: "Avatar uploaded successfully" });
+				return reply.code(200).send({ msg: "Avatar modified successfully" });
 			}
 		}
-		return reply.code(400).send({ error: "No avatar uploaded" });
+		return reply.code(400).send({ error: "No avatar modified" });
 	} catch (err) {
 		fastify.log.error(err);
 		return reply.code(500).send({ error: "Internal server error" });
