@@ -11,6 +11,7 @@ Press F to pay respect
 │   └── volumes.yml          # Docker volume definitions
 ├── src/                     # Application source code
 │   ├── api/                 # Backend logic (auth, user management)
+│   ├── contract/            # Smart contract files
 │   ├── front/               # Frontend files
 │   └── utils/               # Utility modules (auth, TOTP, etc.)
 ├── flake.nix & flake.lock   # Nix flake configuration
@@ -39,7 +40,7 @@ Press F to pay respect
   - [ ] User and game stats dashboards - Minor
 - **Cybersecurity**
   - [ ] ~~WAF/ModSecurity and Hashicorp Vault - Major~~
-  - [ ] RGPD compliance - Minor
+  - [ ] ~~RGPD compliance - Minor~~
   - [x] 2FA and JWT - Major
 - **DevOps**
   - [x] Infrasctructure setup for log management - Major
