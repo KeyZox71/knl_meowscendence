@@ -1,4 +1,5 @@
 import Aview from "./Aview.ts"
+import { isLogged} from "../main.ts"
 import { setOnekoState } from "../oneko.ts"
 
 export default class extends Aview {

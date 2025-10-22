@@ -28,11 +28,11 @@ export default class extends Aview {
 				<div class="flex flex-col space-y-4 w-full">
 				  <div id="profile-profile" class="default-border h-24 flex flex-row place-content-stretch content-center items-center space-x-6 pr-4">
 					</div>
-					<div class="flex flex-row space-x-4 w-full min-w-145">
-					  <ul id="profile-scorelist" class="reverse-border bg-neutral-300 dark:bg-neutral-900 h-48 w-full overflow-scroll no-scrollbar">
+					<div class="flex flex-row space-x-4 w-full min-w-175">
+					  <ul id="profile-pong-scorelist" class="reverse-border bg-neutral-300 dark:bg-neutral-900 h-48 w-full overflow-scroll no-scrollbar">
 						</ul>
-				    <div id="graph-ig-idk-im-scared" class="reverse-border bg-neutral-300 dark:bg-neutral-900 h-48 w-full">
-						</div>
+				    <ul id="profile-tetris-scorelist" class="reverse-border bg-neutral-300 dark:bg-neutral-900 h-48 w-full overflow-scroll no-scrollbar">
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -58,33 +58,108 @@ export default class extends Aview {
     }
     let userdata = await userdata_req.json();
 
-    const matchCount_req = await fetch(user_api + `/users/${uuid}/matchHistory/count?game=tetris`, {
+    const matchCount_req = await fetch(user_api + `/users/${uuid}/matchHistory/count?game=pong`, {
       method: "GET",
       credentials: "include",
     });
-    const matchCount = await matchCount_req.json();
+    let matchCount = await matchCount_req.json();
 
-    const matches_req = await fetch(user_api + `/users/${uuid}/matchHistory?game=tetris&iStart=0&iEnd=${matchCount.n_matches}`, {
+    let matches_req = await fetch(user_api + `/users/${uuid}/matchHistory?game=pong&iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
       credentials: "include",
     });
-    const matches = await matches_req.json();
+    let matches = await matches_req.json();
 
-    const main = document.getElementById("profile-scorelist");
+    let main = document.getElementById("profile-pong-scorelist");
     if (!main)
       return console.error("what");
 
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
         const newEntry = document.createElement("li");
-        newEntry.classList.add("m-2", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
+        newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
         newEntry.innerHTML = match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`;
         main.insertBefore(newEntry, main.firstChild);
-        // ###########################################################################################################################################
-        //
-        // ADD TX LINK : https://testnet.snowscan.xyz/tx/${match.tx}
-        //
-        // ###########################################################################################################################################
+
+        const popup: HTMLDivElement = document.createElement("div");
+        const id: number = Math.floor(Math.random() * 100000000000);
+        popup.id = `${id}`;
+        popup.classList.add("z-10", "absolute", "default-border");
+        const header = popup.appendChild(document.createElement("div"));
+        header.classList.add("bg-linear-to-r", "from-orange-200", "to-orange-300", "flex", "flex-row", "min-w-35", "justify-between", "px-2");
+        header.id = `${id}-header`;
+        header.appendChild(document.createElement("span")).innerText = "score.ts";
+        const btn = header.appendChild(document.createElement("button"));
+        btn.innerText = " × ";
+        btn.onclick = () => { document.getElementById(`${id}`).remove();  };
+
+        const popup_content: HTMLSpanElement = popup.appendChild(document.createElement("div"));
+        popup_content.classList.add("flex", "flex-col", "bg-neutral-200", "dark:bg-neutral-800", "p-6", "pt-4", "text-neutral-900", "dark:text-white", "space-y-4");
+        const date = new Date(match.score.date);
+        popup_content.appendChild(document.createElement("span")).innerText = `${date.toDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+        const score = popup_content.appendChild(document.createElement("span"));
+        score.classList.add();
+        score.innerText = `${match.score.p1} : ${match.score.p1Score} - ${match.score.p2Score} : ${match.score.p2}`;
+        const tx = popup_content.appendChild(document.createElement("a"));
+        tx.href = `https://testnet.snowscan.xyz/tx/${match.tx}`;
+        tx.innerText = "transaction proof";
+        tx.target = "_blank";
+        tx.classList.add("default-button", "items-center", "justify-center", "text-center");
+
+        newEntry.onclick = () => { document.getElementById("app")?.appendChild(popup); dragElement(document.getElementById(`${id}`)); };
+        console.log(match.tx);
+      }
+    }
+
+    matchCount_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory/count?game=tetris`, {
+      method: "GET",
+      credentials: "include",
+    });
+    matchCount = await matchCount_req.json();
+
+    matches_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=tetris&iStart=0&iEnd=${matchCount.n_matches}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    matches = await matches_req.json();
+
+    main = document.getElementById("profile-tetris-scorelist");
+    if (!main)
+      return console.error("what");
+
+    if (matches.matchHistory) {
+      for (let match of matches.matchHistory) {
+        const newEntry = document.createElement("li");
+        newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
+        newEntry.innerHTML = match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`;
+        main.insertBefore(newEntry, main.firstChild);
+
+        const popup: HTMLDivElement = document.createElement("div");
+        const id: number = Math.floor(Math.random() * 100000000000);
+        popup.id = `${id}`;
+        popup.classList.add("z-10", "absolute", "default-border");
+        const header = popup.appendChild(document.createElement("div"));
+        header.classList.add("bg-linear-to-r", "from-orange-200", "to-orange-300", "flex", "flex-row", "min-w-35", "justify-between", "px-2");
+        header.id = `${id}-header`;
+        header.appendChild(document.createElement("span")).innerText = "score.ts";
+        const btn = header.appendChild(document.createElement("button"));
+        btn.innerText = " × ";
+        btn.onclick = () => { document.getElementById(`${id}`).remove();  };
+
+        const popup_content: HTMLSpanElement = popup.appendChild(document.createElement("div"));
+        popup_content.classList.add("flex", "flex-col", "bg-neutral-200", "dark:bg-neutral-800", "p-6", "pt-4", "text-neutral-900", "dark:text-white", "space-y-4");
+        const date = new Date(match.score.date);
+        popup_content.appendChild(document.createElement("span")).innerText = `${date.toDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+        const score = popup_content.appendChild(document.createElement("span"));
+        score.classList.add();
+        score.innerText = `${match.score.p1} : ${match.score.p1Score} - ${match.score.p2Score} : ${match.score.p2}`;
+        const tx = popup_content.appendChild(document.createElement("a"));
+        tx.href = `https://testnet.snowscan.xyz/tx/${match.tx}`;
+        tx.innerText = "transaction proof";
+        tx.target = "_blank";
+        tx.classList.add("default-button", "items-center", "justify-center", "text-center");
+
+        newEntry.onclick = () => { document.getElementById("app")?.appendChild(popup); dragElement(document.getElementById(`${id}`)); };
         console.log(match.tx);
       }
     }

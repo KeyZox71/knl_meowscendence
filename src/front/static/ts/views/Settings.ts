@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager, user_api } from "../main.ts"
+import { isLogged, navigationManager, user_api, auth_api } from "../main.ts"
 
 
 export default class extends Aview {
@@ -70,7 +70,7 @@ export default class extends Aview {
     });
 
     document.getElementById("deleteAccount-button")?.addEventListener("click", async () => {
-      const delete_req = await fetch(user_api + `/users/${uuid}`, {
+		const delete_req = await fetch(String(auth_api), {
         method: "DELETE",
         credentials: "include",
       });
@@ -78,7 +78,7 @@ export default class extends Aview {
       if (delete_req.status == 200)
         navigationManager("/");
       else
-        console.error("xd"); // should never happen, wtf
+        console.error("xd"); // xd?????????????
     });
   }
 }

@@ -28,8 +28,9 @@ export default class extends Aview {
 			</div>
 
 
-			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-10 space-y-4 reverse-border">
+			<div id="main-div" class="bg-neutral-200 dark:bg-neutral-800 text-center p-5 space-y-4 reverse-border">
 				<div id="player-inputs" class="flex flex-col space-y-4">
+          <h1 class="text-lg text-neutral-900 dark:text-white font-bold mt-2">enter the users ids/names</h1>
 					<div class="flex flex-row">
 						<span class="reverse-border w-full ml-2"><input type="text" id="player1" placeholder="Player 1" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input></span>
 						<span class="reverse-border w-full ml-2"><input type="text" id="player2" placeholder="Player 2" class="bg-white text-neutral-900 px-4 py-2 w-full input-border" required></input></span>
@@ -265,10 +266,10 @@ export default class extends Aview {
 			countdown = 3;
 			countdownTimer = performance.now();
 		});
-		let p1_input = document.getElementById("player1");
-		let p2_input = document.getElementById("player2");
+		let p1_input: HTMLInputElement = document.getElementById("player1") as HTMLInputElement;
+		let p2_input: HTMLInputElement = document.getElementById("player2") as HTMLInputElement;
 
-		p2_input.value = "Player 2";
+		p2_input.value = "player 2";
 		if (await isLogged())
 		{
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
@@ -283,9 +284,10 @@ export default class extends Aview {
   		}
       let userdata = await userdata_req.json();
 			p1_input.value = userdata.displayName;
+			p1_input.readOnly = true;
 		}
 		else
-			p1_input.value = "Player 1";
+			p1_input.value = "player 1";
 
 		document.getElementById("game-start")?.addEventListener("click", () => {
       p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
