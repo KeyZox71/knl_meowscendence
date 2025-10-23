@@ -1,10 +1,7 @@
 export async function pUser(request, reply, fastify, getUserInfo, createUser) {
 	try {
 		const userId = request.params.userId;
-		if (!request.user || !request.user.user) {
-			return reply.code(400).send({ error: "Please specify a user" });
-		}
-		if (request.user.user !== 'admin') {
+		if (request.user !== 'admin') {
 			return reply.code(401).send({ error: "Unauthorized" });
 		}
 		if (getUserInfo.get(userId)) {

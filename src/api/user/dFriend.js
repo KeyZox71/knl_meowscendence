@@ -1,9 +1,9 @@
 export async function dFriend(request, reply, fastify, getUserInfo, getFriend, deleteFriend) {
 	try {
-		if (!request.user) {
-			return reply.code(400).send({ error: "Please specify a user" });
-		}
 		const userId = request.params.userId;
+		if (request.user !== userId && request.user !== 'admin') {
+			return reply.code(401).send({ error: 'Unauthorized' });
+		}
 		if (!getUserInfo.get(userId)) {
 			return reply.code(404).send({ error: "User does not exist" });
 		}

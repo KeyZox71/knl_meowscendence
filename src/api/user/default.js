@@ -173,6 +173,7 @@ export default async function(fastify, options) {
 			if (jwt.user !== 'admin') {
 				throw ('You lack administrator privileges');
 			}
+			request.user = jwt.user;
 		} catch (err) {
 			reply.code(401).send({ error: 'Unauthorized' });
 		}

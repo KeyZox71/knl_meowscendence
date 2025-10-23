@@ -3,8 +3,11 @@ import sharp from 'sharp';
 export async function uAvatar(request, reply, fastify, getUserInfo, setAvatarId, getAvatarId, deleteAvatarId, postImage, deleteImage) {
 	try {
 		const userId = request.params.userId;
+		if (request.user !== userId && request.user !== 'admin') {
+			return reply.code(401).send({ error: 'Unauthorized' });
+		}
 		if (!getUserInfo.get(userId)) {
-			return reply.cose(404).send({ error: "User does not exist" });
+			return reply.code(404).send({ error: "User does not exist" });
 		}
 		deleteAvatarId.run(userId);
 		const parts = request.parts();
