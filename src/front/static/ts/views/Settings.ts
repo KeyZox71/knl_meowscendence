@@ -28,6 +28,8 @@ export default class extends Aview {
 			  <input type="text" id="displayName-input" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 				<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
 				<button id="deleteAccount-button" type="submit" class="default-button w-full">delete your account</button>
+				<hr class="my-2 w-full reverse-border">
+				<button id="2fa-button" type="submit" class="default-button w-full">enable 2FA</button>
 			</div>
 		</div>
 		`;
@@ -80,5 +82,9 @@ export default class extends Aview {
       else
         console.error("xd"); // xd?????????????
     });
+
+	document.getElementById("2fa-button")?.addEventListener("click", async () => {
+		
+	});
   }
 }
