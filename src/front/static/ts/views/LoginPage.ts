@@ -59,6 +59,7 @@ export default class extends Aview {
 			const username = (document.getElementById("username") as HTMLInputElement).value;
 			const password = (document.getElementById("password") as HTMLInputElement).value;
 			const totpPin = (document.getElementById('totpPin') as HTMLInputElement).value;
+			const idWindow = (document.getElementById('2fa-popup-content') as HTMLInputElement);
 			try {
 				const data_req = await fetch("http://localhost:3001/login", {
 					method: "POST",
