@@ -24,9 +24,18 @@ export default class extends Aview {
 					<a href="/" data-link> × </a>
 				</div>
 			</div>
-			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
-			  <input type="text" id="displayName-input" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-				<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
+			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-8 reverse-border">
+			  <div class="flex flex-row items-center place-items-center space-x-4">
+					<input type="text" id="displayName-input" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+					<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
+				</div>
+				<div id="upload" class="flex flex-row items-center place-items-center space-x-8">
+				  <div id="upload-preview" class="hidden flex flex-col items-center place-items-center space-y-4">
+						<img id="upload-preview-img" class="w-20 h-20" />
+						<button id="upload-submit" type="submit" class="default-button">change avatar</button>
+					</div>
+			    <label for="upload-file" class="default-button">select an avatar...</label><input type="file" id="upload-file" class="hidden" accept="image/*" />
+				</div>
 				<button id="deleteAccount-button" type="submit" class="default-button w-full">delete your account</button>
 			</div>
 		</div>
@@ -80,5 +89,39 @@ export default class extends Aview {
       else
         console.error("xd"); // xd?????????????
     });
+
+    const upload = document.getElementById("upload-file") as HTMLInputElement;
+    upload.addEventListener("change", () => {
+      const fileList: FileList | null = upload.files;
+      if (!fileList)
+        return console.error("empty");
+      if (!fileList[0].type.startsWith("image/")) {
+        console.error("invalid file");
+        return;
+      }
+
+      document.getElementById("upload-preview")?.classList.remove("hidden");
+      const img = document.getElementById("upload-preview-img") as HTMLImageElement;
+      img.classList.remove("hidden");
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (!e.target)
+          return;
+        img.src = e.target.result as string;
+      };
+
+      reader.readAsDataURL(fileList[0]);
+    });
+
+    (document.getElementById("upload-submit") as HTMLButtonElement).onclick = async () => {
+      const up_req = await fetch(`http://localhost:3002/users/${uuid}/avatar`, {
+        method: "POST",
+        headers: { "Content-Type": upload.files[0].type } ,
+        credentials: "include",
+        body: upload.files[0], //upload uuuh whatever i have to upload
+      });
+      console.log(up_req.status);
+    };
   }
 }

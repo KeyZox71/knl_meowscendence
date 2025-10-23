@@ -509,13 +509,10 @@ export default class extends Aview {
             this.movePiece(this.direction, 0);
           this.move = false;
         }
-
-        /*if (this.keys["ArrowDown"])
-          this.softDrop();*/
       }
 
-      registerListeners() {
-        window.addEventListener("keydown", (e) => {
+      removeListeners() {
+        window.removeEventListener("keydown", (e) => {
           this.keys[e.key] = true;
 
           if (this.isGameOver) return;
@@ -553,13 +550,55 @@ export default class extends Aview {
           }
         });
 
+        document.removeEventListener("keyup", (e) => {
+          this.keys[e.key] = false;
+        });
+      }
+
+      registerListeners() {
+        window.addEventListener("keydown", (e) => {
+          this.keys[e.key] = true;
+
+          if (this.isGameOver) return;
+
+          if (e.key === "p" || e.key === "P" || e.key === "Escape")
+            this.isPaused = !this.isPaused;
+
+          if (this.isPaused) return;
+
+          if (e.key === "ArrowLeft")
+          {
+            this.inputTimestamp = Date.now();
+            this.direction = -1;//this.movePiece(-1, 0);
+            this.move = true;
+          }
+          else if (e.key === "ArrowRight")
+          {
+            this.inputTimestamp = Date.now();
+            this.direction = 1;//this.movePiece(1, 0);
+            this.move = true;
+          }
+          else if (e.key === "ArrowDown") this.softDrop();
+          else if (e.code === "Space") {
+            //e.preventDefault();
+            this.hardDrop();
+          } else if (e.key === "Shift" || e.key === "c" || e.key === "C") {
+            this.hold();
+          } else if (e.key === "x" || e.key === "X" || e.key === "ArrowUp") {
+            //e.preventDefault();
+            this.rotatePiece("cw");
+          }  else if (e.key === "z" || e.key === "Z" || e.key === "Control") {
+            this.rotatePiece("ccw");
+          }
+        });
+
         document.addEventListener("keyup", (e) => {
           this.keys[e.key] = false;
         });
       }
 
       async loop(timestamp: number) {
-        if (!view.running) return;
+        if (!view.running) return this.removeListeners();
         if (!this.lastDrop) this.lastDrop = timestamp;
         if (!this.isPaused)
         {
@@ -596,9 +635,7 @@ export default class extends Aview {
               credentials: "include",
               body: JSON.stringify({
                 "game": "tetris",
-                "opponent": "xd",
                 "myScore": this.score,
-                "opponentScore": 0,
                 "date": Date.now(),
               }),
             });

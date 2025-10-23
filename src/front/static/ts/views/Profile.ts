@@ -44,6 +44,7 @@ export default class extends Aview {
     if (!await isLogged())
       navigationManager("/");
 
+    let pc: number = 0;
     dragElement(document.getElementById("window"));
     let uuid: String;
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
@@ -63,6 +64,7 @@ export default class extends Aview {
       credentials: "include",
     });
     let matchCount = await matchCount_req.json();
+    pc += matchCount.n_matches;
 
     let matches_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=pong&iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
@@ -88,7 +90,9 @@ export default class extends Aview {
         const header = popup.appendChild(document.createElement("div"));
         header.classList.add("bg-linear-to-r", "from-orange-200", "to-orange-300", "flex", "flex-row", "min-w-35", "justify-between", "px-2");
         header.id = `${id}-header`;
-        header.appendChild(document.createElement("span")).innerText = "score.ts";
+        const title = header.appendChild(document.createElement("span"));
+        title.classList.add("font-[Kubasta]");
+        title.innerText = "score-pong.ts";
         const btn = header.appendChild(document.createElement("button"));
         btn.innerText = " × ";
         btn.onclick = () => { document.getElementById(`${id}`).remove();  };
@@ -116,6 +120,7 @@ export default class extends Aview {
       credentials: "include",
     });
     matchCount = await matchCount_req.json();
+    pc += matchCount.n_matches;
 
     matches_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=tetris&iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
@@ -131,7 +136,11 @@ export default class extends Aview {
       for (let match of matches.matchHistory) {
         const newEntry = document.createElement("li");
         newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
-        newEntry.innerHTML = match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`;
+        newEntry.innerHTML = match.score.p2 != undefined ?
+          (match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`)
+        :
+          (`solo game - ${match.score.p1Score}`)
+        ;
         main.insertBefore(newEntry, main.firstChild);
 
         const popup: HTMLDivElement = document.createElement("div");
@@ -141,7 +150,9 @@ export default class extends Aview {
         const header = popup.appendChild(document.createElement("div"));
         header.classList.add("bg-linear-to-r", "from-orange-200", "to-orange-300", "flex", "flex-row", "min-w-35", "justify-between", "px-2");
         header.id = `${id}-header`;
-        header.appendChild(document.createElement("span")).innerText = "score.ts";
+        const title = header.appendChild(document.createElement("span"));
+        title.classList.add("font-[Kubasta]");
+        title.innerText = "score-tetris.ts";
         const btn = header.appendChild(document.createElement("button"));
         btn.innerText = " × ";
         btn.onclick = () => { document.getElementById(`${id}`).remove();  };
@@ -152,7 +163,11 @@ export default class extends Aview {
         popup_content.appendChild(document.createElement("span")).innerText = `${date.toDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
         const score = popup_content.appendChild(document.createElement("span"));
         score.classList.add();
-        score.innerText = `${match.score.p1} : ${match.score.p1Score} - ${match.score.p2Score} : ${match.score.p2}`;
+        score.innerText = match.score.p2 != undefined ?
+          (`${match.score.p1} : ${match.score.p1Score} - ${match.score.p2Score} : ${match.score.p2}`)
+        :
+          (`${match.score.p1} : ${match.score.p1Score}`)
+        ;
         const tx = popup_content.appendChild(document.createElement("a"));
         tx.href = `https://testnet.snowscan.xyz/tx/${match.tx}`;
         tx.innerText = "transaction proof";
@@ -168,8 +183,12 @@ export default class extends Aview {
     if (!profile) return;
 
     const picture = profile.appendChild(document.createElement("img"));
-    picture.src = "https://api.kanel.ovh/pp";
-    picture.classList.add("text-neutral-900", "dark:text-white", "center", "h-18", "w-18", "mx-3");
+    const a = await fetch(`http://localhost:3002/users/${uuid}/avatar`, {
+      method: "GET",
+      credentials: "include",
+    });
+    picture.src = a.status === 200 ? `http://localhost:3002/users/${uuid}/avatar` : "https://api.kanel.ovh/pp";
+    picture.classList.add("text-neutral-900", "dark:text-white", "center", "h-18", "w-18", "mx-3", "reverse-border");
 
     const nametag = profile.appendChild(document.createElement("div"));
     nametag.innerHTML = `
@@ -180,9 +199,9 @@ export default class extends Aview {
 
     const winrate = profile.appendChild(document.createElement("div"));
     winrate.innerHTML = `
-		  <div> wins: ${userdata.wins} </div>
-			<div> losses: ${userdata.losses} </div>
-			<div> winrate: ${ (userdata.wins != 0 && userdata.losses != 0) ? Math.round(userdata.wins / (userdata.wins + userdata.losses) * 100) + " %" : "-" }</div>
+		  <div> total playcount: ${pc} </div>
+			<div> pong winrate: ${ (userdata.pong.wins == 0 && userdata.pong.losses == 0) ? "-" : Math.round(userdata.pong.wins / (userdata.pong.wins + userdata.pong.losses) * 100) + " %" } </div>
+			<div> tetris winrate: ${ (userdata.tetris.wins == 0 && userdata.tetris.losses == 0) ? "-" : Math.round(userdata.tetris.wins / (userdata.tetris.wins + userdata.tetris.losses) * 100) + " %" } </div>
 		`;
     winrate.classList.add("text-neutral-900", "dark:text-white", "grow", "content-center");
   }

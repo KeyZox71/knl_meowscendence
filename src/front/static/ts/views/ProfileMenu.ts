@@ -65,7 +65,6 @@ export default class extends Aview {
 				<hr class="my-2 w-32 reverse-border">
      			<a class="menu-default-button inline-flex items-center justify-center" href="/profile" data-link>profile</a>
      			<a class="menu-default-button inline-flex items-center justify-center" href="/settings" data-link>settings</a>
-				<a class="menu-default-button inline-flex items-center justify-center" href="/friends" data-link>friends</a>
       `;
     }
 
