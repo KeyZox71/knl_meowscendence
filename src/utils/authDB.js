@@ -83,7 +83,7 @@ function getUser(user) {
 }
 
 function rmUser(user) {
-	const stmt = database.prepare('DELETE * FROM credentials WHERE username = ?');
+	const stmt = database.prepare('DELETE FROM credentials WHERE username = ?');
 	stmt.run(user);
 }
 

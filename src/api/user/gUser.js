@@ -7,6 +7,7 @@ export async function gUser(request, reply, fastify, getUserInfo) {
 		if (!getUserInfo.get(userId)) {
 			return reply.code(404).send({ error: "User does not exist" });
 		}
+		const userInfo = getUserInfo.get(userId);
 		return reply.code(200).send({
 			username: userInfo.username,
 			displayName: userInfo.displayName,
