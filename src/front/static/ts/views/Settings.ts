@@ -2,12 +2,12 @@ import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
 import { isLogged, navigationManager } from "../main.ts"
-
+import { totpEnablePopup } from "./TotpEnable.ts";
+import { totpVerify } from "../../../../api/auth/totpVerify.js";
 
 export default class extends Aview {
 
-	constructor()
-	{
+	constructor() {
 		super();
 		this.setTitle("profile");
 		setOnekoState("default");
@@ -24,7 +24,7 @@ export default class extends Aview {
 					<a href="/" data-link> × </a>
 				</div>
 			</div>
-			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-8 reverse-border">
+			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
 			  <div class="flex flex-row items-center place-items-center space-x-4">
 					<input type="text" id="displayName-input" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
@@ -37,6 +37,10 @@ export default class extends Aview {
 			    <label for="upload-file" class="default-button">select an avatar...</label><input type="file" id="upload-file" class="hidden" accept="image/*" />
 				</div>
 				<button id="deleteAccount-button" type="submit" class="default-button w-full">delete your account</button>
+				<div class="flex justify-center">
+					<hr class="w-50 reverse-border">
+				</div>
+				<button id="2fa-button" type="submit" class="default-button w-full">2fa</button>
 			</div>
 		</div>
 		`;
@@ -48,6 +52,21 @@ export default class extends Aview {
 
     dragElement(document.getElementById("window"));
 
+    const isTOTPEnabled = async () => {
+			const totpVerify_req = await fetch('http://localhost:3001/2fa', {
+				method: "GET",
+				credentials: "include"
+			})
+
+			if (totpVerify_req.status === 200) {
+				const totpVerify_data = await totpVerify_req.json();
+				if (totpVerify_data.totp == true) {
+					return true;
+				}
+			}
+			return false;
+		};
+  
     let uuid: String;
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
     const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
@@ -123,5 +142,40 @@ export default class extends Aview {
       });
       console.log(up_req.status);
     };
+  
+  	const totpButton = document.getElementById("2fa-button") as HTMLButtonElement;
+
+		if ((await isTOTPEnabled()) === true) {
+			totpButton.innerHTML = "disable 2fa";
+
+			document.getElementById("2fa-button")?.addEventListener("click", async () => {
+				const totp_req = await fetch(`http://localhost:3001/2fa`, {
+					method: "DELETE",
+					credentials: "include"
+				})
+				if (totp_req.status === 200) {
+					console.log("working")
+					navigationManager("/settings")
+				} else {
+					console.log("wut")
+				}
+			});
+		} else {
+			totpButton.innerHTML = "enable 2fa";
+	
+			document.getElementById("2fa-button")?.addEventListener("click", async () => {
+				const totp_req = await fetch(`http://localhost:3001/2fa`, {
+					method: "POST",
+					credentials: "include"
+				})
+				if (totp_req.status === 200) {
+					console.log("working")
+					const totp_data = await totp_req.json();
+					totpEnablePopup(uuid, totp_data.secret, totp_data.otpauthUrl);
+				} else {
+					console.log("wut")
+				}
+			});
+		}
   }
 }

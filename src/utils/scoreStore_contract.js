@@ -29,7 +29,7 @@ async function loadContract() {
 async function callGetScore(id) {
 	try {
 		const contract = await loadContract();
-		const result = await contract.getScore(id);
+		const result = await contract.getScore(id - 1);
 		return result;
 	} catch (error) {
 		console.error('Error calling view function:', error);
@@ -54,8 +54,9 @@ async function callAddScore(p1, p2, p1Score, p2Score) {
 		const tx = await contract.addScore(p1, p2, p1Score, p2Score);
 		console.log('Transaction sent:', tx.hash);
 		await tx.wait(); // Wait for the transaction to be mined
+		const id = await callLastId();
 		console.log('Transaction confirmed');
-		return tx;
+		return { tx, id };
 	} catch (error) {
 		console.error('Error calling addScore function:', error);
 		throw error;

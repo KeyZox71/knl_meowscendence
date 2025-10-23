@@ -40,13 +40,13 @@ export default class extends Aview {
     async function getMainHTML() {
       if (!(await isLogged()))
       {
-        document.getElementById("menu-bottom-div").classList.add("hidden");
+        document.getElementById("menu-bottom-div")?.classList.add("hidden");
         return `
      			<a class="menu-default-button inline-flex items-center justify-center" href="/login" data-link>login</a>
      			<a class="menu-default-button inline-flex items-center justify-center" href="/register" data-link>register</a>
           `;
       }
-      document.getElementById("menu-bottom-div").classList.remove("hidden");
+      document.getElementById("menu-bottom-div")?.classList.remove("hidden");
 
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
 	  const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
@@ -82,6 +82,6 @@ export default class extends Aview {
         else
           console.error("logout failed");
       });
-    });
+    document.getElementById("profile-items").innerHTML = await getMainHTML();
 	}
 }

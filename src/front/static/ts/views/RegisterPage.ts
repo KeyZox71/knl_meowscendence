@@ -5,8 +5,7 @@ import { isLogged, navigationManager } from "../main.ts"
 
 export default class extends Aview {
 
-	constructor()
-	{
+	constructor() {
 		super();
 		this.setTitle("register");
 		setOnekoState("default");
@@ -55,7 +54,7 @@ export default class extends Aview {
 	}
 
 	async run() {
-    dragElement(document.getElementById("window"));
+		dragElement(document.getElementById("window"));
 		const login = async () => {
 			const username = (document.getElementById("username") as HTMLInputElement).value;
 			const password = (document.getElementById("password") as HTMLInputElement).value;
@@ -69,8 +68,7 @@ export default class extends Aview {
 				});
 				const data = await data_req.json();
 
-				if (data_req.status === 200)
-				{
+				if (data_req.status === 200) {
 					let uuid_req = await fetch("http://localhost:3001/me", {
 						method: "GET",
 						credentials: "include",
@@ -80,22 +78,23 @@ export default class extends Aview {
 					isLogged();
 					navigationManager("/");
 				}
-				else if (data_req.status === 400)
-				{
-					document.getElementById("login-error-message").innerHTML = "error: " + data.error;
-					document.getElementById("login-error-message").classList.remove("hidden");
+				else if (data_req.status === 400) {
+					if (document.getElementById("login-error-message")) {
+						document.getElementById("login-error-message").innerHTML = "error: " + data.error;
+						document.getElementById("login-error-message")?.classList.remove("hidden");
+					}
 				}
-				else
-				{
+				else {
 					throw new Error("invalid response");
 				}
 
 			}
-			catch (error)
-			{
+			catch (error) {
 				console.error(error);
-				document.getElementById("login-error-message").innerHTML = "error: server error, try again later...";
-				document.getElementById("login-error-message").classList.remove("hidden");
+				if (document.getElementById("login-error-message")) {
+					document.getElementById("login-error-message").innerHTML = "error: server error, try again later...";
+					document.getElementById("login-error-message")?.classList.remove("hidden");
+				}
 			}
 		};
 

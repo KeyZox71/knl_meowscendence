@@ -55,7 +55,47 @@ export default class extends Aview {
 	}
 
 	async run() {
-    dragElement(document.getElementById("window"));
+		dragElement(document.getElementById("window"));
+
+		const totpVerify = async () => {
+			const username = (document.getElementById("username") as HTMLInputElement).value;
+			const password = (document.getElementById("password") as HTMLInputElement).value;
+			const totpPin = (document.getElementById('totpPin') as HTMLInputElement).value;
+			const idWindow = (document.getElementById('2fa-popup-content') as HTMLInputElement);
+			try {
+				const data_req = await fetch("http://localhost:3001/login", {
+					method: "POST",
+					headers: { "Content-Type": "application/json", },
+					credentials: "include",
+					body: JSON.stringify({ user: username, password: password, token: totpPin }),
+				});
+				if (data_req.status === 200) {
+					isLogged();
+					navigationManager("/");
+				} else if (data_req.status === 401) {
+					const data = await data_req.json();
+
+					if (!document.getElementById("error-totp")) {
+						const error = document.createElement("p");
+						error.innerHTML = data.error;
+						error.classList.add("text-red-700", "dark:text-red-500");
+
+						idWindow.appendChild(error);
+					} else {
+						const error = document.getElementById("error-totp") as HTMLParagraphElement;
+						error.innerHTML = data.error;
+					}
+
+				} else {
+					console.log(data_req.status)
+					console.log(await data_req.json())
+					// throw new Error("invalid response");
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
 		const login = async () => {
 			const username = (document.getElementById("username") as HTMLInputElement).value;
 			const password = (document.getElementById("password") as HTMLInputElement).value;
@@ -73,11 +113,69 @@ export default class extends Aview {
 					isLogged();
 					navigationManager("/");
 				}
+				else if (data_req.status === 402) {
+					const popup: HTMLDivElement = document.createElement("div");
+					popup.id = "2fa-popup";
+					popup.classList.add("z-10", "absolute", "default-border");
+					const header = popup.appendChild(document.createElement("div"));;
+					header.classList.add("bg-linear-to-r", "from-orange-200", "to-orange-300", "flex", "flex-row", "min-w-35", "justify-between", "px-2");
+					header.id = "2fa-header";
+					header.appendChild(document.createElement("span")).innerText = "2fa.ts";
+					const btn = header.appendChild(document.createElement("button"));
+					btn.innerText = " × ";
+					btn.onclick = () => { document.getElementById("2fa-popup").remove();  };
+
+					const popup_content: HTMLSpanElement = popup.appendChild(document.createElement("div"));
+					popup_content.id = "2fa-popup-content";
+					popup_content.classList.add("flex", "flex-col", "bg-neutral-200", "dark:bg-neutral-800", "p-6", "pt-4", "text-neutral-900", "dark:text-white", "space-y-4");
+
+					const tokenInput = document.createElement("input");
+					tokenInput.type = "tel";
+					tokenInput.id = "totpPin";
+					tokenInput.name = "totpPin";
+					tokenInput.placeholder = "TOTP code";
+					tokenInput.required = true;
+					tokenInput.autocomplete = "off";
+					tokenInput.pattern = "[0-9]*";
+					tokenInput.setAttribute("inputmode", "numeric");
+					tokenInput.classList.add("bg-white", "text-neutral-900","w-full", "px-4", "py-2", "input-border");
+
+					const tokenSubmit = document.createElement("button");
+					tokenSubmit.type = "submit";
+					tokenSubmit.classList.add("default-button", "w-full");
+					tokenSubmit.id = "totp-submit";
+					tokenSubmit.innerHTML = "submit";
+
+					const tokenTitle = document.createElement("h1");
+					tokenTitle.innerHTML = `hey ${username}, please submit your 2fa code below :`;
+					tokenTitle.classList.add("text-gray-900", "dark:text-white", "text-lg", "pt-0", "pb-4", "justify-center");
+
+					const form = document.createElement("form");
+					form.method = "dialog";
+					form.classList.add("space-y-4");
+					form.appendChild(tokenTitle);
+					form.appendChild(tokenInput);
+					form.appendChild(tokenSubmit);
+
+					popup_content.appendChild(form);
+
+					const uu = document.getElementById("username") as HTMLInputElement;
+					const pass = document.getElementById("password") as HTMLInputElement;
+
+					uu.disabled = true;
+					pass.disabled = true;
+
+					document.getElementById("app")?.appendChild(popup); 
+					tokenInput.focus();
+					dragElement(document.getElementById("2fa-popup")); 
+
+					document.getElementById("totp-submit")?.addEventListener("click", totpVerify);
+				}
 				else if (data_req.status === 400)
 				{
 				  const data = await data_req.json();
-					document.getElementById("login-error-message").innerHTML = "error: " + data.error;
-					document.getElementById("login-error-message").classList.remove("hidden");
+				  document.getElementById("login-error-message").innerHTML = "error: " + data.error;
+				  document.getElementById("login-error-message").classList.remove("hidden");
 				}
 				else
 				{
