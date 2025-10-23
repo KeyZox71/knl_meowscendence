@@ -143,6 +143,10 @@ const querySchemaMatchHistory = { type: 'object', required: ['game', 'iStart', '
 const bodySchemaMatchHistory = { type: 'object', required: ['game', 'date', 'myScore'], properties: { game: { type: 'string' }, date: { type: 'integer', minimum: 0 }, opponent: { type: 'string' }, myScore: { type: 'integer', minimum: 0 }, opponentScore: { type: 'integer', minimum: 0 } } };
 const querySchemaMatchHistoryGame = { type: 'object', required: ['game'], properties: { game: { type: 'string' } } };
 
+/**
+ *	@param {import('fastify').FastifyInstance} fastify
+ *	@param {import('fastify').FastifyPluginOptions} options
+ */
 export default async function(fastify, options) {
 	fastify.register(fastifyJWT, {
 		secret: process.env.JWT_SECRET || '123456789101112131415161718192021',
@@ -162,7 +166,6 @@ export default async function(fastify, options) {
 		{ parseAs: 'buffer' },
 		async (request, payload) => payload
 	);
-
 
 	fastify.decorate('authenticate', async function(request, reply) {
 		try {
@@ -224,7 +227,7 @@ export default async function(fastify, options) {
 	fastify.post('/users/:userId/matchHistory', { preHandler: [fastify.authenticate], schema: { body: bodySchemaMatchHistory } }, async (request, reply) => {
 		return pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWinsPong, incLossesPong, incWinsTetris, incLossesTetris);
 	});
-	fastify.post('/users/:userId/avatar', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+	fastify.post('/users/:userId/avatar', { bodyLimit: 5242880, preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return pAvatar(request, reply, fastify, getUserInfo, setAvatarId, postImage);
 	});
 	fastify.post('/ping', { preHandler: [fastify.authenticate] }, async (request, reply) => {
