@@ -127,6 +127,7 @@ export default class extends Aview {
     if (!main)
       return console.error("what");
 
+  // don't read this shit for you mental health
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
         const newEntry = document.createElement("li");
