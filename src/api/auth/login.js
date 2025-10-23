@@ -37,8 +37,8 @@ export async function login(request, reply, fastify) {
 
 		const userTOTP = authDB.getUser(user);
 		if (userTOTP.totpEnabled == 1) {
-			if (!request.body.token){
-				return reply.code(401).send({ error: 'Invalid 2FA token' });
+			if (!request.body.token) {
+				return reply.code(402).send({ error: 'Please specify a 2fa token' });
 			}
 			const isValid = verifyTOTP(userTOTP.totpHash, request.body.token);
 			if (!isValid) {

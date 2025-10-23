@@ -21,7 +21,8 @@ Input needed :
 ```json
 {
     "user": "<string>",
-    "password": "<string>"
+    "password": "<string>",
+    (optional)"token": "<2fa token>"
 }
 ```
 
@@ -32,7 +33,13 @@ Can return:
     "msg": "Login successfully"
 }
 ```
-- 400 with response
+- 402 with response
+```json
+{
+    "msg": "Please specify a 2fa token"
+}
+```
+- 400 || 401 with response
 ```json
 {
     "error": "<corresponding error>"
