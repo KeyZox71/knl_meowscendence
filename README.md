@@ -37,7 +37,7 @@ Press F to pay respect
   - [ ] ~~Live chat - Major~~
 - **AI-Algo**
   - [ ] ~~AI opponent - Major~~
-  - [ ] User and game stats dashboards - Minor
+  - [ ] ~~User and game stats dashboards - Minor~~
 - **Cybersecurity**
   - [ ] ~~WAF/ModSecurity and Hashicorp Vault - Major~~
   - [ ] ~~RGPD compliance - Minor~~
