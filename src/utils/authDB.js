@@ -82,9 +82,16 @@ function getUser(user) {
 	return stmt.get(user);
 }
 
+function rmUser(user) {
+	const stmt = database.prepare('DELETE * FROM credentials WHERE username = ?');
+	stmt.run(user);
+}
+
+
 const authDB = {
 	prepareDB,
 	checkUser,
+	rmUser,
 	addUser,
 	passwordQuery,
 	setTOTPSecret,
