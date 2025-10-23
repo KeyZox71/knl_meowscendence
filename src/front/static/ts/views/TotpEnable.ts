@@ -22,7 +22,7 @@ async function totpVerify() {
 		if (!document.getElementById("error-totp")) {
 			const error = document.createElement("p");
 			error.id = "error-totp";
-			error.classList.add("text-red-700", "dark:text-red-500");
+			error.classList.add("text-red-700", "dark:text-red-500", "text-center");
 			error.innerHTML = (await data_req.json()).error;
 
 			popup_content?.appendChild(error)
