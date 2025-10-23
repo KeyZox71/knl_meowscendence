@@ -4,7 +4,6 @@
 		"@fastify/cookie": "^11.0.2",
 		"@fastify/env": "^5.0.2",
 		"@fastify/jwt": "^9.1.0",
-		"@fastify/multipart": "^9.2.1",
 		"axios": "^1.10.0",
 		"base32.js": "^0.1.0",
 		"bcrypt": "^6.0.0",

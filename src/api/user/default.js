@@ -1,7 +1,6 @@
 import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import Database from 'better-sqlite3';
-import multipart from '@fastify/multipart';
 
 import { gUsers } from './gUsers.js';
 import { gUser } from './gUser.js';
@@ -151,7 +150,13 @@ export default async function(fastify, options) {
 		},
 	});
 	fastify.register(fastifyCookie);
-	fastify.register(multipart, { limits: { fileSize: 2 * 1024 * 1024 + 1 } });
+
+	fastify.addContentTypeParser(
+		['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+		{ parseAs: 'buffer' },
+		async (request, payload) => payload
+	);
+
 
 	fastify.decorate('authenticate', async function(request, reply) {
 		try {

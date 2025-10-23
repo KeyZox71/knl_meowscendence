@@ -87,7 +87,6 @@ function rmUser(user) {
 	stmt.run(user);
 }
 
-
 const authDB = {
 	prepareDB,
 	checkUser,
