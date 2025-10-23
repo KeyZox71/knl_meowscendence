@@ -24,7 +24,7 @@ export default class extends Aview {
 					<a href="/" data-link> × </a>
 				</div>
 			</div>
-			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-8 reverse-border">
+			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 space-y-4 reverse-border">
 			  <div class="flex flex-row items-center place-items-center space-x-4">
 					<input type="text" id="displayName-input" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
@@ -37,7 +37,9 @@ export default class extends Aview {
 			    <label for="upload-file" class="default-button">select an avatar...</label><input type="file" id="upload-file" class="hidden" accept="image/*" />
 				</div>
 				<button id="deleteAccount-button" type="submit" class="default-button w-full">delete your account</button>
-				<hr class="my-2 w-full reverse-border">
+				<div class="flex justify-center">
+					<hr class="w-50 reverse-border">
+				</div>
 				<button id="2fa-button" type="submit" class="default-button w-full">2fa</button>
 			</div>
 		</div>
