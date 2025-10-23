@@ -142,3 +142,30 @@ updateClock();
 setInterval(pingClock, 30000);
 
 oneko();
+
+async function startMenuPP() {
+	const profileButton = document.getElementById("start-img") as HTMLImageElement;
+	try {
+		if(document.cookie.match(new RegExp('(^| )' + "token" + '=([^;]+)'))) {
+			throw "not today, thank you";
+		}
+		let uuid: String;
+		uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+
+
+		const a = await fetch(`http://localhost:3002/users/${uuid}/avatar`, {
+			method: "GET",
+			credentials: "include"
+		});
+
+		profileButton.src = a.status === 200
+			? `http://localhost:3002/users/${uuid}/avatar?t=${Date.now()}`
+			: "https://api.kanel.ovh/pp";
+	} catch (err){
+		// console.log("not yet logged, going default for start icon...");
+		profileButton.src = "https://api.kanel.ovh/id?id=65";
+	}
+}
+
+setInterval(startMenuPP, 3000);
+startMenuPP();
