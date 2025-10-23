@@ -188,7 +188,9 @@ export default class extends Aview {
       method: "GET",
       credentials: "include",
     });
-    picture.src = a.status === 200 ? `http://localhost:3002/users/${uuid}/avatar` : "https://api.kanel.ovh/pp";
+	picture.src = a.status === 200
+		? `http://localhost:3002/users/${uuid}/avatar?t=${Date.now()}`
+		: "https://api.kanel.ovh/pp";
     picture.classList.add("text-neutral-900", "dark:text-white", "center", "h-18", "w-18", "mx-3", "reverse-border");
 
     const nametag = profile.appendChild(document.createElement("div"));
