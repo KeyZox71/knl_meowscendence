@@ -27,8 +27,10 @@ export default class extends Aview {
 			<div class="bg-neutral-200 dark:bg-neutral-800 text-center pb-10 pt-5 px-10 reverse-border flex flex-col items-center">
 		    <form method="dialog" class="space-y-4">
 				  <h1 class="text-gray-900 dark:text-white text-lg pt-0 pb-4">welcome ! please register.</h1>
-			    <input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
-					<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+			    <div class="flex flex-row justify-between space-x-4">
+							<input type="text" id="username" placeholder="username" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+							<input type="password" id="password" placeholder="password" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
+					</div>
 					<button id="register-button" type="submit" class="default-button w-full">register</button>
 				</form>
 
@@ -75,7 +77,6 @@ export default class extends Aview {
 					});
 					let uuid = await uuid_req.json();
 					document.cookie = `uuid=${uuid.user};max-ages=${60*60*24*7}`;
-					console.log(document.cookie);
 					isLogged();
 					navigationManager("/");
 				}

@@ -78,6 +78,12 @@ export default class extends Aview {
 
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
+        const p2_req = await fetch(`http://localhost:3002/users/${match.score.p2}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        match.score.p1 = userdata.displayName;
+        match.score.p2 = (await p2_req.json()).displayName;
         const newEntry = document.createElement("li");
         newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
         newEntry.innerHTML = match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`;
@@ -134,6 +140,15 @@ export default class extends Aview {
 
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
+        if (match.score.p2 != undefined)
+        {
+          const p2_req = await fetch(`http://localhost:3002/users/${match.score.p2}`, {
+            method: "GET",
+            credentials: "include",
+          });
+          match.score.p2 = (await p2_req.json()).displayName;
+        }
+        match.score.p1 = userdata.displayName;
         const newEntry = document.createElement("li");
         newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
         newEntry.innerHTML = match.score.p2 != undefined ?

@@ -68,19 +68,20 @@ export default class extends Aview {
       `;
     }
 
+    requestAnimationFrame(async () => {
+      document.getElementById("profile-items").innerHTML = await getMainHTML();
 
-    document.getElementById("profile-items").innerHTML = await getMainHTML();
-
-    document.getElementById("menu-logout").addEventListener("click", async () => {
-      let req = await fetch("http://localhost:3001/logout", {
-        method: "GET",
-        credentials: "include",
+      document.getElementById("menu-logout").addEventListener("click", async () => {
+        let req = await fetch("http://localhost:3001/logout", {
+          method: "GET",
+          credentials: "include",
+        });
+        isLogged();
+        if (req.status === 200)
+          this.run();
+        else
+          console.error("logout failed");
       });
-      isLogged();
-      if (req.status === 200)
-        this.run();
-      else
-        console.error("logout failed");
     });
 	}
 }

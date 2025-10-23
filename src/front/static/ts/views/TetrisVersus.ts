@@ -65,6 +65,8 @@ export default class extends Aview {
 		let p2_score: number = 0;
 		let p1_name: string;
 		let p2_name: string;
+		let p1_displayName: string;
+		let p2_displayName: string;
 
     const view = this;
 
@@ -861,7 +863,7 @@ export default class extends Aview {
         ctx.fillRect(4, 4, 120, 60);
         ctx.fillStyle = "#fff";
         ctx.font = "12px Kubasta";
-        ctx.fillText(`${this.id == 0 ? p1_name : p2_name}: ${this.id == 0 ? p1_score : p2_score}`, 8, 20);
+        ctx.fillText(`${this.id == 0 ? p1_displayName : p2_displayName}: ${this.id == 0 ? p1_score : p2_score}`, 8, 20);
         ctx.fillText(`score: ${this.score}`, 8, 36);
         ctx.fillText(`lines: ${this.lines}`, 8, 52);
 
@@ -931,26 +933,48 @@ export default class extends Aview {
 		p2_input.value = "player 2";
 		if (await isLogged())
 		{
-          uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-          const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
-      			method: "GET",
-      			credentials: "include",
-      		});
-      		if (userdata_req.status == 404)
-      		{
-      			console.error("invalid user");
-      			return ;
-      		}
-          let userdata = await userdata_req.json();
-			p1_input.value = userdata.displayName;
+      uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+			p1_input.value = uuid;
       p1_input.readOnly = true;
 		}
 		else
 			p1_input.value = "player 1";
 
-    document.getElementById("game-start")?.addEventListener("click", () => {
-      p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
-      p2_name = p2_input.value.length > 16 ? p2_input.value.substring(0, 16) + "." : p2_input.value;
+    document.getElementById("game-start")?.addEventListener("click", async () => {
+      let p1_isvalid = true;
+      let p2_isvalid = true;
+      if (await isLogged()) {
+        const p1_req = await fetch(`http://localhost:3002/users/${p1_input.value}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const p2_req = await fetch(`http://localhost:3002/users/${p2_input.value}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (p1_req.status != 200)
+          p1_isvalid = false;
+        else
+        p1_displayName = (await p1_req.json()).displayName;
+
+        if (p2_req.status != 200)
+          p2_isvalid = false;
+        else
+          p2_displayName = (await p2_req.json()).displayName;
+      }
+      else
+        p1_isvalid = p2_isvalid = false;
+
+      p1_name = p1_input.value;
+      p2_name = p2_input.value;
+      if (!p1_isvalid)
+        p1_displayName = p1_name;
+      if (!p2_isvalid)
+        p2_displayName = p2_name;
+
+      p1_displayName = p1_displayName.length > 16 ? p1_displayName.substring(0, 16) + "." : p1_displayName;
+      p2_displayName = p2_displayName.length > 16 ? p2_displayName.substring(0, 16) + "." : p2_displayName;
+
       document.getElementById("player-inputs").remove();
       document.getElementById("game-boards").classList.remove("hidden");
       game1 = new Game("board1", 0);
