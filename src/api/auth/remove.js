@@ -24,6 +24,7 @@ export async function remove(request, reply, fastify) {
 
 		return reply
 			.code(200)
+			.clearCookie("token")
 			.send({
 				msg: "User successfully deleted"
 			})
