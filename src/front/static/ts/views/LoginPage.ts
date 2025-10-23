@@ -41,7 +41,7 @@ export default class extends Aview {
 						<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height=20 width=20 class="mr-2 justify-self-start" />
 						login with John Google
 					</a>
-					<a target="_blank" href="http://localhost:3001/login/google" class="default-button inline-flex items-center justify-center w-full">
+					<a target="_blank" href="https://rusty.42angouleme.fr/issues/all" class="default-button inline-flex items-center justify-center w-full">
 					  <img src="https://rusty.42angouleme.fr/assets/favicon-bb06adc80c8495db.ico" height=20 width=20 class="mr-2 justify-self-start" />
 						login with Rusty
 					</a>

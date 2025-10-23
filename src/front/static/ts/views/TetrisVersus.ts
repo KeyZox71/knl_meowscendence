@@ -606,16 +606,16 @@ export default class extends Aview {
           }
           else if (this.id === 0 ? e.code === "KeyS" : e.code === "Numpad5") this.softDrop();
           else if (this.id === 0 ? e.code === "Space" : e.code === "Numpad0") {
-            e.preventDefault();
+            //e.preventDefault();
             this.hardDrop();
           } else if (this.id === 0 ? e.code === "ShiftLeft" : e.code === "NumpadEnter") {
-            e.preventDefault();
+            //e.preventDefault();
             this.hold();
           } else if (this.id === 0 ? (e.code === "KeyE" || e.code === "KeyW") : (e.code === "Numpad9" || e.code === "Numpad8")) {
-            e.preventDefault();
+            //e.preventDefault();
             this.rotatePiece("cw");
           }  else if (this.id === 0 ? (e.code === "KeyQ" || e.code === "ControlLeft") : e.code === "Numpad7") {
-            e.preventDefault();
+            //e.preventDefault();
             this.rotatePiece("ccw");
           }
         });
