@@ -1,6 +1,7 @@
 import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import Database from 'better-sqlite3';
+import cors from '@fastify/cors';
 
 import { gUsers } from './gUsers.js';
 import { gUser } from './gUser.js';
@@ -150,6 +151,11 @@ export default async function(fastify, options) {
 		},
 	});
 	fastify.register(fastifyCookie);
+	fastify.register(cors, {
+		origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+		credentials: true,
+		methods: [ "GET", "POST", "PATCH", "DELETE", "OPTIONS" ]
+	});
 
 	fastify.addContentTypeParser(
 		['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
