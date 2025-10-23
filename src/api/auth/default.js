@@ -2,6 +2,7 @@ import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 
+import { totpCheck } from './totpCheck.js';
 import { register } from './register.js';
 import { login } from './login.js';
 import { gRedir } from './gRedir.js';
@@ -28,7 +29,7 @@ export default async function(fastify, options) {
 	fastify.register(cors, {
 		origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
 		credentials: true,
-		methods: [ "GET", "POST", "PATCH", "DELETE", "OPTIONS" ]
+		methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"]
 	});
 
 	fastify.register(fastifyJWT, {
@@ -53,6 +54,9 @@ export default async function(fastify, options) {
 
 	fastify.get('/me', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return { user: request.user };
+	});
+	fastify.get('/2fa', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+		return totpCheck(request, reply);
 	});
 
 	// GOOGLE sign in
@@ -119,5 +123,5 @@ export default async function(fastify, options) {
 
 	fastify.get('/logout', {}, async (request, reply) => { return logout(reply, fastify); })
 
-	 fastify.delete('/', { preHandler: fastify.authenticate }, async (request, reply) => { return remove(request, reply, fastify)})
+	fastify.delete('/', { preHandler: fastify.authenticate }, async (request, reply) => { return remove(request, reply, fastify) })
 }
