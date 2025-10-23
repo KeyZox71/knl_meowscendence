@@ -186,7 +186,10 @@ export function oneko() {
     idleTime += 1;
 
     // every ~ 20 seconds
-    if (
+	if (oneko_state === 2) {
+		idleAnimation = "sleeping";
+	}
+	else if (
       idleTime > 10 &&
       Math.floor(Math.random() * 200) == 0 &&
       idleAnimation == null
