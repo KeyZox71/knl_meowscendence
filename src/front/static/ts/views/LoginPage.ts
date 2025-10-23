@@ -73,11 +73,17 @@ export default class extends Aview {
 				} else if (data_req.status === 401) {
 					const data = await data_req.json();
 
-					const error = document.createElement("p");
-					error.innerHTML = data.error;
-					error.classList.add("text-red-700", "dark:text-red-500");
+					if (!document.getElementById("error-totp")) {
+						const error = document.createElement("p");
+						error.innerHTML = data.error;
+						error.classList.add("text-red-700", "dark:text-red-500");
 
-					idWindow.appendChild(error);
+						idWindow.appendChild(error);
+					} else {
+						const error = document.getElementById("error-totp") as HTMLParagraphElement;
+						error.innerHTML = data.error;
+					}
+
 				} else {
 					console.log(data_req.status)
 					console.log(await data_req.json())
@@ -140,7 +146,7 @@ export default class extends Aview {
 
 					const tokenTitle = document.createElement("h1");
 					tokenTitle.innerHTML = `hey ${username}, please submit your 2fa code below :`;
-					tokenTitle.classList.add("text-gray-900", "dark_text-white", "text-lg", "pt-0", "pb-4", "justify-center");
+					tokenTitle.classList.add("text-gray-900", "dark:text-white", "text-lg", "pt-0", "pb-4", "justify-center");
 
 					const form = document.createElement("form");
 					form.method = "dialog";

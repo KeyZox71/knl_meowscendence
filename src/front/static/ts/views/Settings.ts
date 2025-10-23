@@ -2,12 +2,12 @@ import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
 import { isLogged, navigationManager } from "../main.ts"
-
+import { totpEnablePopup } from "./TotpEnable.ts";
+import { totpVerify } from "../../../../api/auth/totpVerify.js";
 
 export default class extends Aview {
 
-	constructor()
-	{
+	constructor() {
 		super();
 		this.setTitle("profile");
 		setOnekoState("default");
@@ -29,62 +29,109 @@ export default class extends Aview {
 				<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
 				<button id="deleteAccount-button" type="submit" class="default-button w-full">delete your account</button>
 				<hr class="my-2 w-full reverse-border">
-				<button id="2fa-button" type="submit" class="default-button w-full">enable 2FA</button>
+				<button id="2fa-button" type="submit" class="default-button w-full">2fa</button>
 			</div>
 		</div>
 		`;
 	}
 
-  async run() {
-    if (!await isLogged())
-      navigationManager("/");
+	async run() {
+		if (!await isLogged())
+			navigationManager("/");
 
-    dragElement(document.getElementById("window"));
+		dragElement(document.getElementById("window"));
 
-    let uuid: String;
-    uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-    const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (userdata_req.status == 404) {
-      console.error("invalid user");
-      return;
-    }
-    let userdata = await userdata_req.json();
+		const isTOTPEnabled = async () => {
+			const totpVerify_req = await fetch('http://localhost:3001/2fa', {
+				method: "GET",
+				credentials: "include"
+			})
 
-    (document.getElementById("displayName-input") as HTMLInputElement).placeholder = userdata.displayName;
-    (document.getElementById("displayName-input") as HTMLInputElement).value = userdata.displayName;
+			if (totpVerify_req.status === 200) {
+				const totpVerify_data = await totpVerify_req.json();
+				if (totpVerify_data.totp == true) {
+					return true;
+				}
+			}
+			return false;
+		};
 
-    document.getElementById("displayName-button")?.addEventListener("click", async () => {
-      const changeDisplayName_req = await fetch(`http://localhost:3002/users/${uuid}/displayName`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", },
-        credentials: "include",
-        body: JSON.stringify({ displayName: (document.getElementById("displayName-input") as HTMLInputElement).value })
-      });
-      if (changeDisplayName_req.status == 200) {
-        // idk display success
-      }
-      else {
-        // display error ig, uuuh it's in await changeDisplayName.json().error
-      }
-    });
+		let uuid: String;
+		uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
+		const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+			method: "GET",
+			credentials: "include",
+		});
+		if (userdata_req.status == 404) {
+			console.error("invalid user");
+			return;
+		}
+		let userdata = await userdata_req.json();
 
-    document.getElementById("deleteAccount-button")?.addEventListener("click", async () => {
-      const delete_req = await fetch(`http://localhost:3001/`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+		(document.getElementById("displayName-input") as HTMLInputElement).placeholder = userdata.displayName;
+		(document.getElementById("displayName-input") as HTMLInputElement).value = userdata.displayName;
 
-      if (delete_req.status == 200)
-        navigationManager("/");
-      else
-        console.error("xd"); // xd?????????????
-    });
+		document.getElementById("displayName-button")?.addEventListener("click", async () => {
+			const changeDisplayName_req = await fetch(`http://localhost:3002/users/${uuid}/displayName`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json", },
+				credentials: "include",
+				body: JSON.stringify({ displayName: (document.getElementById("displayName-input") as HTMLInputElement).value })
+			});
+			if (changeDisplayName_req.status == 200) {
+				// idk display success
+			}
+			else {
+				// display error ig, uuuh it's in await changeDisplayName.json().error
+			}
+		});
 
-	document.getElementById("2fa-button")?.addEventListener("click", async () => {
-		
-	});
-  }
+		document.getElementById("deleteAccount-button")?.addEventListener("click", async () => {
+			const delete_req = await fetch(`http://localhost:3001/`, {
+				method: "DELETE",
+				credentials: "include",
+			});
+
+			if (delete_req.status == 200)
+				navigationManager("/");
+			else
+				console.error("xd"); // xd?????????????
+		});
+
+
+		const totpButton = document.getElementById("2fa-button") as HTMLButtonElement;
+
+		if ((await isTOTPEnabled()) === true) {
+			totpButton.innerHTML = "disable 2fa";
+
+			document.getElementById("2fa-button")?.addEventListener("click", async () => {
+				const totp_req = await fetch(`http://localhost:3001/2fa`, {
+					method: "DELETE",
+					credentials: "include"
+				})
+				if (totp_req.status === 200) {
+					console.log("working")
+					navigationManager("/settings")
+				} else {
+					console.log("wut")
+				}
+			});
+		} else {
+			totpButton.innerHTML = "enable 2fa";
+	
+			document.getElementById("2fa-button")?.addEventListener("click", async () => {
+				const totp_req = await fetch(`http://localhost:3001/2fa`, {
+					method: "POST",
+					credentials: "include"
+				})
+				if (totp_req.status === 200) {
+					console.log("working")
+					const totp_data = await totp_req.json();
+					totpEnablePopup(uuid, totp_data.secret, totp_data.otpauthUrl);
+				} else {
+					console.log("wut")
+				}
+			});
+		}
+	}
 }
