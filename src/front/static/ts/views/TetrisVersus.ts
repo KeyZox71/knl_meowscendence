@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts";
 import { isLogged, user_api, auth_api } from "../main.js";
 import { dragElement } from "./drag.js";
-import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts";
+import { setOnekoState, setBallPos, setOnekoOffset, setSleepPos } from "../oneko.ts";
 
 export default class extends Aview {
   running: boolean;
@@ -53,6 +53,7 @@ export default class extends Aview {
   }
 
   async run() {
+	  setSleepPos();
     dragElement(document.getElementById("window"));
     const COLS = 10;
     const ROWS = 20;
@@ -922,6 +923,7 @@ export default class extends Aview {
         this.drawPiece();
         this.drawHUD();
         this.drawQueue();
+		setSleepPos();
       }
     }
 

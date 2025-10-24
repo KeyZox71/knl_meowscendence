@@ -22,12 +22,17 @@ export function setOnekoState(state: string) {
 }
 
 export function setOnekoOffset() {
-	if (oneko_state != 0)
+	if (oneko_state === 1)
 	{
 		offsetX = document.getElementById("window").offsetLeft + 44;
 		offsetY = document.getElementById("window").offsetTop + 44 + 24;
 	}
   return;
+}
+
+export function setSleepPos() {
+	mousePosX = document.getElementById("window")?.offsetLeft + 120;
+	mousePosY = document.getElementById("window")?.offsetTop + 400;
 }
 
 export function setBallPos(x: number, y: number)
@@ -181,7 +186,10 @@ export function oneko() {
     idleTime += 1;
 
     // every ~ 20 seconds
-    if (
+	if (oneko_state === 2) {
+		idleAnimation = "sleeping";
+	}
+	else if (
       idleTime > 10 &&
       Math.floor(Math.random() * 200) == 0 &&
       idleAnimation == null
