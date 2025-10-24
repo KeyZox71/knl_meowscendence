@@ -9,12 +9,11 @@ import { callAddScore, callLastId } from "../../utils/scoreStore_contract.js";
  */
 export async function addTx(request, reply, fastify) {
 	try {
-		const id = await callLastId();
-		const tx = callAddScore(request.body.p1, request.body.p2, request.body.p1Score, request.body.p2Score);
+		const {tx, id} = await callAddScore(request.body.p1, request.body.p2, request.body.p1Score, request.body.p2Score);
 
-		tx.then(tx => {
-			scoreDB.addTx(id, tx.hash);
-		});
+		scoreDB.addTx(id, tx.hash);
+		// tx.then(tx => {
+		// });
 
 		return reply.code(200).send({
 			id: Number(id)

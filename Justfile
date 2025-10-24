@@ -42,14 +42,16 @@ set dotenv-load
 
 # To completely docker
 @clean-docker: clean-compose
-	docker system prune -af
+	docker builder prune -f
+	docker volume prune -af
+	# docker system prune -af
 
 # To clean only the container launched by the compose
 @clean-compose: stop-docker
 	docker compose -f docker/docker-compose.yml rm
 
 @deploy-contract-scoreStore:
-	forge create scoreStore --rpc-url=${RPC_URL} --private-key=${PRIVATE_KEY}
+	forge create scoreStore --rpc-url=${AVAX_RPC_URL} --private-key=${AVAX_PRIVATE_KEY} --broadcast
 
 @verify-contract:
 	forge verify-contract --chain-id 43113 --rpc-url=${AVAX_RPC_URL} --watch ${AVAX_CONTRACT_ADDR}

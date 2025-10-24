@@ -1,18 +1,3 @@
-FROM		node:lts-alpine AS builder
-
-RUN			npm install -g pnpm
-
-WORKDIR		/app
-
-COPY		package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-RUN			pnpm install --frozen-lockfile
-
-COPY		vite.config.js tailwind.config.js ./
-COPY		src ./src
-
-RUN			pnpm vite build
-
 FROM		owasp/modsecurity-crs:nginx-alpine
 
 RUN			mkdir -p /etc/nginx/modsecurity.d \
@@ -23,7 +8,7 @@ COPY		docker/proxy/config/default.conf.template \
 
 COPY		--chmod=755 docker/proxy/entry/ssl-cert.sh /docker-entrypoint.d/ssl-cert.sh
 
-COPY		--from=builder /app/dist /usr/share/nginx/html
+# COPY		--from=builder /app/dist /usr/share/nginx/html
 
 USER		root
 RUN			mkdir -p /var/log/front

@@ -61,7 +61,7 @@ async function start() {
 	if (target === 'scoreStore' || target === 'all') {
 		const score = Fastify({ logger: loggerOption('scoreStore') });
 		score.register(scoreApi);
-		const port = target === 'all' ? 3002 : 3000;
+		const port = target === 'all' ? 3003 : 3000;
 		const host = target === 'all' ? '127.0.0.1' : '0.0.0.0';
 		await score.listen({ port, host });
 		console.log(`ScoreStore API listening on http://${host}:${port}`);
@@ -77,6 +77,6 @@ async function start() {
 }
 
 start().catch((err) => {
-	console.error(err);
+	console.log(err);
 	process.exit(1);
 });

@@ -4,6 +4,9 @@ services:
     build:
       dockerfile: docker/front/Dockerfile
       context: ../../
+      args:
+        - VITE_USER_URL=${VITE_USER_URL}
+        - VITE_AUTH_URL=${VITE_AUTH_URL}
     environment:
       - TZ=Europe/Paris
     networks:
