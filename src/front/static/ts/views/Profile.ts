@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { isLogged, navigationManager, user_api, auth_api } from "../main.ts"
 
 
 export default class extends Aview {
@@ -49,7 +49,7 @@ export default class extends Aview {
     let uuid: String;
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
 
-    const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+    const userdata_req = await fetch(`${user_api}/users/${uuid}`, {
       method: "GET",
       credentials: "include",
     });
@@ -59,14 +59,14 @@ export default class extends Aview {
     }
     let userdata = await userdata_req.json();
 
-    let matchCount_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory/count?game=pong`, {
+    let matchCount_req = await fetch(`${user_api}/users/${uuid}/matchHistory/count?game=pong`, {
       method: "GET",
       credentials: "include",
     });
     let matchCount = await matchCount_req.json();
     pc += matchCount.n_matches;
 
-    let matches_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=pong&iStart=0&iEnd=${matchCount.n_matches}`, {
+    let matches_req = await fetch(`${user_api}/users/${uuid}/matchHistory?game=pong&iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
       credentials: "include",
     });
@@ -78,6 +78,12 @@ export default class extends Aview {
 
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
+        const p2_req = await fetch(`${user_api}/users/${match.score.p2}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        match.score.p1 = userdata.displayName;
+        match.score.p2 = (await p2_req.json()).displayName;
         const newEntry = document.createElement("li");
         newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
         newEntry.innerHTML = match.score.p1Score > match.score.p2Score ? `${match.score.p1} - winner` : `${match.score.p2} - winner`;
@@ -115,14 +121,14 @@ export default class extends Aview {
       }
     }
 
-    matchCount_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory/count?game=tetris`, {
+    matchCount_req = await fetch(`${user_api}/users/${uuid}/matchHistory/count?game=tetris`, {
       method: "GET",
       credentials: "include",
     });
     matchCount = await matchCount_req.json();
     pc += matchCount.n_matches;
 
-    matches_req = await fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=tetris&iStart=0&iEnd=${matchCount.n_matches}`, {
+    matches_req = await fetch(`${user_api}/users/${uuid}/matchHistory?game=tetris&iStart=0&iEnd=${matchCount.n_matches}`, {
       method: "GET",
       credentials: "include",
     });
@@ -135,6 +141,15 @@ export default class extends Aview {
   // don't read this shit for you mental health
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
+        if (match.score.p2 != undefined)
+        {
+          const p2_req = await fetch(`${user_api}/users/${match.score.p2}`, {
+            method: "GET",
+            credentials: "include",
+          });
+          match.score.p2 = (await p2_req.json()).displayName;
+        }
+        match.score.p1 = userdata.displayName;
         const newEntry = document.createElement("li");
         newEntry.classList.add("m-1", "default-button", "bg-neutral-200", "dark:bg-neutral-800", "text-neutral-900", "dark:text-white");
         newEntry.innerHTML = match.score.p2 != undefined ?
@@ -184,12 +199,12 @@ export default class extends Aview {
     if (!profile) return;
 
     const picture = profile.appendChild(document.createElement("img"));
-    const a = await fetch(`http://localhost:3002/users/${uuid}/avatar`, {
+    const a = await fetch(`${user_api}/users/${uuid}/avatar`, {
       method: "GET",
       credentials: "include",
     });
 	picture.src = a.status === 200
-		? `http://localhost:3002/users/${uuid}/avatar?t=${Date.now()}`
+		? `${user_api}/users/${uuid}/avatar?t=${Date.now()}`
 		: "https://api.kanel.ovh/pp";
     picture.classList.add("text-neutral-900", "dark:text-white", "center", "h-18", "w-18", "mx-3", "reverse-border");
 

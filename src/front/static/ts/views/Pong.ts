@@ -1,5 +1,5 @@
 import Aview from "./Aview.ts"
-import { isLogged } from "../main.js"
+import { isLogged, user_api, auth_api  } from "../main.js"
 import { dragElement } from "./drag.js"
 import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
@@ -58,6 +58,9 @@ export default class extends Aview {
 		let p2_score: number = 0;
 		let p1_name: string;
 		let p2_name: string;
+
+		let p1_displayName: string;
+		let p2_displayName: string;
 
 		let countdown: number = 3;
 		let countdownTimer: number = 0;
@@ -148,7 +151,7 @@ export default class extends Aview {
           if (await isLogged())
           {
             let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-            fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=pong`, {
+            fetch(user_api + "/users/" + uuid + "/matchHistory?game=pong", {
               method: "POST",
               headers: { "Content-Type": "application/json", },
               credentials: "include",
@@ -203,8 +206,8 @@ export default class extends Aview {
 			ctx.font = "24px Kubasta";
 			let text_score = `${p1_score} - ${p2_score}`;
 			ctx.fillText(text_score, canvas.width / 2 - (ctx.measureText(text_score).width / 2), 25);
-			ctx.fillText(p1_name, canvas.width / 4 - (ctx.measureText(p1_name).width / 2), 45);
-			ctx.fillText(p2_name, (canvas.width / 4 * 3) - (ctx.measureText(p2_name).width / 2), 45);
+      ctx.fillText(p1_displayName, canvas.width / 4 - (ctx.measureText(p1_name).width / 2), 45);
+			ctx.fillText(p2_displayName, (canvas.width / 4 * 3) - (ctx.measureText(p2_name).width / 2), 45);
 
 			if (match_over)
 			{
@@ -273,23 +276,46 @@ export default class extends Aview {
 		if (await isLogged())
 		{
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-      const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
-  			method: "GET",
-  			credentials: "include",
-  		});
-  		if (userdata_req.status == 404)
-  		{
-  			console.error("invalid user");
-  			return ;
-  		}
-      let userdata = await userdata_req.json();
-			p1_input.value = userdata.displayName;
+
+			p1_input.value = uuid;
 			p1_input.readOnly = true;
 		}
 		else
 			p1_input.value = "player 1";
 
-		document.getElementById("game-start")?.addEventListener("click", () => {
+		document.getElementById("game-start")?.addEventListener("click", async () => {
+      let p1_isvalid = true;
+      let p2_isvalid = true;
+      if (await isLogged()) {
+        const p1_req = await fetch(`${user_api}/users/${p1_input.value}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const p2_req = await fetch(`${user_api}/users/${p2_input.value}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (p1_req.status != 200)
+          p1_isvalid = false;
+        else
+          p1_displayName = (await p1_req.json()).displayName;
+
+        if (p2_req.status != 200)
+          p2_isvalid = false;
+        else
+          p2_displayName = (await p2_req.json()).displayName;
+      }
+      else
+        p1_isvalid = p2_isvalid = false;
+      p1_name = p1_input.value;
+      p2_name = p2_input.value;
+      if (!p1_isvalid)
+        p1_displayName = p1_name;
+      if (!p2_isvalid)
+        p2_displayName = p2_name;
+
+      p1_displayName = p1_displayName.length > 16 ? p1_displayName.substring(0, 16) + "." : p1_displayName;
+      p2_displayName = p2_displayName.length > 16 ? p2_displayName.substring(0, 16) + "." : p2_displayName;
       p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
 			p2_name = p2_input.value.length > 16 ? p2_input.value.substring(0, 16) + "." : p2_input.value;
 			document.getElementById("player-inputs").remove();

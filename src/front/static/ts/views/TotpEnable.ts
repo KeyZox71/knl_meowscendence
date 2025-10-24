@@ -1,9 +1,9 @@
-import { navigationManager } from "../main.ts";
+import { navigationManager, user_api, auth_api } from "../main.ts";
 import { dragElement } from "./drag.ts";
 
 async function totpVerify() {
 	const code = (document.getElementById("totpPin") as HTMLInputElement).value;
-	const data_req = await fetch('http://localhost:3001/2fa/verify', {
+	const data_req = await fetch(auth_api + '/2fa/verify', {
 		method: "POST",
 		credentials: "include",
 		headers: {
