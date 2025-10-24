@@ -3,8 +3,8 @@ name: ft_transcendence
 include:
   - ./volumes.yml
   - ./networks.yml
-  # - ./monitoring/compose.yml
+  - ./monitoring/compose.yml
   - ./api-base/compose.yml
   - ./front/compose.yml
   - ./proxy/compose.yml
-  # - ./ELK/compose.yml
+  - ./ELK/compose.yml
