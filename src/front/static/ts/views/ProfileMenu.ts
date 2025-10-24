@@ -54,7 +54,7 @@ export default class extends Aview {
 	  });
 	  if (userdata_req.status == 404)
 	  {
-		console.error("invalid user");
+		console.log("invalid user");
 		return ;
 	  }
 	  let userdata = await userdata_req.json();
@@ -69,7 +69,7 @@ export default class extends Aview {
 
     document.getElementById("profile-items").innerHTML = await getMainHTML();
     requestAnimationFrame(() => {
-      document.getElementById("menu-logout").addEventListener("click", async () => {
+      document.getElementById("menu-logout")?.addEventListener("click", async () => {
         let req = fetch(`${auth_api}/logout`, {
           method: "GET",
           credentials: "include",
@@ -79,7 +79,7 @@ export default class extends Aview {
           if (res.status === 200)
             this.run();
           else
-            console.error("logout failed");
+            console.log("logout failed");
         });
       });
     });

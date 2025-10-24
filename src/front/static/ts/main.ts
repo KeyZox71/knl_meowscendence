@@ -170,5 +170,5 @@ async function startMenuPP() {
 	}
 }
 
-setInterval(startMenuPP, 3000);
+setInterval(startMenuPP, 5000);
 startMenuPP();

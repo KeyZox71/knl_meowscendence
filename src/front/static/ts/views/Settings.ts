@@ -74,7 +74,7 @@ export default class extends Aview {
       credentials: "include",
     });
     if (userdata_req.status == 404) {
-      console.error("invalid user");
+      console.log("invalid user");
       return;
     }
     let userdata = await userdata_req.json();
@@ -106,16 +106,16 @@ export default class extends Aview {
       if (delete_req.status == 200)
         navigationManager("/");
       else
-        console.error("xd"); // xd?????????????
+        console.log("xd"); // xd?????????????
     });
 
     const upload = document.getElementById("upload-file") as HTMLInputElement;
     upload.addEventListener("change", () => {
       const fileList: FileList | null = upload.files;
       if (!fileList)
-        return console.error("empty");
+        return console.log("empty");
       if (!fileList[0].type.startsWith("image/")) {
-        console.error("invalid file");
+        console.log("invalid file");
         return;
       }
 

@@ -91,7 +91,7 @@ export default class extends Aview {
 
 			}
 			catch (error) {
-				console.error(error);
+				console.log(error);
 				if (document.getElementById("login-error-message")) {
 					document.getElementById("login-error-message").innerHTML = "error: server error, try again later...";
 					document.getElementById("login-error-message")?.classList.remove("hidden");

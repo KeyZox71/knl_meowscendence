@@ -3,9 +3,13 @@ const score_url = process.env.SCORE_URL || "http://localhost:3003";
 async function fetchSave(request, reply, userId, addMatch) {
 	let opponentName = '';
 	let opponentScore = 0;
-	if (request.body.opponent && request.body.opponentScore) {
+	if (request.body.opponent) {
 		opponentName = request.body.opponent;
+	}
+	if (request.body.opponentScore !== undefined) {
 		opponentScore = request.body.opponentScore;
+	} else {
+		opponentScore = 0;
 	}
 	const res = await fetch(score_url + "/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p1: userId, p2: opponentName, p1Score: request.body.myScore, p2Score: opponentScore }) });
 	if (!res.ok) {
@@ -27,7 +31,7 @@ export async function pMatchHistory(request, reply, fastify, getUserInfo, addMat
 		if (request.body.game !== 'pong' && request.body.game !== 'tetris') {
 			return reply.code(400).send({ error: "Specified game does not exist" });
 		}
-		if (request.body.game === 'pong' && (!request.body.opponent || !request.body.opponentScore)) {
+		if (request.body.game === 'pong' && !request.body.opponent) {
 			return reply.code(400).send({ error: "Game requires two players" });
 		}
 		if (!getUserInfo.get(userId)) {
@@ -41,7 +45,7 @@ export async function pMatchHistory(request, reply, fastify, getUserInfo, addMat
 				return reply.code(400).send({ error: "Do you have dementia ? You cannot have played a match against yourself gramps" });
 			}
 		}
-		await fetchSave(request, reply, userId, addMatch);
+		fetchSave(request, reply, userId, addMatch);
 		if (request.body.game === 'pong') {
 			if (request.body.myScore > request.body.opponentScore) {
 				incWinsPong.run(userId);

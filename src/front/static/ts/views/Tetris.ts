@@ -307,18 +307,18 @@ export default class extends Aview {
         ) as HTMLCanvasElement | null;
         this.canvas = el;
         if (!this.canvas)
-          throw console.error("no canvas :c");
+          throw console.log("no canvas :c");
         this.canvas.width = COLS * BLOCK;
         this.canvas.height = ROWS * BLOCK;
         const ctx = this.canvas.getContext("2d");
         this.ctx = ctx;
         if (!this.ctx)
-          throw console.error("no ctx D:");
+          throw console.log("no ctx D:");
 
         this.holdCanvas = document.getElementById("hold") as HTMLCanvasElement;
         this.queueCanvas = document.getElementById("queue") as HTMLCanvasElement;
         if (!this.holdCanvas || !this.queueCanvas)
-          throw console.error("no canvas :c");
+          throw console.log("no canvas :c");
         this.holdCtx = this.holdCanvas.getContext("2d");
         this.queueCtx = this.queueCanvas.getContext("2d");
         if (!this.holdCtx || !this.queueCtx)
