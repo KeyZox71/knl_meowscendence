@@ -1,5 +1,6 @@
 import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
+import cors from '@fastify/cors'
 import Database from 'better-sqlite3';
 import cors from '@fastify/cors';
 
@@ -148,6 +149,13 @@ const querySchemaMatchHistoryGame = { type: 'object', required: ['game'], proper
  *	@param {import('fastify').FastifyPluginOptions} options
  */
 export default async function(fastify, options) {
+
+	fastify.register(cors, {
+		origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+		credentials: true,
+		methods: [ "GET", "POST", "PATCH", "DELETE", "OPTIONS" ]
+	});
+
 	fastify.register(fastifyJWT, {
 		secret: process.env.JWT_SECRET || '123456789101112131415161718192021',
 		cookie: {

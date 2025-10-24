@@ -15,6 +15,7 @@ services:
       - API_TARGET=user
       - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN}
     restart: unless-stopped
   auth-api:
     container_name: transcendence-api-auth
@@ -29,12 +30,13 @@ services:
       - back
     environment:
       - TZ=Europe/Paris
-      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GOOGLE_CALLBACK_URL=${AUTH_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - API_TARGET=auth
       - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN}
     restart: unless-stopped
   scorestore-api:
     container_name: transcendence-api-scoreStore

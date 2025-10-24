@@ -14,6 +14,9 @@ importers:
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
+      '@fastify/cors':
+        specifier: ^11.1.0
+        version: 11.1.0
       '@fastify/env':
         specifier: ^5.0.2
         version: 5.0.2
@@ -260,6 +263,9 @@ packages:
 
   '@fastify/cookie@11.0.2':
     resolution: {integrity: sha512-GWdwdGlgJxyvNv+QcKiGNevSspMQXncjMZ1J8IvuDQk0jvkzgWWZFNC2En3s+nHndZBGV8IbLwOI/sxCZw/mzA==}
+
+  '@fastify/cors@11.1.0':
+    resolution: {integrity: sha512-sUw8ed8wP2SouWZTIbA7V2OQtMNpLj2W6qJOYhNdcmINTu6gsxVYXjQiM9mdi8UUDlcoDDJ/W2syPo1WB2QjYA==}
 
   '@fastify/deepmerge@2.0.2':
     resolution: {integrity: sha512-3wuLdX5iiiYeZWP6bQrjqhrcvBIf0NHbQH1Ur1WbHvoiuTYUEItgygea3zs8aHpiitn0lOB8gX20u1qO+FDm7Q==}
@@ -1902,6 +1908,11 @@ snapshots:
     dependencies:
       cookie: 1.0.2
       fastify-plugin: 5.0.1
+
+  '@fastify/cors@11.1.0':
+    dependencies:
+      fastify-plugin: 5.0.1
+      toad-cache: 3.7.0
 
   '@fastify/deepmerge@2.0.2': {}
 
