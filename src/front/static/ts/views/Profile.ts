@@ -117,7 +117,6 @@ export default class extends Aview {
         tx.classList.add("default-button", "items-center", "justify-center", "text-center");
 
         newEntry.onclick = () => { document.getElementById("app")?.appendChild(popup); dragElement(document.getElementById(`${id}`)); };
-        console.log(match.tx);
       }
     }
 
@@ -191,7 +190,6 @@ export default class extends Aview {
         tx.classList.add("default-button", "items-center", "justify-center", "text-center");
 
         newEntry.onclick = () => { document.getElementById("app")?.appendChild(popup); dragElement(document.getElementById(`${id}`)); };
-        console.log(match.tx);
       }
     }
 

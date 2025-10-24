@@ -504,19 +504,28 @@ export default class extends Aview {
       btn.onclick = async () => {
         document.getElementById("tournament-id")?.classList.add("hidden");
         let players: string[] = [];
+        let players_displayName: string[] = [];
         for (let i of Array(initPlayerCount).keys()) {
           players.push((document.getElementById(`playerName${i}`) as HTMLInputElement).value);
+		  const name_req = await fetch(`${user_api}/users/${players.at(-1)}`, {
+			method: "GET",
+			credentials: "include",
+		  });
+		  if (name_req.status === 200)
+			  players_displayName.push((await name_req.json()).displayName);
+		  else
+			  players_displayName.push(players.at(-1));
         }
 
         while (tournament[0].length > 1)
         {
-          this.updateBracketDisplay(tournament, players);
+          this.updateBracketDisplay(tournament, players_displayName);
           while(tournament[0].length > 0)
           {
             const p1 = tournament[0].shift() as number;
             const p2 = tournament[0].shift() as number;
 
-            document.getElementById("announcement-text").innerText = `${players[p1]} vs ${players[p2]}`;
+            document.getElementById("announcement-text").innerText = `${players_displayName[p1]} vs ${players_displayName[p2]}`;
             document.getElementById("announcement")?.classList.remove("hidden");
             await this.waitForUserClick("tournament-continue");
             document.getElementById("announcement")?.classList.add("hidden");
@@ -528,7 +537,7 @@ export default class extends Aview {
           tournament[1] = [];
         }
         document.getElementById("winner-div")?.classList.remove("hidden");
-        document.getElementById("winner-text").innerText = `${players[tournament[0][0]]} won the tournament !! ggs :D`;
+        document.getElementById("winner-text").innerText = `${players_displayName[tournament[0][0]]} won the tournament !! ggs :D`;
       };
       btn.innerText = "start tournament !!";
 

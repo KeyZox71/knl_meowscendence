@@ -212,7 +212,7 @@ export default class extends Aview {
 			if (match_over)
 			{
 				ctx.font = "32px Kubasta";
-				const winner = `${p1_score > p2_score ? p1_name : p2_name} won :D`;
+				const winner = `${ p1_score > p2_score ? p1_displayName : p2_displayName } won :D`;
 				ctx.fillText(winner, canvas.width / 2 - (ctx.measureText(winner).width / 2), canvas.height / 2 + 16);
 				document.getElementById("game-buttons").classList.remove("hidden");
 			}
@@ -316,8 +316,6 @@ export default class extends Aview {
 
       p1_displayName = p1_displayName.length > 16 ? p1_displayName.substring(0, 16) + "." : p1_displayName;
       p2_displayName = p2_displayName.length > 16 ? p2_displayName.substring(0, 16) + "." : p2_displayName;
-      p1_name = p1_input.value.length > 16 ? p1_input.value.substring(0, 16) + "." : p1_input.value;
-			p2_name = p2_input.value.length > 16 ? p2_input.value.substring(0, 16) + "." : p2_input.value;
 			document.getElementById("player-inputs").remove();
 
 			canvas = document.createElement("canvas");
