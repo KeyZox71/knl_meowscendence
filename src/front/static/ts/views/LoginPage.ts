@@ -93,7 +93,7 @@ export default class extends Aview {
 					// throw new Error("invalid response");
 				}
 			} catch (error) {
-				console.error(error);
+				console.log(error);
 			}
 		}
 
@@ -186,7 +186,7 @@ export default class extends Aview {
 			}
 			catch (error)
 			{
-				console.error(error);
+				console.log(error);
 				document.getElementById("login-error-message").innerHTML = "error: server error, try again later...";
 				document.getElementById("login-error-message").classList.remove("hidden");
 			}

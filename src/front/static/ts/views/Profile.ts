@@ -54,7 +54,7 @@ export default class extends Aview {
       credentials: "include",
     });
     if (userdata_req.status == 404) {
-      console.error("invalid user");
+      console.log("invalid user");
       return;
     }
     let userdata = await userdata_req.json();
@@ -74,7 +74,7 @@ export default class extends Aview {
 
     let main = document.getElementById("profile-pong-scorelist");
     if (!main)
-      return console.error("what");
+      return console.log("what");
 
     if (matches.matchHistory) {
       for (let match of matches.matchHistory) {
@@ -136,7 +136,7 @@ export default class extends Aview {
 
     main = document.getElementById("profile-tetris-scorelist");
     if (!main)
-      return console.error("what");
+      return console.log("what");
 
   // don't read this shit for you mental health
     if (matches.matchHistory) {
