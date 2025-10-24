@@ -6,6 +6,7 @@ node_modules/
 
 # docker things
 .env
+.env.prod
 
 # built files
 dist
