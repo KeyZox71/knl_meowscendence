@@ -51,7 +51,7 @@ set dotenv-load
 	docker compose -f docker/docker-compose.yml rm
 
 @deploy-contract-scoreStore:
-	forge create scoreStore --rpc-url=${RPC_URL} --private-key=${PRIVATE_KEY}
+	forge create scoreStore --rpc-url=${AVAX_RPC_URL} --private-key=${AVAX_PRIVATE_KEY} --broadcast
 
 @verify-contract:
 	forge verify-contract --chain-id 43113 --rpc-url=${AVAX_RPC_URL} --watch ${AVAX_CONTRACT_ADDR}
