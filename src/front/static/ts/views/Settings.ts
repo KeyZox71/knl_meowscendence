@@ -149,7 +149,7 @@ export default class extends Aview {
 			totpButton.innerHTML = "disable 2fa";
 
 			document.getElementById("2fa-button")?.addEventListener("click", async () => {
-				const totp_req = await fetch(`${user_api}/2fa`, {
+				const totp_req = await fetch(`${auth_api}/2fa`, {
 					method: "DELETE",
 					credentials: "include"
 				})
@@ -164,7 +164,7 @@ export default class extends Aview {
 			totpButton.innerHTML = "enable 2fa";
 
 			document.getElementById("2fa-button")?.addEventListener("click", async () => {
-				const totp_req = await fetch(`${user_api}/2fa`, {
+				const totp_req = await fetch(`${auth_api}/2fa`, {
 					method: "POST",
 					credentials: "include"
 				})

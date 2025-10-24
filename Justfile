@@ -42,7 +42,9 @@ set dotenv-load
 
 # To completely docker
 @clean-docker: clean-compose
-	docker system prune -af
+	docker builder prune -f
+	docker volume prune -af
+	# docker system prune -af
 
 # To clean only the container launched by the compose
 @clean-compose: stop-docker

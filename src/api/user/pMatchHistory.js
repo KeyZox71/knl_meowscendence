@@ -1,3 +1,5 @@
+const score_url = process.env.SCORE_URL || "http://localhost:3003";
+
 async function fetchSave(request, reply, userId, addMatch) {
 	let opponentName = '';
 	let opponentScore = 0;
@@ -5,7 +7,7 @@ async function fetchSave(request, reply, userId, addMatch) {
 		opponentName = request.body.opponent;
 		opponentScore = request.body.opponentScore;
 	}
-	const res = await fetch('http://localhost:3003/', { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p1: userId, p2: opponentName, p1Score: request.body.myScore, p2Score: opponentScore }) });
+	const res = await fetch(score_url + "/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ p1: userId, p2: opponentName, p1Score: request.body.myScore, p2Score: opponentScore }) });
 	if (!res.ok) {
 		throw new Error('Internal server error');
 	}

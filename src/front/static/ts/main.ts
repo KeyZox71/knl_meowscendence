@@ -4,11 +4,11 @@ import FriendsMenu from "./views/Friends.ts";
 let profile_view = new ProfileMenu;
 let friends_view = new FriendsMenu;
 
-export const user_api = import.meta.env.VITE_USER_API as String;
-export const auth_api = import.meta.env.VITE_AUTH_API as String;
+export const user_api = import.meta.env.VITE_USER_URL as String;
+export const auth_api = import.meta.env.VITE_AUTH_URL as String;
 
 export async function isLogged(): Promise<boolean> {
-	let uuid_req = await fetch(auth_api + "/me", {
+	let uuid_req = await fetch(`${auth_api}/me`, {
 		method: "GET",
 		credentials: "include",
 	});
@@ -132,9 +132,9 @@ function updateClock()
 
 async function pingClock() {
 	if (await isLogged()) {
-		fetch(user_api + "/ping", {
+		fetch(`${user_api}/ping`, {
 			method: "POST",
-		credentials: "include"
+			credentials: "include"
 		});
 	}
 }
@@ -156,13 +156,13 @@ async function startMenuPP() {
 		uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
 
 
-		const a = await fetch(`http://localhost:3002/users/${uuid}/avatar`, {
+		const a = await fetch(`${user_api}/users/${uuid}/avatar`, {
 			method: "GET",
 			credentials: "include"
 		});
 
 		profileButton.src = a.status === 200
-			? `http://localhost:3002/users/${uuid}/avatar?t=${Date.now()}`
+			? `${user_api}/users/${uuid}/avatar?t=${Date.now()}`
 			: "https://api.kanel.ovh/pp";
 	} catch (err){
 		// console.log("not yet logged, going default for start icon...");

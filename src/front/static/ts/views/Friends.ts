@@ -103,7 +103,7 @@ export default class extends Aview {
 			}
 
 			if (data.n_friends > 0) {
-				const list_req = await fetch(user_api + "/users/" + uuid + "/friends?iStart=0&iEnd=2147483647", {
+				const list_req = await fetch(user_api + "/users/" + uuid + "/friends?iStart=0&iEnd=50", {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

@@ -16,6 +16,9 @@ services:
       - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
       - CORS_ORIGIN=${CORS_ORIGIN}
+      - USER_URL=${USER_URL}
+      - AUTH_URL=${AUTH_URL}
+      - SCORE_URL=${SCORE_URL}
     restart: unless-stopped
   auth-api:
     container_name: transcendence-api-auth
@@ -30,13 +33,17 @@ services:
       - back
     environment:
       - TZ=Europe/Paris
-      - GOOGLE_CALLBACK_URL=${AUTH_URL}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - CALLBACK_REDIR=${CALLBACK_REDIR}
       - API_TARGET=auth
       - LOG_FILE_PATH=/var/log/log.log
       - JWT_SECRET=${JWT_SECRET}
       - CORS_ORIGIN=${CORS_ORIGIN}
+      - USER_URL=${USER_URL}
+      - AUTH_URL=${AUTH_URL}
+      - SCORE_URL=${SCORE_URL}
     restart: unless-stopped
   scorestore-api:
     container_name: transcendence-api-scoreStore
@@ -47,7 +54,6 @@ services:
       - db-scoreStore:/db
       - log-scoreStore:/var/log
     networks:
-      - front
       - back
     environment:
       - TZ=Europe/Paris
@@ -56,4 +62,7 @@ services:
       - AVAX_PRIVATE_KEY=${AVAX_PRIVATE_KEY}
       - AVAX_RPC_URL=${AVAX_RPC_URL}
       - AVAX_CONTRACT_ADDR=${AVAX_CONTRACT_ADDR}
+      - USER_URL=${USER_URL}
+      - AUTH_URL=${AUTH_URL}
+      - SCORE_URL=${SCORE_URL}
     restart: unless-stopped
