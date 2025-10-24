@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { isLogged, navigationManager, user_api, auth_api } from "../main.ts"
 
 export default class extends Aview {
 
@@ -38,13 +38,13 @@ export default class extends Aview {
 				<hr class="my-4 w-64 reverse-border">
 
 			  <div class="flex flex-col space-y-4 w-full">
-			    <a target="_blank" href="http://localhost:3001/register/google" class="default-button inline-flex items-center justify-center w-full">
+			    <a target="_blank" id="register-google" class="default-button inline-flex items-center justify-center w-full">
 					  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height=20 width=20 class="mr-2 justify-self-start" />
-					  register with John Google
+					  register with google
 					</a>
 				  <a target="_blank" href="https://rusty.42angouleme.fr/issues/all" class="default-button inline-flex items-center justify-center w-full">
 		        <img src="https://rusty.42angouleme.fr/assets/favicon-bb06adc80c8495db.ico" height=20 width=20 class="mr-2 justify-self-start" />
-						register with Rusty
+						register with rusty
 					</a>
 				</div>
 			</div>
@@ -54,13 +54,14 @@ export default class extends Aview {
 	}
 
 	async run() {
+	document.getElementById("register-google").href = `${auth_api}/register/google`;
 		dragElement(document.getElementById("window"));
 		const login = async () => {
 			const username = (document.getElementById("username") as HTMLInputElement).value;
 			const password = (document.getElementById("password") as HTMLInputElement).value;
 
 			try {
-				const data_req = await fetch("http://localhost:3001/register", {
+				const data_req = await fetch(auth_api + "/register", {
 					method: "POST",
 					headers: { "Content-Type": "application/json", },
 					credentials: "include",
@@ -69,12 +70,12 @@ export default class extends Aview {
 				const data = await data_req.json();
 
 				if (data_req.status === 200) {
-					let uuid_req = await fetch("http://localhost:3001/me", {
+					let uuid_req = await fetch(auth_api + "/me", {
 						method: "GET",
 						credentials: "include",
 					});
 					let uuid = await uuid_req.json();
-					document.cookie = `uuid=${uuid.user};max-ages=${60*60*24*7}`;
+					document.cookie = `uuid=${uuid.user};max-ages=${60 * 60 * 24 * 7}`;
 					isLogged();
 					navigationManager("/");
 				}

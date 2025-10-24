@@ -4,8 +4,11 @@ import FriendsMenu from "./views/Friends.ts";
 let profile_view = new ProfileMenu;
 let friends_view = new FriendsMenu;
 
+export const user_api = import.meta.env.VITE_USER_API as String;
+export const auth_api = import.meta.env.VITE_AUTH_API as String;
+
 export async function isLogged(): Promise<boolean> {
-	let uuid_req = await fetch("http://localhost:3001/me", {
+	let uuid_req = await fetch(auth_api + "/me", {
 		method: "GET",
 		credentials: "include",
 	});
@@ -129,7 +132,7 @@ function updateClock()
 
 async function pingClock() {
 	if (await isLogged()) {
-		fetch(`http://localhost:3002/ping`, {
+		fetch(user_api + "/ping", {
 			method: "POST",
 		credentials: "include"
 		});

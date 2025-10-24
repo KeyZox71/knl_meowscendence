@@ -1,5 +1,5 @@
 import Aview from "./Aview.ts"
-import { isLogged, navigationManager } from "../main.ts"
+import { isLogged, user_api, auth_api } from "../main.ts"
 
 export default class extends Aview {
 	async getHTML() {
@@ -7,8 +7,7 @@ export default class extends Aview {
 		<div id="main-window" class="default-border shadow-2x1 bg-neutral-200 dark:bg-neutral-800">
 		  <div class="flex flex-row items-stretch">
 				<div class="inline-block bg-linear-to-b from-orange-200 to-orange-300 min-h-84 w-6 relative">
-				  <!--div class="absolute bottom-1 left-full whitespace-nowrap origin-bottom-left -rotate-90 font-bold">knl_meowscendence</div-->
-				  <div class="absolute bottom-1 left-full whitespace-nowrap origin-bottom-left -rotate-90 font-bold">girls kissing :3</div>
+				  <div class="absolute bottom-1 left-full whitespace-nowrap origin-bottom-left -rotate-90 font-bold">knl_meowscendence</div>
 				</div>
 
 				<div class="flex flex-col items-center">
@@ -49,7 +48,7 @@ export default class extends Aview {
       document.getElementById("menu-bottom-div")?.classList.remove("hidden");
 
       uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-	  const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+	  const userdata_req = await fetch(`${user_api}/users/${uuid}`, {
 		method: "GET",
 		credentials: "include",
 	  });
@@ -68,20 +67,21 @@ export default class extends Aview {
       `;
     }
 
-    requestAnimationFrame(async () => {
-      document.getElementById("profile-items").innerHTML = await getMainHTML();
-
+    document.getElementById("profile-items").innerHTML = await getMainHTML();
+    requestAnimationFrame(() => {
       document.getElementById("menu-logout").addEventListener("click", async () => {
-        let req = await fetch("http://localhost:3001/logout", {
+        let req = fetch(`${auth_api}/logout`, {
           method: "GET",
           credentials: "include",
         });
-        isLogged();
-        if (req.status === 200)
-          this.run();
-        else
-          console.error("logout failed");
+        req.then((res) => {
+          isLogged();
+          if (res.status === 200)
+            this.run();
+          else
+            console.error("logout failed");
+        });
       });
-    document.getElementById("profile-items").innerHTML = await getMainHTML();
+    });
 	}
 }

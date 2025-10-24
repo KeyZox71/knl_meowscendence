@@ -1,5 +1,5 @@
 import Aview from "./Aview.ts"
-import { isLogged } from "../main.js"
+import { isLogged, user_api } from "../main.js"
 import { dragElement } from "./drag.ts";
 import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
@@ -42,6 +42,18 @@ export default class extends Aview {
 				<div id="bracket" class="flex flex-col space-y-6 items-center"></div>
 			</div>
 			</div>
+
+			<div id="announcement" class="hidden flex flex-col space-y-8">
+			  <div id="bracket-announcement" class="flex flex-col space-y-6 items-center">
+				</div>
+			  <span id="announcement-text" class="text-lg font-bold text-neutral-900 dark:text-white"></span>
+			  <button type="submit" id="tournament-continue" class="default-button">let's go</button>
+			</div>
+
+			<div id="winner-div" class="hidden flex flex-col items-center space-y-8">
+			  <img src="https://api.kanel.ovh/pp?id=3" class="w-25 h-25 default-border" \>
+			  <span id="winner-text" class="text-2x1 text-neutral-900 dark:text-white"></span>
+			</div>
 		</div>
 		</div>
 		`;
@@ -49,9 +61,10 @@ export default class extends Aview {
 
 	async runGame(p1_id: number, p2_id: number, players: string[]): Promise<number> {
     return new Promise<number>(async (resolve) => {
-      console.log(p1_id, p2_id, players, players[p1_id], players[p2_id]);
+      //console.log(p1_id, p2_id, players, players[p1_id], players[p2_id]);
       let p1_name = players[p1_id];
       let p2_name = players[p2_id];
+
       let uuid: string;
       let start: number = 0;
       let elapsed: number;
@@ -146,7 +159,7 @@ export default class extends Aview {
           if (p1_score === 3 || p2_score === 3) {
             if (await isLogged()) {
               let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-              fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=pong`, {
+              fetch(`${user_api}/users/${uuid}/matchHistory?game=pong`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", },
                 credentials: "include",
@@ -158,9 +171,9 @@ export default class extends Aview {
                   "date": Date.now(),
                 }),
               });
-              resolve(p1_score == 3 ? p1_id : p2_id);
             }
             match_over = true;
+            resolve(p1_score == 3 ? p1_id : p2_id);
           }
           else {
             countdown = 3;
@@ -262,24 +275,29 @@ export default class extends Aview {
       let p1_isvalid = true;
       let p2_isvalid = true;
       if (await isLogged()) {
-        const p1_req = await fetch(`http://localhost:3002/users/${p1_name}`, {
+        const p1_req = await fetch(`${user_api}/users/${p1_name}`, {
           method: "GET",
           credentials: "include",
         });
-        const p2_req = await fetch(`http://localhost:3002/users/${p2_name}`, {
+        const p2_req = await fetch(`${user_api}/users/${p2_name}`, {
           method: "GET",
           credentials: "include",
         });
 
-        if (p1_req.status != 200)
-          p1_displayName = p1_name;
-        else
+        if (p1_req.status == 200)
           p1_displayName = (await p1_req.json()).displayName;
-
-        if (p2_req.status != 200)
-          p2_displayName = p2_name;
         else
+          p1_displayName = p1_name;
+
+        if (p2_req.status == 200)
           p2_displayName = (await p2_req.json()).displayName;
+        else
+          p2_displayName = p2_name;
+      }
+      else
+      {
+        p1_displayName = p1_name;
+        p2_displayName = p2_name;
       }
 
       p1_displayName = p1_displayName.length > 16 ? p1_displayName.substring(0, 16) + "." : p1_displayName;
@@ -309,9 +327,77 @@ export default class extends Aview {
     });
   }
 
+  waitForUserClick(buttonId: string): Promise<void> {
+    return new Promise((resolve) => {
+      const button = document.getElementById(buttonId);
+      if (!button) return resolve(); // failsafe if no button
+
+      const handler = () => {
+        button.removeEventListener("click", handler);
+        resolve();
+      };
+      button.addEventListener("click", handler);
+    });
+  }
+
+  tournament_state: number[][];
+  i: number = 0;
+  space: number;
+
+  updateBracketDisplay(tournament: number[][], players: string[]) {
+    for (let i of Array(tournament[0].length).keys())
+      this.tournament_state[this.i][i] = tournament[0][i];
+    for (let i of Array(tournament[1].length).keys())
+    {
+      console.log(this.tournament_state, this.i, i);
+      this.tournament_state[this.i + 1][i] = tournament[1][i];
+    }
+    this.i++;
+    const container = document.getElementById("bracket-announcement");
+    if (!container) return;
+    container.innerHTML = ""; // clear old bracket
+
+    const bracketWrapper = document.createElement("div");
+    bracketWrapper.className = "flex space-x-8 overflow-x-auto";
+
+    // replicate generateBracket() spacing logic
+    let previousPadding = 4;
+
+    for (let round = 0; round < this.tournament_state.length; round++) {
+      const roundColumn = document.createElement("div");
+
+      if (round === 0) {
+        roundColumn.className = `flex flex-col mt-${this.space} space-y-4`;
+      } else {
+        previousPadding = previousPadding * 2 + 10;
+        roundColumn.className = `flex flex-col justify-center space-y-${previousPadding}`;
+      }
+
+      // each player slot or winner
+      for (let i = 0; i < this.tournament_state[round].length; i++) {
+        const playerIndex = this.tournament_state[round][i];
+        const name =
+          playerIndex !== undefined && playerIndex !== null
+            ? players[playerIndex]
+            : "";
+
+        const cell = document.createElement("div");
+        cell.className =
+          "w-32 h-10 flex items-center justify-center bg-white text-center text-sm input-border";
+        cell.textContent = name || "";
+        roundColumn.appendChild(cell);
+      }
+
+      bracketWrapper.appendChild(roundColumn);
+    }
+
+    container.appendChild(bracketWrapper);
+  }
+
 	async run() {
     dragElement(document.getElementById("window"));
 		const generateBracket = async (playerCount: number) => {
+      this.tournament_state = [];
       let initPlayerCount = playerCount;
 			document.getElementById("bracket").innerHTML = "";
 
@@ -333,9 +419,11 @@ export default class extends Aview {
 
 			// Round 0: Player input column
 			const playerInputColumn = document.createElement("div");
+      this.space = (notPowPlayersCount + odd) * 28;
 			playerInputColumn.className = `flex flex-col mt-${(notPowPlayersCount + odd) * 28} space-y-4`;
 
       tournament.push([]);
+      this.tournament_state.push([]);
 			initialPlayers.forEach((name, i) => {
 				const input = document.createElement("input");
 				input.type = "text";
@@ -355,6 +443,7 @@ export default class extends Aview {
 				input.className = "w-32 h-10 p-2 text-sm bg-white disabled:bg-gray-200 input-border";
 				playerInputColumn.appendChild(input);
         tournament[0].push(i);
+        this.tournament_state[0].push(-1);
 			});
 
 			bracketWrapper.appendChild(playerInputColumn);
@@ -364,6 +453,7 @@ export default class extends Aview {
 			tournament.push([]);
 			for (let round = 1; round <= rounds; round++)
 			{
+			  this.tournament_state.push([]);
 				const roundColumn = document.createElement("div");
 				previousPadding = previousPadding * 2 + 10
 				roundColumn.className = `flex flex-col justify-center space-y-${previousPadding}`;
@@ -372,6 +462,7 @@ export default class extends Aview {
 
         while (notPowPlayersCount) {
           tournament[1].push(playerCount);
+          this.tournament_state[1].push(-1);
           const input = document.createElement("input");
           input.type = "text";
           input.id = `playerName${playerCount}`;
@@ -397,6 +488,7 @@ export default class extends Aview {
 					nextRound.push("");
 
 					roundColumn.appendChild(matchDiv);
+					this.tournament_state[round].push(-1);
 				}
 
 				bracketWrapper.appendChild(roundColumn);
@@ -410,7 +502,7 @@ export default class extends Aview {
       btn.classList.add("default-button", "w-full");
       btn.id = "tournament-play";
       btn.onclick = async () => {
-
+        document.getElementById("tournament-id")?.classList.add("hidden");
         let players: string[] = [];
         for (let i of Array(initPlayerCount).keys()) {
           players.push((document.getElementById(`playerName${i}`) as HTMLInputElement).value);
@@ -418,22 +510,25 @@ export default class extends Aview {
 
         while (tournament[0].length > 1)
         {
+          this.updateBracketDisplay(tournament, players);
           while(tournament[0].length > 0)
           {
-            console.log(tournament[0]);
             const p1 = tournament[0].shift() as number;
             const p2 = tournament[0].shift() as number;
 
-            document.getElementById("tournament-id")?.classList.add("hidden");
+            document.getElementById("announcement-text").innerText = `${players[p1]} vs ${players[p2]}`;
+            document.getElementById("announcement")?.classList.remove("hidden");
+            await this.waitForUserClick("tournament-continue");
+            document.getElementById("announcement")?.classList.add("hidden");
             const result = await this.runGame(p1, p2, players);
-            document.getElementById("gameCanvas").remove();
-            document.getElementById("tournament-id")?.classList.remove("hidden");
+            document.getElementById("gameCanvas")?.remove();
             tournament[1].push(result);
           }
           tournament[0] = tournament[1];
           tournament[1] = [];
         }
-        console.log(`winner: ${tournament[0][0]}`);
+        document.getElementById("winner-div")?.classList.remove("hidden");
+        document.getElementById("winner-text").innerText = `${players[tournament[0][0]]} won the tournament !! ggs :D`;
       };
       btn.innerText = "start tournament !!";
 
@@ -445,7 +540,5 @@ export default class extends Aview {
         return;
 			generateBracket(+input.value);
 		});
-
-
 	}
 }

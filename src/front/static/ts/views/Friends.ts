@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
-import { setOnekoState } from "../oneko.ts"
 import { dragElement } from "./drag.ts";
-import { isLogged, navigationManager } from "../main.ts"
+import { setOnekoState } from "../oneko.ts"
+import { isLogged, navigationManager, user_api, auth_api } from "../main.ts"
 
 export default class extends Aview {
 
@@ -58,7 +58,7 @@ export default class extends Aview {
 		const add_friend_msg = (document.getElementById("add-friend-msg") as HTMLParagraphElement);
 
 		async function removeFriend(name: String) {
-			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/" + name, {
+			const data_req = await fetch(user_api + "/users/" + uuid + "/friends/" + name, {
 				method: "DELETE",
 				credentials: "include",
 			});
@@ -76,7 +76,7 @@ export default class extends Aview {
 		}
 
 		async function isFriendLogged(name: string): Promise<Boolean> {
-			const data_req = await fetch("http://localhost:3002/ping/" + name, {
+			const data_req = await fetch(user_api + "/ping/" + name, {
 				method: "GET",
 				credentials: "include",
 			});
@@ -88,7 +88,7 @@ export default class extends Aview {
 		}
 
 		const list_friends = async () => {
-			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/count", {
+			const data_req = await fetch(user_api + "/users/" + uuid + "/friends/count", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default class extends Aview {
 			}
 
 			if (data.n_friends > 0) {
-				const list_req = await fetch("http://localhost:3002/users/" + uuid + "/friends?iStart=0&iEnd=2147483647", {
+				const list_req = await fetch(user_api + "/users/" + uuid + "/friends?iStart=0&iEnd=2147483647", {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -156,7 +156,7 @@ export default class extends Aview {
 		}
 
 		const add_friend = async () => {
-			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/" + new_friend.value, {
+			const data_req = await fetch(user_api + "/users/" + uuid + "/friends/" + new_friend.value, {
 				method: "POST",
 				credentials: "include",
 			});
@@ -179,7 +179,7 @@ export default class extends Aview {
 		}
 
 		try {
-			const data_req = await fetch("http://localhost:3002/users/" + uuid + "/friends/count", {
+			const data_req = await fetch(user_api + "/users/" + uuid + "/friends/count", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",

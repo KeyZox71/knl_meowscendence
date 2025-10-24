@@ -1,6 +1,6 @@
 import Aview from "./Aview.ts";
-import { isLogged } from "../main.js";
 import { dragElement } from "./drag.js";
+import { isLogged , user_api, auth_api } from "../main.js";
 import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts";
 
 export default class extends Aview {
@@ -629,7 +629,7 @@ export default class extends Aview {
           if (await isLogged())
           {
             let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-            fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=tetris`, {
+            fetch(`${user_api}/users/${uuid}/matchHistory?game=tetris`, {
               method: "POST",
               headers: { "Content-Type": "application/json", },
               credentials: "include",

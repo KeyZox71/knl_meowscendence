@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
 import { isLogged } from "../main.js"
 import { dragElement } from "./drag.js"
-import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
+import { setOnekoState, setBallPos, setOnekoOffset , user_api, auth_api } from "../oneko.ts"
 
 export default class extends Aview {
 
@@ -151,7 +151,7 @@ export default class extends Aview {
           if (await isLogged())
           {
             let uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-            fetch(`http://localhost:3002/users/${uuid}/matchHistory?game=pong`, {
+            fetch(user_api + "/users/" + uuid + "/matchHistory?game=pong", {
               method: "POST",
               headers: { "Content-Type": "application/json", },
               credentials: "include",
@@ -287,11 +287,11 @@ export default class extends Aview {
       let p1_isvalid = true;
       let p2_isvalid = true;
       if (await isLogged()) {
-        const p1_req = await fetch(`http://localhost:3002/users/${p1_input.value}`, {
+        const p1_req = await fetch(`${user_api}/users/${p1_input.value}`, {
           method: "GET",
           credentials: "include",
         });
-        const p2_req = await fetch(`http://localhost:3002/users/${p2_input.value}`, {
+        const p2_req = await fetch(`${user_api}/users/${p2_input.value}`, {
           method: "GET",
           credentials: "include",
         });

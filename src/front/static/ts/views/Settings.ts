@@ -1,9 +1,9 @@
 import Aview from "./Aview.ts"
 import { dragElement } from "./drag.ts";
 import { setOnekoState } from "../oneko.ts"
-import { isLogged, navigationManager } from "../main.ts"
 import { totpEnablePopup } from "./TotpEnable.ts";
 import { totpVerify } from "../../../../api/auth/totpVerify.js";
+import { isLogged, navigationManager, user_api, auth_api } from "../main.ts"
 
 export default class extends Aview {
 
@@ -53,7 +53,7 @@ export default class extends Aview {
     dragElement(document.getElementById("window"));
 
     const isTOTPEnabled = async () => {
-			const totpVerify_req = await fetch('http://localhost:3001/2fa', {
+			const totpVerify_req = await fetch(auth_api + '/2fa', {
 				method: "GET",
 				credentials: "include"
 			})
@@ -66,10 +66,10 @@ export default class extends Aview {
 			}
 			return false;
 		};
-  
+
     let uuid: String;
     uuid = document.cookie.match(new RegExp('(^| )' + "uuid" + '=([^;]+)'))[2];
-    const userdata_req = await fetch(`http://localhost:3002/users/${uuid}`, {
+    const userdata_req = await fetch(`${user_api}/users/${uuid}`, {
       method: "GET",
       credentials: "include",
     });
@@ -83,7 +83,7 @@ export default class extends Aview {
     (document.getElementById("displayName-input") as HTMLInputElement).value = userdata.displayName;
 
     document.getElementById("displayName-button")?.addEventListener("click", async () => {
-      const changeDisplayName_req = await fetch(`http://localhost:3002/users/${uuid}/displayName`, {
+      const changeDisplayName_req = await fetch(`${user_api}/users/${uuid}/displayName`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", },
         credentials: "include",
@@ -98,7 +98,7 @@ export default class extends Aview {
     });
 
     document.getElementById("deleteAccount-button")?.addEventListener("click", async () => {
-      const delete_req = await fetch(`http://localhost:3001/`, {
+      const delete_req = await fetch(auth_api + "/", {
         method: "DELETE",
         credentials: "include",
       });
@@ -134,7 +134,7 @@ export default class extends Aview {
     });
 
     (document.getElementById("upload-submit") as HTMLButtonElement).onclick = async () => {
-      const up_req = await fetch(`http://localhost:3002/users/${uuid}/avatar`, {
+      const up_req = await fetch(`${user_api}/users/${uuid}/avatar`, {
         method: "POST",
         headers: { "Content-Type": upload.files[0].type } ,
         credentials: "include",
@@ -142,14 +142,14 @@ export default class extends Aview {
       });
       console.log(up_req.status);
     };
-  
+
   	const totpButton = document.getElementById("2fa-button") as HTMLButtonElement;
 
 		if ((await isTOTPEnabled()) === true) {
 			totpButton.innerHTML = "disable 2fa";
 
 			document.getElementById("2fa-button")?.addEventListener("click", async () => {
-				const totp_req = await fetch(`http://localhost:3001/2fa`, {
+				const totp_req = await fetch(`${user_api}/2fa`, {
 					method: "DELETE",
 					credentials: "include"
 				})
@@ -162,9 +162,9 @@ export default class extends Aview {
 			});
 		} else {
 			totpButton.innerHTML = "enable 2fa";
-	
+
 			document.getElementById("2fa-button")?.addEventListener("click", async () => {
-				const totp_req = await fetch(`http://localhost:3001/2fa`, {
+				const totp_req = await fetch(`${user_api}/2fa`, {
 					method: "POST",
 					credentials: "include"
 				})
