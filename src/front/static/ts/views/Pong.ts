@@ -1,7 +1,7 @@
 import Aview from "./Aview.ts"
-import { isLogged } from "../main.js"
+import { isLogged, user_api, auth_api  } from "../main.js"
 import { dragElement } from "./drag.js"
-import { setOnekoState, setBallPos, setOnekoOffset , user_api, auth_api } from "../oneko.ts"
+import { setOnekoState, setBallPos, setOnekoOffset } from "../oneko.ts"
 
 export default class extends Aview {
 
