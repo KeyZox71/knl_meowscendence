@@ -3,6 +3,7 @@ global:
   smtp_from: 
   smtp_auth_username: 
   smtp_auth_password: 
+  smtp_require_tls: true
 
 route:
   receiver: 'email-alerts'
