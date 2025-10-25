@@ -5,6 +5,6 @@ include:
   - ./networks.yml
   - ./front/compose.yml
   - ./proxy/compose.prod.yml
-  - ./monitoring/compose.yml
+  # - ./monitoring/compose.yml
   - ./api-base/compose.yml
-  - ./ELK/compose.yml
+  # - ./ELK/compose.yml
