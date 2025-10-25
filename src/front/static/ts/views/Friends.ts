@@ -68,11 +68,7 @@ export default class extends Aview {
 				console.log("could not remove friend");
 			}
 			list_friends();
-			list_friends();
-			list_friends();
-			list_friends();
-			list_friends();
-			list_friends();
+      requestAnimationFrame(list_friends);
 		}
 
 		async function isFriendLogged(name: string): Promise<Boolean> {
@@ -132,7 +128,7 @@ export default class extends Aview {
 
 						const span = document.createElement('span');
 						span.className = "px-3";
-						span.textContent = list[i].friendName;
+						span.textContent = list[i].friendDisplayName;
 
 						const but = document.createElement('button');
 						but.textContent = "-";
