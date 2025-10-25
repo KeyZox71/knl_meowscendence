@@ -29,18 +29,20 @@ export default class extends Aview {
 					<input type="text" id="displayName-input" class="bg-white text-neutral-900 px-4 py-2 input-border" required></input>
 					<button id="displayName-button" type="submit" class="default-button w-full">change display name</button>
 				</div>
-				<div id="upload" class="flex flex-row items-center place-items-center space-x-8">
-				  <div id="upload-preview" class="hidden flex flex-col items-center place-items-center space-y-4">
+				<div class="reverse-border">
+					<div id="upload" class="flex flex-row items-center place-items-center space-x-8 p-4">
+					<div id="upload-preview" class="hidden flex flex-col items-center place-items-center space-y-4">
 						<img id="upload-preview-img" class="w-20 h-20" />
 						<button id="upload-submit" type="submit" class="default-button">change avatar</button>
 					</div>
-			    <label for="upload-file" class="default-button">select an avatar...</label><input type="file" id="upload-file" class="hidden" accept="image/*" />
-				</div>
-				<button id="deleteAccount-button" type="submit" class="default-button w-full">delete your account</button>
-				<div class="flex justify-center">
-					<hr class="w-50 reverse-border">
+					<label for="upload-file" class="default-button">select an avatar...</label><input type="file" id="upload-file" class="hidden" accept="image/*" />
+					</div>
 				</div>
 				<button id="2fa-button" type="submit" class="default-button w-full">2fa</button>
+				<div class="flex justify-center py-4">
+					<hr class="w-50 reverse-border">
+				</div>
+				<button id="deleteAccount-button" type="submit" class="default-button w-full ">delete your account</button>
 			</div>
 		</div>
 		`;
