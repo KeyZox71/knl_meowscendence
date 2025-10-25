@@ -5,7 +5,7 @@ import sharp from 'sharp';
  *	@param {import('fastify').FastifyReply} reply
  *	@param {import('fastify').FastifyInstance} fastify
  */
-export async function pAvatar(request, reply, fastify, getUserInfo, setAvatarId, postImage) {
+export async function pAvatar(request, reply, fastify, getUserInfo, getAvatarId, setAvatarId, deleteAvatarId, postImage, deleteImage) {
 	try {
 		const userId = request.params.userId;
 		if (request.user !== userId && request.user !== 'admin') {
@@ -34,6 +34,12 @@ export async function pAvatar(request, reply, fastify, getUserInfo, setAvatarId,
 		const mimeType = request.headers['content-type'];
 		const fileName = `avatar_${userId}.webp`;
 		const imageId = postImage.run(fileName, mimeType, webpBuffer);
+
+		const oldImageId = getAvatarId.get(userId);
+		if (oldImageId.avatarId !== -1) {
+			deleteImage.run(oldImageId.avatarId);
+			deleteAvatarId.run(userId);
+		}
 
 		setAvatarId.run(imageId.lastInsertRowid, userId);
 
