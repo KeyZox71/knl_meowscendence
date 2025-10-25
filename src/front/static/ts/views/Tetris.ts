@@ -558,7 +558,7 @@ export default class extends Aview {
       }
 
       async loop(timestamp: number) {
-        if (!view.running) return this.removeListeners();
+        if (!view.running) return;
         if (!this.lastDrop) this.lastDrop = timestamp;
         if (!this.isPaused)
         {
