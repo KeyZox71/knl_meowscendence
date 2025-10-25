@@ -358,6 +358,7 @@ export default class extends Aview {
       hold() {
         if (!this.canHold) return;
 
+        this.isLocking = false;
         [this.piece, this.holdPiece] = [this.holdPiece, this.piece];
         if (!this.piece) this.spawnPiece();
         if (!this.piece) return;
@@ -410,6 +411,8 @@ export default class extends Aview {
 
       lockPiece() {
         if (!this.piece) return;
+        this.canHold = false;
+
         this.isLocking = false;
         let isValid: boolean = false;
         for (const cell of this.piece.getCells()) {
@@ -442,7 +445,7 @@ export default class extends Aview {
           const newLevel = Math.floor(this.lines / 10) + 1;
           if (newLevel > this.level) {
             this.level = newLevel;
-            this.dropInterval = Math.max(100, 1000 - (this.level - 1) * 75);
+            this.dropInterval = Math.max(100, 1000 - (this.level - 1) * 250);
           }
         }
       }
@@ -512,50 +515,6 @@ export default class extends Aview {
         }
       }
 
-      removeListeners() {
-        window.removeEventListener("keydown", (e) => {
-          this.keys[e.key] = true;
-
-          if (this.isGameOver) return;
-
-          if (e.key === "p" || e.key === "P" || e.key === "Escape")
-            this.isPaused = !this.isPaused;
-
-          if (this.isPaused) return;
-
-          if (e.key === "ArrowLeft")
-          {
-            this.inputTimestamp = Date.now();
-            this.direction = -1;//this.movePiece(-1, 0);
-            this.move = true;
-          }
-          else if (e.key === "ArrowRight")
-          {
-            this.inputTimestamp = Date.now();
-            this.direction = 1;//this.movePiece(1, 0);
-            this.move = true;
-          }
-          else if (e.key === "ArrowDown") this.softDrop();
-          else if (e.code === "Space") {
-            e.preventDefault();
-            this.hardDrop();
-          } else if (e.key === "Shift" || e.key === "c" || e.key === "C") {
-            e.preventDefault();
-            this.hold();
-          } else if (e.key === "x" || e.key === "X" || e.key === "ArrowUp") {
-            e.preventDefault();
-            this.rotatePiece("cw");
-          }  else if (e.key === "z" || e.key === "Z" || e.key === "Control") {
-          e.preventDefault();
-            this.rotatePiece("ccw");
-          }
-        });
-
-        document.removeEventListener("keyup", (e) => {
-          this.keys[e.key] = false;
-        });
-      }
-
       registerListeners() {
         window.addEventListener("keydown", (e) => {
           this.keys[e.key] = true;
@@ -606,9 +565,6 @@ export default class extends Aview {
           this.inputManager();
           if (this.isLocking ? timestamp - this.lastDrop > 500 : timestamp - this.lastDrop > this.dropInterval)
           {
-            if (this.isLocking && this.lockRotationCount == this.lockLastRotationCount)
-              this.lockPiece();
-            this.lockLastRotationCount = this.lockRotationCount;
             if (!this.movePiece(0, 1))
             {
               if (!this.isLocking)
@@ -619,8 +575,11 @@ export default class extends Aview {
               }
             }
             else if (this.isLocking)
-              this.lockRotationCount = 0;
+              this.isLocking = false;
             this.lastDrop = timestamp;
+            if (this.isLocking && this.lockRotationCount == this.lockLastRotationCount)
+              this.lockPiece();
+            this.lockLastRotationCount = this.lockRotationCount;
           }
         }
         this.draw();

@@ -229,7 +229,7 @@ export default async function(fastify, options) {
 		return pMatchHistory(request, reply, fastify, getUserInfo, addMatch, incWinsPong, incLossesPong, incWinsTetris, incLossesTetris);
 	});
 	fastify.post('/users/:userId/avatar', { bodyLimit: 5242880, preHandler: [fastify.authenticate] }, async (request, reply) => {
-		return pAvatar(request, reply, fastify, getUserInfo, setAvatarId, postImage);
+		return pAvatar(request, reply, fastify, getUserInfo, getAvatarId, setAvatarId, deleteAvatarId, postImage, deleteImage);
 	});
 	fastify.post('/ping', { preHandler: [fastify.authenticate] }, async (request, reply) => {
 		return pPing(request, reply, fastify, setActivityTime);
