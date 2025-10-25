@@ -42,7 +42,7 @@ export default class extends Aview {
 				<div class="flex justify-center py-4">
 					<hr class="w-50 reverse-border">
 				</div>
-				<button id="deleteAccount-button" type="submit" class="default-button w-full ">delete your account</button>
+				<button id="deleteAccount-button" type="submit" class="red-button w-full" >delete your account</button>
 			</div>
 		</div>
 		`;
